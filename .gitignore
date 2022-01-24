@@ -1,0 +1,10 @@
+.Rhistory
+.snakemake
+__pycache__
+assembly_summary.txt
+
+data
+ncbi
+sequences
+aligned-sequences
+filtered-sequences

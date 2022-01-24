@@ -1,0 +1,8 @@
+samples:
+  A: data/A.fastq
+  B: data/B.fastq
+
+markers:
+  a: "marker1"
+  b: "marker2"
+  c: "marker3"
