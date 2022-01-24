@@ -36,9 +36,6 @@ rule all:
 rule all_gene_files:
     input: expand("sequences/{gene}.fasta", gene=GENES)
 
-rule all_downloads:
-    input: expand("ncbi/{id}_cds_from_genomic.fasta", id=IDS)
-
 rule get_ncbi_sequences:
     input:
         "data/sample.fastq"
@@ -57,9 +54,9 @@ rule extract_marker_genes:
 
 rule merge_marker_genes:
     input:
-        "sequences/{gene}__{id}.fasta"
+        expand("sequences/{{gene}}__{id}.fasta", id=IDS)
     output:
-        "sequences/{{gene}}.fasta"
+        temp("sequences/{gene}.fasta")
     shell:
         "cat sequences/{wildcards.gene}__*.fasta > {output}"
 
