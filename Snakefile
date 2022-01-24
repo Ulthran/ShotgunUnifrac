@@ -10,7 +10,7 @@ SPECIES = [
     "Escherichia coli",
     "Klebsiella pneumoniae"
 ]
-IDS_FULL = [
+IDS = [
     "GCF_000196555.1_ASM19655v1",
     "GCF_902387545.1_UHGG_MGYG-HGUT-02478",
     "GCF_020885855.1_ASM2088585v1",
@@ -22,16 +22,10 @@ IDS_FULL = [
     "GCF_000005845.2_ASM584v2",
     "GCF_000240185.1_ASM24018v2"
 ]
-IDS = [
-    "GCF_000196555.1_ASM19655v1",
-    "GCF_902387545.1_UHGG_MGYG-HGUT-02478",
-    "GCF_020885855.1_ASM2088585v1",
-    "GCF_020735445.1_ASM2073544v1"
-]
-GENES = ["secE", "secG"]
+GENES = ["secE"]
 
 rule all:
-    input: "rooted.tree"
+    input: "RAxML_bestTree.rooted"
 
 rule all_gene_files:
     input: expand("sequences/{gene}.fasta", gene=GENES)
@@ -84,6 +78,7 @@ rule create_tree:
     input:
         expand("filtered-sequences/{gene}.fasta", gene=GENES)
     output:
-        "rooted.tree"
+        "RAxML_bestTree.rooted"
     shell:
-        "raxml filtered-sequences/{wildcards.gene}.fasta -f I"
+        #"raxmlHPC -s {input} -m GTRCAT -n rooted -f I -t unrooted"
+        "raxmlHPC -s {input} -m GTRCAT -n rooted"
