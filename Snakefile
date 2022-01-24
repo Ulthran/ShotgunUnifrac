@@ -36,11 +36,14 @@ rule all:
 rule all_gene_files:
     input: expand("sequences/{gene}.fasta", gene=GENES)
 
+rule all_filtered_files:
+    input: expand("filtered-sequences/{gene}.fasta", gene=GENES)
+
 rule get_ncbi_sequences:
     input:
         "data/sample.fastq"
     output:
-        expand("ncbi/{id}_cds_from_genomic.fasta", id=IDS)
+        temp("ncbi/{id}_cds_from_genomic.fasta")
     shell:
         "./download-genes.sh {output}"
 
@@ -48,15 +51,15 @@ rule extract_marker_genes:
     input:
         "ncbi/{id}_cds_from_genomic.fasta"
     output:
-        expand("sequences/{gene}__{{id}}.fasta", gene=GENES)
+        temp("sequences/{gene}__{id}.fasta")
     shell:
-        "python3 -c 'import filterGenes; filterGenes.filter_seq_genes_sm(\"ncbi/{wildcards.id}_cds_from_genomic.fasta\", {output})' > {output}"
+        "python3 -c 'import filterGenes; filterGenes.filter_seq_genes_sm(\"ncbi/{wildcards.id}_cds_from_genomic.fasta\", \"{output}\")' > {output}"
 
 rule merge_marker_genes:
     input:
-        expand("sequences/{{gene}}__{id}.fasta", id=IDS)
+        expand("sequences/{gene}__{id}.fasta", id=IDS, gene=GENES)
     output:
-        temp("sequences/{gene}.fasta")
+        "sequences/{gene}.fasta"
     shell:
         "cat sequences/{wildcards.gene}__*.fasta > {output}"
 
@@ -66,16 +69,16 @@ rule align_fasta:
     output:
         temp("aligned-sequences/{gene}.fasta")
     shell:
-        "muscle sequences/{gene}.fasta --output aligned-sequences/{gene}.fasta"
+        "muscle -in sequences/{wildcards.gene}.fasta -out aligned-sequences/{wildcards.gene}.fasta"
 
 rule filter_columns:
     # Identity op for now, okfasta
     input:
         "aligned-sequences/{gene}.fasta"
     output:
-        temp("filtered-sequences/{gene}.fasta")
+        "filtered-sequences/{gene}.fasta"
     shell:
-        "cp aligned-sequences/{gene}.fasta filtered-sequences/{gene}.fasta"
+        "cp aligned-sequences/{wildcards.gene}.fasta filtered-sequences/{wildcards.gene}.fasta"
 
 rule create_tree:
     input:
@@ -83,4 +86,4 @@ rule create_tree:
     output:
         "rooted.tree"
     shell:
-        "raxml filtered-sequences/{gene}.fasta -f I"
+        "raxml filtered-sequences/{wildcards.gene}.fasta -f I"
