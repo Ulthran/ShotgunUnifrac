@@ -10,4 +10,5 @@
 
 To generate tree:
 
+    conda activate shotguntree_env
     snakemake -c1
