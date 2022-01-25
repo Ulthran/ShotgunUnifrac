@@ -1,5 +1,3 @@
-
-
 import collections
 import re
 
@@ -7,6 +5,7 @@ def get_seq_gene(desc):
     return desc.split()[1]
 
 def filter_seq_genes(seqsFile, seq_genes):
+    id = seqsFile.split("/")[1].split("_cds")[0]
     fasta = open(seqsFile, "r")
     seqs = fasta.readlines()
     seqList = []
@@ -27,10 +26,10 @@ def filter_seq_genes(seqsFile, seq_genes):
         if match:
             gene_name = seq_gene.strip('[gene=').strip(']')
             if gene_name in seq_genes:
-                print(gene[0])
+                retVal = ">" + id + " " + " ".join(gene[0].split(" ")[1:])
+                print(retVal)
                 print(gene[1])
-                return gene[0], gene[1]
 
 def filter_seq_genes_sm(seqsFile, output):
     seq_genes = [output.split("/")[1].split("__")[0]]
-    return filter_seq_genes(seqsFile, seq_genes)
+    filter_seq_genes(seqsFile, seq_genes)

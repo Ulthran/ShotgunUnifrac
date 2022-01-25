@@ -94,7 +94,7 @@ rule create_trees:
         "logs/create_trees/RAxML_bestTree.{gene}.log"
     shell:
         "cd trees/ && "
-        "raxmlHPC -s ../{input} -m GTRCAT -n {gene} && "
+        "raxmlHPC -s ../{input} -m GTRCAT -n {wildcards.gene} && "
         "cd .."
 
 rule merge_trees:
@@ -105,7 +105,8 @@ rule merge_trees:
     log:
         "logs/merge_trees/final.rooted.log"
     shell:
+        "cat {input} > trees/merged.in && "
+        "java -jar Astral/astral.5.7.8.jar -i trees/merged.in -o trees/final.unrooted 2>logs/merge_trees/final.unrooted.out.log && "
         "cd trees/ && "
-        "java -jar ../Astral/astral.5.7.8.jar -i {input} -o final.unrooted 2>../logs/merge_trees/final.unrooted.out.log && "
-        "raxmlHPC -f I -m GTRCAT -t final.unrooted -n final &&"
+        "raxmlHPC -f I -m GTRCAT -t final.unrooted -n final && "
         "cd .."
