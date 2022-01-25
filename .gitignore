@@ -4,7 +4,9 @@ __pycache__
 assembly_summary.txt
 
 data
+logs
 ncbi
 sequences
 aligned-sequences
 filtered-sequences
+trees

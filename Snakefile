@@ -25,7 +25,7 @@ IDS = [
 GENES = ["secE"]
 
 rule all:
-    input: "RAxML_bestTree.rooted"
+    input: "trees/RAxML_bestTree.rooted"
 
 rule all_gene_files:
     input: expand("sequences/{gene}.fasta", gene=GENES)
@@ -38,6 +38,8 @@ rule get_ncbi_sequences:
         "data/sample.fastq"
     output:
         temp("ncbi/{id}_cds_from_genomic.fasta")
+    log:
+        "logs/get_ncbi_sequences/{id}.log"
     shell:
         "./download-genes.sh {output}"
 
@@ -46,6 +48,8 @@ rule extract_marker_genes:
         "ncbi/{id}_cds_from_genomic.fasta"
     output:
         temp("sequences/{gene}__{id}.fasta")
+    log:
+        "logs/extract_marker_genes/{gene}__{id}.log"
     shell:
         "python3 -c 'import filterGenes; filterGenes.filter_seq_genes_sm(\"ncbi/{wildcards.id}_cds_from_genomic.fasta\", \"{output}\")' > {output}"
 
@@ -54,7 +58,10 @@ rule merge_marker_genes:
         expand("sequences/{gene}__{id}.fasta", id=IDS, gene=GENES)
     output:
         "sequences/{gene}.fasta"
+    log:
+        "logs/merge_marker_genes/{gene}.log"
     shell:
+        # Rename sequences to human-readable leaf names
         "cat sequences/{wildcards.gene}__*.fasta > {output}"
 
 rule align_fasta:
@@ -62,6 +69,8 @@ rule align_fasta:
         "sequences/{gene}.fasta"
     output:
         temp("aligned-sequences/{gene}.fasta")
+    log:
+        "logs/align_fasta/{gene}.log"
     shell:
         "muscle -in sequences/{wildcards.gene}.fasta -out aligned-sequences/{wildcards.gene}.fasta"
 
@@ -71,6 +80,8 @@ rule filter_columns:
         "aligned-sequences/{gene}.fasta"
     output:
         "filtered-sequences/{gene}.fasta"
+    log:
+        "logs/filter_columns/{gene}.log"
     shell:
         "cp aligned-sequences/{wildcards.gene}.fasta filtered-sequences/{wildcards.gene}.fasta"
 
@@ -78,7 +89,8 @@ rule create_tree:
     input:
         expand("filtered-sequences/{gene}.fasta", gene=GENES)
     output:
-        "RAxML_bestTree.rooted"
+        "trees/RAxML_rootedTree.rooted"
+    log:
+        "logs/create_tree/RAxML_rootedTree.rooted.log"
     shell:
-        #"raxmlHPC -s {input} -m GTRCAT -n rooted -f I -t unrooted"
-        "raxmlHPC -s {input} -m GTRCAT -n rooted"
+        "cd trees/ && raxmlHPC -s ../{input} -m GTRCAT -n unrooted && raxmlHPC -f I -m GTRCAT -t RAxML_bestTree.unrooted -n rooted && cd .."
