@@ -4,5 +4,6 @@ channels:
   - bioconda
 dependencies:
   - conda-forge::python=3.8.3
+  - conda-forge::openjdk=10.0.2
   - bioconda::muscle=3.8.1551
   - bioconda::raxml=8.2.12

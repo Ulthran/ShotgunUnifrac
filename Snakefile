@@ -22,10 +22,10 @@ IDS = [
     "GCF_000005845.2_ASM584v2",
     "GCF_000240185.1_ASM24018v2"
 ]
-GENES = ["secE"]
+GENES = ["secE", "secG"]
 
 rule all:
-    input: "trees/RAxML_bestTree.rooted"
+    input: "trees/RAxML_rootedTree.final"
 
 rule all_gene_files:
     input: expand("sequences/{gene}.fasta", gene=GENES)
@@ -85,12 +85,27 @@ rule filter_columns:
     shell:
         "cp aligned-sequences/{wildcards.gene}.fasta filtered-sequences/{wildcards.gene}.fasta"
 
-rule create_tree:
+rule create_trees:
     input:
-        expand("filtered-sequences/{gene}.fasta", gene=GENES)
+        "filtered-sequences/{gene}.fasta"
     output:
-        "trees/RAxML_rootedTree.rooted"
+        "trees/RAxML_bestTree.{gene}"
     log:
-        "logs/create_tree/RAxML_rootedTree.rooted.log"
+        "logs/create_trees/RAxML_bestTree.{gene}.log"
     shell:
-        "cd trees/ && raxmlHPC -s ../{input} -m GTRCAT -n unrooted && raxmlHPC -f I -m GTRCAT -t RAxML_bestTree.unrooted -n rooted && cd .."
+        "cd trees/ && "
+        "raxmlHPC -s ../{input} -m GTRCAT -n {gene} && "
+        "cd .."
+
+rule merge_trees:
+    input:
+        expand("trees/RAxML_bestTree.{gene}", gene=GENES)
+    output:
+        "trees/RAxML_rootedTree.final"
+    log:
+        "logs/merge_trees/final.rooted.log"
+    shell:
+        "cd trees/ && "
+        "java -jar ../Astral/astral.5.7.8.jar -i {input} -o final.unrooted 2>../logs/merge_trees/final.unrooted.out.log && "
+        "raxmlHPC -f I -m GTRCAT -t final.unrooted -n final &&"
+        "cd .."
