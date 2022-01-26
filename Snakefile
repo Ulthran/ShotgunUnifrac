@@ -41,7 +41,8 @@ rule get_ncbi_sequences:
     log:
         "logs/get_ncbi_sequences/{id}.log"
     shell:
-        "./download-genes.sh {output}"
+        "./download-genes.sh {output} && "
+        "./download-txids.sh {output}"
 
 rule extract_marker_genes:
     input:
@@ -107,6 +108,7 @@ rule merge_trees:
     shell:
         "cat {input} > trees/merged.in && "
         "java -jar Astral/astral.5.7.8.jar -i trees/merged.in -o trees/final.unrooted 2>logs/merge_trees/final.unrooted.out.log && "
+        "iqtree -s filtered-sequences/secE.fasta -pre trees/iqtree -m MFP -g trees/final.unrooted && "
         "cd trees/ && "
-        "raxmlHPC -f I -m GTRCAT -t final.unrooted -n final && "
+        "raxmlHPC -f I -m GTRCAT -t iqtree.treefile -n final && "
         "cd .."
