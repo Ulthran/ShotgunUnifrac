@@ -70,6 +70,8 @@ rule align_fasta:
         "sequences/{gene}.fasta"
     output:
         temp("aligned-sequences/{gene}.fasta")
+    conda:
+        "environment.yml"
     log:
         "logs/align_fasta/{gene}.log"
     shell:
