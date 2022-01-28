@@ -24,6 +24,8 @@ IDS = [
 ]
 GENES = ["secE", "secG"]
 
+configfile: "config.yml"
+
 rule all:
     input: "trees/RAxML_rootedTree.final"
 
@@ -35,14 +37,13 @@ rule all_filtered_files:
 
 rule get_ncbi_sequences:
     input:
-        "data/sample.fastq"
+        "dag.png"
     output:
         temp("ncbi/{id}_cds_from_genomic.fasta")
     log:
         "logs/get_ncbi_sequences/{id}.log"
     shell:
-        "./download-genes.sh {output} && "
-        "./download-txids.sh {output}"
+        "python downloadGenes.py {output} {config[KRAKEN]}"
 
 rule extract_marker_genes:
     input:
@@ -52,17 +53,16 @@ rule extract_marker_genes:
     log:
         "logs/extract_marker_genes/{gene}__{id}.log"
     shell:
-        "python3 -c 'import filterGenes; filterGenes.filter_seq_genes_sm(\"ncbi/{wildcards.id}_cds_from_genomic.fasta\", \"{output}\")' > {output}"
+        "python3 -c 'import filterGenes; filterGenes.filter_seq_genes_sm(\"ncbi/{wildcards.id}_cds_from_genomic.fasta\", \"{output}\", \"{config[KRAKEN]}\")' > {output}"
 
 rule merge_marker_genes:
     input:
-        expand("sequences/{gene}__{id}.fasta", id=IDS, gene=GENES)
+        expand("sequences/{gene}__{id}.fasta", id=config["IDS"], gene=GENES)
     output:
         "sequences/{gene}.fasta"
     log:
         "logs/merge_marker_genes/{gene}.log"
     shell:
-        # Rename sequences to human-readable leaf names
         "cat sequences/{wildcards.gene}__*.fasta > {output}"
 
 rule align_fasta:
@@ -90,7 +90,7 @@ rule create_trees:
     input:
         "filtered-sequences/{gene}.fasta"
     output:
-        "trees/RAxML_bestTree.{gene}"
+        temp("trees/RAxML_bestTree.{gene}")
     log:
         "logs/create_trees/RAxML_bestTree.{gene}.log"
     shell:

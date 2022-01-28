@@ -1,22 +1,40 @@
+# Utils for parsing fasta files
 import collections
 import re
+import csv
 
 # Gets the taxon id (NCBI) for the given genome id from the assembly report
+# DEPRECATED: Use get_txid() to get txid from the input kraken report
 # @param id is the genome id from NCBI
 # @return is the taxon id
-def get_txid(id):
+def get_txid_assembly(id):
     assembly_report = open("ncbi/" + id + "_assembly_report.txt")
     lines = assembly_report.readlines()
     for line in lines:
         if "# Taxid:" in line:
             return re.findall(r'\d+', line)[0]
 
+# Gets the taxon id (NCBI) for the given id from the kraken report
+# @param id is the genome id from NCBI
+# @param kraken is the path to the kraken report
+# @return is the taxon id
+def get_txid(id, kraken):
+    with open(kraken, newline="") as krakenF:
+        tsv = csv.reader(krakenF, dialect=csv.excel_tab)
+        firstLine = next(tsv)
+        idIndex = firstLine.index("assembly_accession")
+        txIndex = firstLine.index("taxid")
+        for line in tsv:
+            partialId = id.split("_")[0] + "_" + id.split("_")[1]
+            if line[idIndex] == partialId:
+                return line[txIndex]
+
 # Filters sequences in a fasta file for a specific input gene
 # N.B. This will only print the first occurunce of a gene in the file
 # @param seqsFile is the path to the file to be parsed
 # @param seq_genes is a list of genes to be filtered for (N.B. I've only tested this with list size 1)
 # @return is undefined, this is intended to be run from the shell and then stdout is captured
-def filter_seq_genes(seqsFile, seq_genes):
+def filter_seq_genes(seqsFile, seq_genes, kraken):
     id = seqsFile.split("/")[1].split("_cds")[0]
     fasta = open(seqsFile, "r")
     seqs = fasta.readlines()
@@ -38,7 +56,7 @@ def filter_seq_genes(seqsFile, seq_genes):
         if match:
             gene_name = seq_gene.strip('[gene=').strip(']')
             if gene_name in seq_genes:
-                retVal = ">" + get_txid(id) + " " + " ".join(gene[0].split(" ")[1:])
+                retVal = ">" + get_txid(id, kraken) + " " + " ".join(gene[0].split(" ")[1:])
                 print(retVal)
                 print(gene[1])
                 break
@@ -48,6 +66,6 @@ def filter_seq_genes(seqsFile, seq_genes):
 # @param output is the output file path for the snakemake rule, it is intended to take the form
 #        dir/GENE__restOfFileName.fasta
 # @return is undefined, see filter_seq_genes
-def filter_seq_genes_sm(seqsFile, output):
+def filter_seq_genes_sm(seqsFile, output, kraken):
     seq_genes = [output.split("/")[1].split("__")[0]]
-    filter_seq_genes(seqsFile, seq_genes)
+    filter_seq_genes(seqsFile, seq_genes, kraken)
