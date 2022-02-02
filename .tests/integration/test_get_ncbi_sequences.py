@@ -11,31 +11,56 @@ sys.path.insert(0, os.path.dirname(__file__))
 import common
 
 
-def test_merge_trees():
+def test_get_ncbi_sequences():
 
     with TemporaryDirectory() as tmpdir:
         workdir = Path(tmpdir) / "workdir"
-        data_path = PurePosixPath(".tests/unit/merge_trees/data")
-        expected_path = PurePosixPath(".tests/unit/merge_trees/expected")
+        data_path = PurePosixPath(".tests/integration/get_ncbi_sequences/data")
+        expected_path = PurePosixPath(".tests/integration/get_ncbi_sequences/expected")
 
         # Copy data to the temporary workdir.
         shutil.copytree(data_path, workdir)
+        # Copy config file to temporary workdir
+        sp.run([
+            "cp",
+            ".tests/data/config.yml",
+            workdir
+        ])
+        # Copy test data to temporary workdir
+        sp.run([
+            "cp",
+            ".tests/data/TEST",
+            workdir
+        ])
 
         # dbg
-        print("trees/RAxML_rootedTree.final", file=sys.stderr)
+        print("ncbi/GCF_000010525.1_ASM1052v1_cds_from_genomic.fasta", file=sys.stderr)
 
         # Run the test job.
         sp.check_output([
             "python",
             "-m",
             "snakemake", 
-            "trees/RAxML_rootedTree.final",
+            "ncbi/GCF_000010525.1_ASM1052v1_cds_from_genomic.fasta",
             "-F", 
             "-j1",
             "--keep-target-files",
     
             "--directory",
             workdir,
+        ])
+
+        # Clean config, logs, and data from workdir
+        sp.run([
+            "rm",
+            str(workdir) + "/config.yml",
+            "&&",
+            "rm",
+            "-r",
+            str(workdir) + "/logs",
+            "&&",
+            "rm",
+            str(workdir) + "/TEST",
         ])
 
         # Check the output byte by byte using cmp.

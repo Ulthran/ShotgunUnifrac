@@ -15,3 +15,4 @@ To generate tree:
 
 ## Running tests
 
+    pytest .tests/

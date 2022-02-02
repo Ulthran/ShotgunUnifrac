@@ -42,8 +42,11 @@ rule get_ncbi_sequences:
         temp("ncbi/{id}_cds_from_genomic.fasta")
     log:
         "logs/get_ncbi_sequences/{id}.log"
-    shell:
-        "python downloadGenes.py {output} {config[KRAKEN]}"
+    #shell:
+    #    "python downloadGenes.py {output} {config[KRAKEN]}"
+    run:
+        import downloadGenes
+        downloadGenes.download_genes_sm(str(output), config["KRAKEN"])
 
 rule extract_marker_genes:
     input:
@@ -52,8 +55,11 @@ rule extract_marker_genes:
         temp("sequences/{gene}__{id}.fasta")
     log:
         "logs/extract_marker_genes/{gene}__{id}.log"
-    shell:
-        "python3 -c 'import filterGenes; filterGenes.filter_seq_genes_sm(\"ncbi/{wildcards.id}_cds_from_genomic.fasta\", \"{output}\", \"{config[KRAKEN]}\")' > {output}"
+    #shell:
+    #    "python3 -c 'import filterGenes; filterGenes.filter_seq_genes_sm(\"ncbi/{wildcards.id}_cds_from_genomic.fasta\", \"{output}\", \"{config[KRAKEN]}\")' > {output}"
+    run:
+        import filterGenes
+        filterGenes.filter_seq_genes_sm("ncbi/" + wildcards.id + "_cds_from_genomic.fasta", str(output), config["KRAKEN"])
 
 rule merge_marker_genes:
     input:

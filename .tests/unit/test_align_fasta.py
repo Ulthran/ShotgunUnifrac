@@ -20,6 +20,12 @@ def test_align_fasta():
 
         # Copy data to the temporary workdir.
         shutil.copytree(data_path, workdir)
+        # Copy config file to temporary workdir
+        sp.run([
+            "cp",
+            ".tests/data/config.yml",
+            workdir
+        ])
 
         # dbg
         print("aligned-sequences/secE.fasta", file=sys.stderr)
@@ -36,6 +42,16 @@ def test_align_fasta():
     
             "--directory",
             workdir,
+        ])
+
+        # Clean config and logs from workdir
+        sp.run([
+            "rm",
+            str(workdir) + "/config.yml",
+            "&&",
+            "rm",
+            "-r",
+            str(workdir) + "/logs",
         ])
 
         # Check the output byte by byte using cmp.

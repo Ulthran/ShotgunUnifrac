@@ -7,7 +7,7 @@ import csv
 # DEPRECATED: Use get_txid() to get txid from the input kraken report
 # @param id is the genome id from NCBI
 # @return is the taxon id
-def get_txid_assembly(id):
+def get_txid_from_assembly(id: str) -> str:
     assembly_report = open("ncbi/" + id + "_assembly_report.txt")
     lines = assembly_report.readlines()
     for line in lines:
@@ -18,7 +18,7 @@ def get_txid_assembly(id):
 # @param id is the genome id from NCBI
 # @param kraken is the path to the kraken report
 # @return is the taxon id
-def get_txid(id, kraken):
+def get_txid(id: str, kraken: str) -> str:
     with open(kraken, newline="") as krakenF:
         tsv = csv.reader(krakenF, dialect=csv.excel_tab)
         firstLine = next(tsv)
@@ -33,8 +33,8 @@ def get_txid(id, kraken):
 # N.B. This will only print the first occurunce of a gene in the file
 # @param seqsFile is the path to the file to be parsed
 # @param seq_genes is a list of genes to be filtered for (N.B. I've only tested this with list size 1)
-# @return is undefined, this is intended to be run from the shell and then stdout is captured
-def filter_seq_genes(seqsFile, seq_genes, kraken):
+# @return is a list containing the gene descriptor and the gene sequence
+def filter_seq_genes(seqsFile: str, seq_genes: str, kraken: str) -> list:
     id = seqsFile.split("/")[1].split("_cds")[0]
     fasta = open(seqsFile, "r")
     seqs = fasta.readlines()
@@ -59,13 +59,17 @@ def filter_seq_genes(seqsFile, seq_genes, kraken):
                 retVal = ">" + get_txid(id, kraken) + " " + " ".join(gene[0].split(" ")[1:])
                 print(retVal)
                 print(gene[1])
+                return [retVal, gene[1]]
                 break
 
 # A wrapper for filter_seq_genes to be called from a snakemake rule
 # @param seqsFile is the path to the file to be parsed
 # @param output is the output file path for the snakemake rule, it is intended to take the form
 #        dir/GENE__restOfFileName.fasta
-# @return is undefined, see filter_seq_genes
-def filter_seq_genes_sm(seqsFile, output, kraken):
+# @return is undefined, instead it writes to output
+def filter_seq_genes_sm(seqsFile: str, output: str, kraken: str) -> None:
     seq_genes = [output.split("/")[1].split("__")[0]]
-    filter_seq_genes(seqsFile, seq_genes, kraken)
+    with open(output, "w") as out:
+        vals = filter_seq_genes(seqsFile, seq_genes, kraken)
+        for val in vals:
+            out.write(val + "\n")

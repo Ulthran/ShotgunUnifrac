@@ -20,6 +20,18 @@ def test_extract_marker_genes():
 
         # Copy data to the temporary workdir.
         shutil.copytree(data_path, workdir)
+        # Copy config file to temporary workdir
+        sp.run([
+            "cp",
+            ".tests/data/config.yml",
+            workdir
+        ])
+        # Copy test data to temporary workdir
+        sp.run([
+            "cp",
+            ".tests/data/TEST",
+            workdir
+        ])
 
         # dbg
         print("sequences/secE__GCF_000010525.1_ASM1052v1.fasta", file=sys.stderr)
@@ -36,6 +48,19 @@ def test_extract_marker_genes():
     
             "--directory",
             workdir,
+        ])
+
+        # Clean config, logs, and data from workdir
+        sp.run([
+            "rm",
+            str(workdir) + "/config.yml",
+            "&&",
+            "rm",
+            "-r",
+            str(workdir) + "/logs",
+            "&&",
+            "rm",
+            str(workdir) + "/TEST",
         ])
 
         # Check the output byte by byte using cmp.
