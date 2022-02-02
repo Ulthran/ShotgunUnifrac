@@ -18,8 +18,8 @@ rule get_ncbi_sequences:
         temp("ncbi/{id}_cds_from_genomic.fasta")
     log:
         "logs/get_ncbi_sequences/{id}.log"
-    #shell:
-    #    "python downloadGenes.py {output} {config[KRAKEN]}"
+    conda:
+        ""
     run:
         import scripts.downloadGenes as dg
         dg.download_genes_sm(str(output), config["KRAKEN"])
@@ -31,8 +31,8 @@ rule extract_marker_genes:
         temp("sequences/{gene}__{id}.fasta")
     log:
         "logs/extract_marker_genes/{gene}__{id}.log"
-    #shell:
-    #    "python3 -c 'import filterGenes; filterGenes.filter_seq_genes_sm(\"ncbi/{wildcards.id}_cds_from_genomic.fasta\", \"{output}\", \"{config[KRAKEN]}\")' > {output}"
+    conda:
+        ""
     run:
         import scripts.filterGenes as fg
         fg.filter_seq_genes_sm("ncbi/" + wildcards.id + "_cds_from_genomic.fasta", str(output), config["KRAKEN"])
@@ -44,6 +44,8 @@ rule merge_marker_genes:
         temp("sequences/{gene}.fasta")
     log:
         "logs/merge_marker_genes/{gene}.log"
+    conda:
+        ""
     shell:
         "cat sequences/{wildcards.gene}__*.fasta > {output}"
 
@@ -52,10 +54,10 @@ rule align_fasta:
         "sequences/{gene}.fasta"
     output:
         temp("aligned-sequences/{gene}.fasta")
-    conda:
-        "environment.yml"
     log:
         "logs/align_fasta/{gene}.log"
+    conda:
+        "envs/muscle_env.yaml"
     shell:
         "muscle -in sequences/{wildcards.gene}.fasta -out aligned-sequences/{wildcards.gene}.fasta"
 
@@ -67,6 +69,8 @@ rule filter_columns:
         "filtered-sequences/{gene}.fasta"
     log:
         "logs/filter_columns/{gene}.log"
+    conda:
+        ""
     shell:
         "cp aligned-sequences/{wildcards.gene}.fasta filtered-sequences/{wildcards.gene}.fasta"
 
@@ -77,6 +81,8 @@ rule create_trees:
         temp("trees/RAxML_bestTree.{gene}")
     log:
         "logs/create_trees/RAxML_bestTree.{gene}.log"
+    conda:
+        "envs/raxml_env.yaml"
     shell:
         "cd trees/ && "
         "raxmlHPC -s ../{input} -m GTRCAT -n {wildcards.gene} && "
@@ -86,14 +92,37 @@ rule merge_trees:
     input:
         expand("trees/RAxML_bestTree.{gene}", gene=GENES)
     output:
-        "RAxML_rootedTree.final"
+        "trees/final.unrooted"
     log:
         "logs/merge_trees/final.rooted.log"
-
+    conda:
+        "envs/openjdk_env.yaml"
     shell:
         "cat {input} > trees/merged.in && "
-        "java -jar Astral/astral.5.7.8.jar -i trees/merged.in -o trees/final.unrooted 2>logs/merge_trees/final.unrooted.out.log && "
-        "iqtree -s filtered-sequences/secE.fasta -pre trees/iqtree -m MFP -g trees/final.unrooted && "
+        "java -jar Astral/astral.5.7.8.jar -i trees/merged.in -o trees/final.unrooted 2>logs/merge_trees/final.unrooted.out.log"
+
+rule infer_weights:
+    input:
+        "trees/final.unrooted"
+    output:
+        "trees/iqtree.treefile"
+    log:
+        "logs/infer_weights/iqtree.treefile.log"
+    conda:
+        "envs/iqtree_env.yaml"
+    shell:
+        "iqtree -s filtered-sequences/secE.fasta -pre trees/iqtree -m MFP -g trees/final.unrooted"
+
+rule root_tree:
+    input:
+        "trees/iqtree.treefile"
+    output:
+        "RAxML_rootedTree.final"
+    log:
+        "logs/root_tree/RAxML_rootedTree.final.log"
+    conda:
+        "envs/raxml_env.yaml"
+    shell:
         "cd trees/ && "
         "raxmlHPC -f I -m GTRCAT -t iqtree.treefile -n final && "
         "mv RAxML_rootedTree.final ../ && "

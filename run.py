@@ -22,4 +22,4 @@ with open(input, newline="") as inputF:
             config.write("\"" + val + "\", ")
         config.write("]")
 
-os.system("snakemake -c1")
+os.system("snakemake -c --use-conda")
