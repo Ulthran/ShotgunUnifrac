@@ -11,7 +11,7 @@
 To generate tree:
 
     conda activate shotguntree_env
-    python run.py data/kraken2_standard_20200204_select_genomes.txt
+    python run.py workflow/data/kraken2_standard_20200204_select_genomes.txt
 
 ## Running tests
 

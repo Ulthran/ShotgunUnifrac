@@ -1,7 +1,6 @@
 .Rhistory
 .snakemake
 __pycache__
-assembly_summary.txt
 
 data
 logs
@@ -10,3 +9,5 @@ sequences
 aligned-sequences
 filtered-sequences
 trees
+
+RAxML_rootedTree.final

@@ -1,4 +1,3 @@
-#!~/mambaforge/envs/shotguntree_env/bin/ python3
 # Downloads genome from NCBI for a given genome id
 # @param out is the output file continaing the accession of the desired genome for download
 #        taking the form ncbi/{ID}_cds_from_genomic.fasta

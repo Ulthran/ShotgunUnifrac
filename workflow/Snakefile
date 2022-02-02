@@ -1,33 +1,9 @@
-SPECIES = [
-    "Bifidobacterium longum",
-    "Bacteroides dorei",
-    "Bacteroides vulgatus",
-    "Prevotella copri",
-    "Clostridium scindens",
-    "Faecalibacterium prausnitzii",
-    "Eubacterium rectale",
-    "Veillonella parvula",
-    "Escherichia coli",
-    "Klebsiella pneumoniae"
-]
-IDS = [
-    "GCF_000196555.1_ASM19655v1",
-    "GCF_902387545.1_UHGG_MGYG-HGUT-02478",
-    "GCF_020885855.1_ASM2088585v1",
-    "GCF_020735445.1_ASM2073544v1",
-    "GCF_020892115.1_ASM2089211v1",
-    "GCF_003312465.1_ASM331246v1",
-    
-    "GCF_900186885.1_48903_D01",
-    "GCF_000005845.2_ASM584v2",
-    "GCF_000240185.1_ASM24018v2"
-]
 GENES = ["secE", "secG"]
 
 configfile: "config.yml"
 
 rule all:
-    input: "trees/RAxML_rootedTree.final"
+    input: "RAxML_rootedTree.final"
 
 rule all_gene_files:
     input: expand("sequences/{gene}.fasta", gene=GENES)
@@ -45,8 +21,8 @@ rule get_ncbi_sequences:
     #shell:
     #    "python downloadGenes.py {output} {config[KRAKEN]}"
     run:
-        import downloadGenes
-        downloadGenes.download_genes_sm(str(output), config["KRAKEN"])
+        import scripts.downloadGenes as dg
+        dg.download_genes_sm(str(output), config["KRAKEN"])
 
 rule extract_marker_genes:
     input:
@@ -58,14 +34,14 @@ rule extract_marker_genes:
     #shell:
     #    "python3 -c 'import filterGenes; filterGenes.filter_seq_genes_sm(\"ncbi/{wildcards.id}_cds_from_genomic.fasta\", \"{output}\", \"{config[KRAKEN]}\")' > {output}"
     run:
-        import filterGenes
-        filterGenes.filter_seq_genes_sm("ncbi/" + wildcards.id + "_cds_from_genomic.fasta", str(output), config["KRAKEN"])
+        import scripts.filterGenes as fg
+        fg.filter_seq_genes_sm("ncbi/" + wildcards.id + "_cds_from_genomic.fasta", str(output), config["KRAKEN"])
 
 rule merge_marker_genes:
     input:
         expand("sequences/{gene}__{id}.fasta", id=config["IDS"], gene=GENES)
     output:
-        "sequences/{gene}.fasta"
+        temp("sequences/{gene}.fasta")
     log:
         "logs/merge_marker_genes/{gene}.log"
     shell:
@@ -110,13 +86,16 @@ rule merge_trees:
     input:
         expand("trees/RAxML_bestTree.{gene}", gene=GENES)
     output:
-        "trees/RAxML_rootedTree.final"
+        "RAxML_rootedTree.final"
     log:
         "logs/merge_trees/final.rooted.log"
+
     shell:
         "cat {input} > trees/merged.in && "
         "java -jar Astral/astral.5.7.8.jar -i trees/merged.in -o trees/final.unrooted 2>logs/merge_trees/final.unrooted.out.log && "
         "iqtree -s filtered-sequences/secE.fasta -pre trees/iqtree -m MFP -g trees/final.unrooted && "
         "cd trees/ && "
         "raxmlHPC -f I -m GTRCAT -t iqtree.treefile -n final && "
-        "cd .."
+        "mv RAxML_rootedTree.final ../ && "
+        "cd .. && "
+        "rm -r trees/"
