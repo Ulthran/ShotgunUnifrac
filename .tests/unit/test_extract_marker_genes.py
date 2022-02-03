@@ -23,7 +23,7 @@ def test_extract_marker_genes():
         # Copy config file to temporary workdir
         sp.run([
             "cp",
-            ".tests/data/config.yml",
+            ".tests/config.yml",
             workdir
         ])
         # Copy test data to temporary workdir

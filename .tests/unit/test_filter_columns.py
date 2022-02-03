@@ -23,7 +23,7 @@ def test_filter_columns():
         # Copy config file to temporary workdir
         sp.run([
             "cp",
-            ".tests/data/config.yml",
+            ".tests/config.yml",
             workdir
         ])
 

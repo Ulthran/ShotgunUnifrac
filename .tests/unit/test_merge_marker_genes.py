@@ -23,7 +23,7 @@ def test_merge_marker_genes():
         # Copy config file to temporary workdir
         sp.run([
             "cp",
-            ".tests/data/config.yml",
+            ".tests/config.yml",
             workdir
         ])
 

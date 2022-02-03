@@ -1,87 +1,106 @@
 GENES = ["secE", "secG"]
 
+
 configfile: "config.yml"
-singularity: "docker://ctbushman/shotguntree:latest"
+
+
+container: "docker://ctbushman/shotguntree:latest"
+
 
 rule all:
-    input: "RAxML_rootedTree.final"
+    input:
+        "RAxML_rootedTree.final",
+
 
 rule all_gene_files:
-    input: expand("sequences/{gene}.fasta", gene=GENES)
+    input:
+        expand("sequences/{gene}.fasta", gene=GENES),
+
 
 rule all_filtered_files:
-    input: expand("filtered-sequences/{gene}.fasta", gene=GENES)
+    input:
+        expand("filtered-sequences/{gene}.fasta", gene=GENES),
+
 
 rule get_ncbi_sequences:
     input:
-        "dag.png"
+        "dag.png",
     output:
-        temp("ncbi/{id}_cds_from_genomic.fasta")
+        temp("ncbi/{id}_cds_from_genomic.fasta"),
     log:
-        "logs/get_ncbi_sequences/{id}.log"
+        "logs/get_ncbi_sequences/{id}.log",
     conda:
         ""
     run:
         import scripts.downloadGenes as dg
+
         dg.download_genes_sm(str(output), config["KRAKEN"])
+
 
 rule extract_marker_genes:
     input:
-        "ncbi/{id}_cds_from_genomic.fasta"
+        "ncbi/{id}_cds_from_genomic.fasta",
     output:
-        temp("sequences/{gene}__{id}.fasta")
+        temp("sequences/{gene}__{id}.fasta"),
     log:
-        "logs/extract_marker_genes/{gene}__{id}.log"
+        "logs/extract_marker_genes/{gene}__{id}.log",
     conda:
         ""
     run:
         import scripts.filterGenes as fg
-        fg.filter_seq_genes_sm(f"ncbi/{wildcards.id}_cds_from_genomic.fasta", str(output), config["KRAKEN"])
+
+        fg.filter_seq_genes_sm(
+            f"ncbi/{wildcards.id}_cds_from_genomic.fasta", str(output), config["KRAKEN"]
+        )
+
 
 rule merge_marker_genes:
     input:
-        expand("sequences/{gene}__{id}.fasta", id=config["IDS"], gene=GENES)
+        expand("sequences/{gene}__{id}.fasta", id=config["IDS"], gene=GENES),
     output:
-        temp("sequences/{gene}.fasta")
+        temp("sequences/{gene}.fasta"),
     log:
-        "logs/merge_marker_genes/{gene}.log"
+        "logs/merge_marker_genes/{gene}.log",
     conda:
         ""
     shell:
         "cat sequences/{wildcards.gene}__*.fasta > {output}"
 
+
 rule align_fasta:
     input:
-        "sequences/{gene}.fasta"
+        "sequences/{gene}.fasta",
     output:
-        temp("aligned-sequences/{gene}.fasta")
+        temp("aligned-sequences/{gene}.fasta"),
     log:
-        "logs/align_fasta/{gene}.log"
+        "logs/align_fasta/{gene}.log",
     conda:
         "envs/muscle_env.yaml"
     shell:
         "muscle -in sequences/{wildcards.gene}.fasta -out aligned-sequences/{wildcards.gene}.fasta"
 
+
 rule filter_columns:
     # Identity op for now, okfasta
     input:
-        "aligned-sequences/{gene}.fasta"
+        "aligned-sequences/{gene}.fasta",
     output:
-        "filtered-sequences/{gene}.fasta"
+        "filtered-sequences/{gene}.fasta",
     log:
-        "logs/filter_columns/{gene}.log"
+        "logs/filter_columns/{gene}.log",
     conda:
         ""
     shell:
         "cp aligned-sequences/{wildcards.gene}.fasta filtered-sequences/{wildcards.gene}.fasta"
 
+
 rule create_trees:
     input:
-        "filtered-sequences/{gene}.fasta"
+        "filtered-sequences/{gene}.fasta",
     output:
-        temp("trees/RAxML_bestTree.{gene}")
+        temp("trees/RAxML_bestTree.{gene}"),
     log:
-        "logs/create_trees/RAxML_bestTree.{gene}.log"
+        "logs/create_trees/RAxML_bestTree.{gene}.log",
     conda:
         "envs/raxml_env.yaml"
     shell:
@@ -89,38 +108,41 @@ rule create_trees:
         "raxmlHPC -s ../{input} -m GTRCAT -n {wildcards.gene} && "
         "cd .."
 
+
 rule merge_trees:
     input:
-        expand("trees/RAxML_bestTree.{gene}", gene=GENES)
+        expand("trees/RAxML_bestTree.{gene}", gene=GENES),
     output:
-        "trees/final.unrooted"
+        "trees/final.unrooted",
     log:
-        "logs/merge_trees/final.rooted.log"
+        "logs/merge_trees/final.rooted.log",
     conda:
         "envs/openjdk_env.yaml"
     shell:
         "cat {input} > trees/merged.in && "
         "java -jar Astral/astral.5.7.8.jar -i trees/merged.in -o trees/final.unrooted 2>logs/merge_trees/final.unrooted.out.log"
 
+
 rule infer_weights:
     input:
-        "trees/final.unrooted"
+        "trees/final.unrooted",
     output:
-        "trees/iqtree.treefile"
+        "trees/iqtree.treefile",
     log:
-        "logs/infer_weights/iqtree.treefile.log"
+        "logs/infer_weights/iqtree.treefile.log",
     conda:
         "envs/iqtree_env.yaml"
     shell:
         "iqtree -s filtered-sequences/secE.fasta -pre trees/iqtree -m MFP -g trees/final.unrooted"
 
+
 rule root_tree:
     input:
-        "trees/iqtree.treefile"
+        "trees/iqtree.treefile",
     output:
-        "RAxML_rootedTree.final"
+        "RAxML_rootedTree.final",
     log:
-        "logs/root_tree/RAxML_rootedTree.final.log"
+        "logs/root_tree/RAxML_rootedTree.final.log",
     conda:
         "envs/raxml_env.yaml"
     shell:

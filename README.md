@@ -4,6 +4,12 @@
 
     git clone git@github.com:Ulthran/ShotgunUnifrac.git
 
+## Prereqs
+
+  1. Anaconda/miniconda (https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html#regular-installation)
+  2. Snakemake
+  3. PyTest
+
 ## Running tests
 
     pytest .tests/
