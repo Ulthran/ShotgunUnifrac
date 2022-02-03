@@ -1,6 +1,7 @@
 GENES = ["secE", "secG"]
 
 configfile: "config.yml"
+singularity: "docker://ctbushman/shotguntree:latest"
 
 rule all:
     input: "RAxML_rootedTree.final"
@@ -35,7 +36,7 @@ rule extract_marker_genes:
         ""
     run:
         import scripts.filterGenes as fg
-        fg.filter_seq_genes_sm("ncbi/" + wildcards.id + "_cds_from_genomic.fasta", str(output), config["KRAKEN"])
+        fg.filter_seq_genes_sm(f"ncbi/{wildcards.id}_cds_from_genomic.fasta", str(output), config["KRAKEN"])
 
 rule merge_marker_genes:
     input:

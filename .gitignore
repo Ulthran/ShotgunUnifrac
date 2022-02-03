@@ -1,13 +1,14 @@
+.conda/
 .Rhistory
-.snakemake
-__pycache__
+.snakemake/
+__pycache__/
 
-data
-logs
-ncbi
-sequences
-aligned-sequences
-filtered-sequences
-trees
+data/
+logs/
+ncbi/
+sequences/
+aligned-sequences/
+filtered-sequences/
+trees/
 
 RAxML_rootedTree.final
