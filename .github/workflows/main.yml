@@ -15,17 +15,6 @@ on:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
-  build:
-    # The type of runner that the job will run on
-    runs-on: ubuntu-latest
-
-    # Steps represent a sequence of tasks that will be executed as part of the job
-    steps:
-      - uses: snakemake/snakemake-github-action@v1.23.0
-      - name: snakemake
-      
-  
   snakemake:
     runs-on: ubuntu-latest
     steps:
@@ -39,5 +28,7 @@ jobs:
           directory: .test
           # Snakefile containing the workflow description
           snakefile: workflow/Snakefile
+          # Additional Snakemake arguments to use
+          args: -c1
           # Whether to run Snakemake or to generate a container image specification.
           task: run
