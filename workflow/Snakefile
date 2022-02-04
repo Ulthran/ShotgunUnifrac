@@ -1,7 +1,7 @@
-GENES = ["secE", "secG"]
+GENES = ["secE", "secG", "secY", "smpB", "tsaE"]
 
 
-configfile: "config.yml"
+configfile: "config/config.yml"
 
 
 container: "docker://ctbushman/shotguntree:latest"

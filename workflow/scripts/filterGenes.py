@@ -70,6 +70,9 @@ def filter_seq_genes(seqsFile: str, seq_genes: str, kraken: str) -> list:
 def filter_seq_genes_sm(seqsFile: str, output: str, kraken: str) -> None:
     seq_genes = [output.split("/")[1].split("__")[0]]
     with open(output, "w") as out:
-        vals = filter_seq_genes(seqsFile, seq_genes, kraken)
-        for val in vals:
-            out.write(val + "\n")
+        try:
+            vals = filter_seq_genes(seqsFile, seq_genes, kraken)
+            for val in vals:
+                out.write(val + "\n")
+        except TypeError:
+            None

@@ -28,7 +28,7 @@ except IndexError:
 with open(input, newline="") as inputF:
     tsv = csv.reader(inputF, dialect=csv.excel_tab)
     idIndex = next(tsv).index("ftp_path")
-    with open("config.yml", "w") as config:
+    with open("config/config.yml", "w") as config:
         config.write("# Config file for tree building pipeline\n")
         config.write("# Kraken output file\n")
         config.write("KRAKEN: \"" + input + "\"\n")
