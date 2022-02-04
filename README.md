@@ -8,7 +8,7 @@
 
   1. Anaconda/miniconda (https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html#regular-installation)
   2. Snakemake
-  3. PyTest
+  3. (For testing only) PyTest
 
 ## Running tests
 

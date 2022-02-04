@@ -1,4 +1,4 @@
-GENES = ["secE", "secG", "secY", "smpB", "tsaE"]
+GENES = ["secE", "secG", "secY", "smpB", "tsaE", "yajC"]
 
 
 configfile: "config/config.yml"
