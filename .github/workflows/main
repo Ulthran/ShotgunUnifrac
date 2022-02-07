@@ -1,0 +1,47 @@
+name: CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+  workflow_dispatch:
+
+jobs:
+  snakemake-lint:
+    name: Lint Code Base
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+
+      - name: Lint Code Base
+        uses: github/super-linter@v3.17.0
+        env:
+          VALIDATE_ALL_CODEBASE: false
+          DEFAULT_BRANCH: master
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+          VALIDATE_SNAKEMAKE_SNAKEFMT: true
+  
+  snakemake-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Testing
+        uses: snakemake/snakemake-github-action@v1
+        with:
+          directory: 'workflow'
+          snakefile: 'Snakefile'
+          args: '--cores 1 --use-conda --conda-cleanup-pkgs cache --configfile config.yml'
+          stagein: '' # additional preliminary commands to run (can be multiline)
+
+  snakemake-containerize:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create container file
+        uses: snakemake/snakemake-github-action@v1
+        with:
+          snakefile: 'workflow/Snakefile'
+          task: 'containerize'
