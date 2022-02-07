@@ -32,9 +32,9 @@ jobs:
       - name: Testing
         uses: snakemake/snakemake-github-action@v1
         with:
-          directory: '.test'
-          snakefile: '../workflow/Snakefile'
-          args: '--cores 1 --use-conda --conda-cleanup-pkgs cache --configfile ../config.yml'
+          directory: '.'
+          snakefile: 'workflow/Snakefile'
+          args: '--cores 1 --use-conda --conda-cleanup-pkgs cache --configfile config.yml'
           stagein: '' # additional preliminary commands to run (can be multiline)
 
   snakemake-containerize:
