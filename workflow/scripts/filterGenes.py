@@ -55,7 +55,7 @@ def filter_seq_genes(seqsFile: str, seq_genes: str, kraken: str) -> list:
         match = re.search("\[gene=.*\]", seq_gene)
         if match:
             gene_name = seq_gene.strip('[gene=').strip(']')
-            if gene_name in seq_genes:
+            if gene_name.upper() in map(str.upper, seq_genes):
                 retVal = ">" + get_txid(id, kraken) + " " + " ".join(gene[0].split(" ")[1:])
                 print(retVal)
                 print(gene[1])
