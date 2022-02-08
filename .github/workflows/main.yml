@@ -58,7 +58,7 @@ jobs:
         uses: s-weigand/setup-conda@v1.1.0
         with:
           # Additional channels like 'conda-forge' which can be used to install packages
-          conda-channels: 'biopython' # optional, default is 
+          conda-channels: 'bioconda' # optional, default is 
       
       - name: Install Dependencies
         run: |
