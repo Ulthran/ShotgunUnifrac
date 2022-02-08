@@ -68,6 +68,17 @@ jobs:
       - name: Run Tests
         run: |
           pytest .tests/
+          
+  snakemake-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Testing
+        uses: snakemake/snakemake-github-action@v1
+        with:
+          directory: 'workflow'
+          snakefile: 'Snakefile'
+          args: '--cores 1 --use-conda --conda-cleanup-pkgs cache --configfile config.yml'
+          stagein: '' # additional preliminary commands to run (can be multiline)
 
 
 
