@@ -2,6 +2,25 @@ name: CI
 on: push
 
 jobs:
+  format:
+    name: Snakefmt Snakefile
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.x"
+      
+      - name: Install Dependencies
+        run: |
+          python -m pip install snakefmt
+
+      - name: Run Snakefmt
+        run: |
+          ls -la
+          snakefmt workflow/Snakefile
+
   lint:
     name: Lint Code Base
     runs-on: ubuntu-latest
@@ -39,22 +58,5 @@ jobs:
         run: |
           pytest .tests/
 
-  format:
-    name: Snakefmt Snakefile
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Setup Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: "3.x"
-      
-      - name: Install Dependencies
-        run: |
-          python -m pip install snakefmt
-
-      - name: Run Snakefmt
-        run: |
-          snakefmt workflow/Snakefile
 
 
