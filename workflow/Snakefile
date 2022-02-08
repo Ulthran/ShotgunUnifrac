@@ -1,6 +1,3 @@
-GENES = ["secE", "secG", "secY", "smpB", "tsaE", "yajC"]
-
-
 configfile: "config.yml"
 
 
@@ -14,12 +11,12 @@ rule all:
 
 rule all_gene_files:
     input:
-        expand("sequences/{gene}.fasta", gene=GENES),
+        expand("sequences/{gene}.fasta", gene=config["GENES"]),
 
 
 rule all_filtered_files:
     input:
-        expand("filtered-sequences/{gene}.fasta", gene=GENES),
+        expand("filtered-sequences/{gene}.fasta", gene=config["GENES"]),
 
 
 rule get_ncbi_sequences:
@@ -56,7 +53,7 @@ rule extract_marker_genes:
 
 rule merge_marker_genes:
     input:
-        expand("sequences/{gene}__{id}.fasta", id=config["IDS"], gene=GENES),
+        expand("sequences/{gene}__{id}.fasta", id=config["IDS"], gene=config["GENES"]),
     output:
         temp("sequences/{gene}.fasta"),
     log:
@@ -111,7 +108,7 @@ rule create_trees:
 
 rule merge_trees:
     input:
-        expand("trees/RAxML_bestTree.{gene}", gene=GENES),
+        expand("trees/RAxML_bestTree.{gene}", gene=config["GENES"]),
     output:
         "trees/final.unrooted",
     log:

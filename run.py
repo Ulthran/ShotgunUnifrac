@@ -37,7 +37,9 @@ with open(input, newline="") as inputF:
         for line in tsv:
             val = line[idIndex].split("/")[-1]
             config.write("\"" + val + "\", ")
-        config.write("]")
+        config.write("]\n")
+        config.write("# Genes to build trees from\n")
+        config.write("GENES: [\"secE\", \"secG\", \"secY\", \"smpB\", \"tsaE\", \"yajC\"]") # Hardcoded for now, should read from data file
 print("Created config.yml")
 
 # Run tests
