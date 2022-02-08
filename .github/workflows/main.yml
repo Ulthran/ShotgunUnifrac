@@ -59,10 +59,12 @@ jobs:
       
       - name: Install Dependencies
         run: |
+          alias md5="md5sum" # Don't know why installed tries to use 'md5'
+          md5 --help
           python -m pip install -U pytest
           python -m pip install mamba
           python -m pip install snakemake
-          alias md5="md5sum" # Don't know why installed tries to use 'md5'
+          
           wget https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh -O ~/miniconda.sh
           bash ~/miniconda.sh -b -p $HOME/miniconda
 
