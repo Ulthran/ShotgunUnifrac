@@ -40,6 +40,7 @@ def test_align_fasta():
             "-j1",
             "--keep-target-files",
             "--use-conda",
+            "--conda-frontend conda",
             "--directory",
             workdir,
         ])
