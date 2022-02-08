@@ -59,7 +59,7 @@ jobs:
       
       - name: Install Dependencies
         run: |
-          alias md5="md5sum" # Don't know why installed tries to use 'md5'
+          alias md5="md5sum"
           md5 --help
           python -m pip install -U pytest
           python -m pip install mamba
