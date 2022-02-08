@@ -1,0 +1,12 @@
+assembly_accession	taxid	species_taxid	organism_name	assembly_level	ftp_path
+GCF_000010525.1	438753	7	Azorhizobium caulinodans ORS 571	Complete Genome	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/010/525/GCF_000010525.1_ASM1052v1
+GCF_000009605.1	107806	9	Buchnera aphidicola str. APS (Acyrthosiphon pisum)	Complete Genome	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/009/605/GCF_000009605.1_ASM960v1
+GCF_000218545.1	593907	11	Cellulomonas gilvus ATCC 13127	Complete Genome	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/218/545/GCF_000218545.1_ASM21854v1
+GCF_000020965.1	309799	14	Dictyoglomus thermophilum H-6-12	Complete Genome	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/020/965/GCF_000020965.1_ASM2096v1
+GCF_000378225.1	1122236	17	Methylophilus methylotrophus DSM 46235 = ATCC 53528	Scaffold	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/378/225/GCF_000378225.1_ASM37822v1
+GCF_000012885.1	338963	19	Pelobacter carbinolicus DSM 2380	Complete Genome	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/012/885/GCF_000012885.1_ASM1288v1
+GCF_001375595.1	31967	21	Phenylobacterium immobile (ATCC 35973)	Contig	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/001/375/595/GCF_001375595.1_Draft_genome_of_P._immobile_strain_E_DSM_1986_
+GCF_000518705.1	1336240	23	Shewanella colwelliana ATCC 39565	Scaffold	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/518/705/GCF_000518705.1_ASM51870v1
+GCF_000016585.1	319224	24	Shewanella putrefaciens CN-32	Complete Genome	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/016/585/GCF_000016585.1_ASM1658v1
+GCF_007197645.1	25	25	Shewanella hanedai	Contig	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/007/197/645/GCF_007197645.1_ASM719764v1
+GCF_007991095.1	33	33	Myxococcus fulvus	Contig	ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/007/991/095/GCF_007991095.1_ASM799109v1

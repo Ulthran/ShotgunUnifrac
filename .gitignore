@@ -3,12 +3,14 @@
 .snakemake/
 __pycache__/
 
-data/
+/data/
 logs/
-ncbi/
-sequences/
-aligned-sequences/
-filtered-sequences/
-trees/
+/ncbi/
+/sequences/
+/aligned-sequences/
+/filtered-sequences/
+/trees/
 
-RAxML_rootedTree.final
+/RAxML_rootedTree.final
+
+/workflow/data/
