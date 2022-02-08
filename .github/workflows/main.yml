@@ -21,7 +21,6 @@ jobs:
 
       - name: Run Snakefmt
         run: |
-          ls -la
           snakefmt workflow/Snakefile
 
   lint:
@@ -59,6 +58,7 @@ jobs:
 
       - name: Run Tests
         run: |
+          tree -a .
           pytest .tests/
 
 
