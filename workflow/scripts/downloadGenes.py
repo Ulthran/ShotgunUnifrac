@@ -7,6 +7,37 @@ import csv
 import sys
 import os
 
+# Checks for the existence of workflow/data/assembly_summary.txt
+# @return is True if the file exists, False otherwise
+def check_for_assembly() -> bool:
+    return os.path.exists("workflow/data/assembly_summary.txt")
+
+# Downloads assembly_summary.txt if it doens't already exist
+# @return is the exit status of os.system call to wget
+def download_assembly() -> int:
+    print("Getting assembly_summary.txt")
+    return os.system("wget -p workflow/data/ ftp://ftp.ncbi.nlm.nih.gov/genomes/refseq/bacteria/assembly_summary.txt")
+
+# Downloads the latest complete genome matching the input species-level taxon id
+# @param id is the taxon id
+# @return is the exit code from the last os.system call
+def download_genome(id: str) -> str:
+    with open("workflow/data/assembly_summary.txt") as assembly:
+        tsv = csv.reader(assembly, dialect=csv.excel_tab)
+        firstLine = next(tsv)
+        idIndex = firstLine.index("species_taxid")
+        accIndex = firstLine.index("assembly_accession")
+        lvlIndex = firstLine.index("assembly_level")
+        ftpIndex = firstLine.index("ftp_path")
+
+        for line in tsv:
+            if line[idIndex] == id and line[lvlIndex] == "Complete Genome":
+                url = line[ftpIndex] + "/" + line[accIndex] + "_cds_from_genomic.fna.gz"
+                os.system("wget " + url + " -P ncbi/")
+                os.system("gzip -d ncbi/" + line[accIndex] + "_cds_from_genomic.fna.gz")
+                return os.system("mv ncbi/" + line[accIndex] + "_cds_from_genomic.fna ncbi/" + line[accIndex] + "_cds_from_genomic.fasta")
+
+# DEPRECATED
 # Downloads genome from NCBI
 # @param id is the genome id
 # @param kraken is the path to the kraken report containing the FTP path
@@ -34,4 +65,5 @@ def download_genes(id: str, kraken: str) -> None:
 # @return is undefined
 def download_genes_sm(output: str, kraken: str) -> None:
     id = output[5:-23]
-    download_genes(id, kraken)
+    if (check_for_assembly()) None else download_assembly()
+    download_genome(id)
