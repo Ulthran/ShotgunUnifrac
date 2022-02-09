@@ -57,14 +57,8 @@ jobs:
         # uses: s-weigand/setup-conda@945fd9e7c92f1efb12634ba552ee0b2ec140a5fd
         uses: s-weigand/setup-conda@v1.1.0
         with:
-          # Whether to activate the conda base env (Default: 'true')
-          activate-conda: true # optional, default is true
-          # If conda should be updated before running other commands (Default: 'false')
-          update-conda: false # optional, default is false
-          # Python version which should be installed with conda (default: 'Default')
-          python-version: default # optional, default is default
           # Additional channels like 'conda-forge' which can be used to install packages
-          conda-channels: biopython # optional, default is 
+          conda-channels: 'bioconda' # optional, default is 
       
       - name: Install Dependencies
         run: |
@@ -76,16 +70,7 @@ jobs:
         run: |
           pytest .tests/
           
-  snakemake-test:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Testing
-        uses: snakemake/snakemake-github-action@v1
-        with:
-          directory: '.test'
-          snakefile: 'workflow/Snakefile'
-          args: '--cores 1 --use-conda --conda-cleanup-pkgs cache'
-          stagein: '' # additional preliminary commands to run (can be multiline)
-
+          
+          
 
 
