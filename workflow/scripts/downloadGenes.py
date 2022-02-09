@@ -32,8 +32,9 @@ def download_genome(id: str) -> str:
 
         for line in tsv:
             if line[idIndex] == id and line[lvlIndex] == "Complete Genome":
-                url = line[ftpIndex] + "/" + line[accIndex] + "_cds_from_genomic.fna.gz"
-                os.system("wget " + url + " -P ncbi/")
+                url = "rsync" + line[ftpIndex][5:] + "/" + line[accIndex] + "_cds_from_genomic.fna.gz"
+                #os.system("wget " + url + " -P ncbi/")
+                os.system("rsync --copy-links --times --verbose " + url + " ncbi/")
                 os.system("gzip -d ncbi/" + line[accIndex] + "_cds_from_genomic.fna.gz")
                 return os.system("mv ncbi/" + line[accIndex] + "_cds_from_genomic.fna ncbi/" + line[accIndex] + "_cds_from_genomic.fasta")
 
@@ -65,5 +66,5 @@ def download_genes(id: str, kraken: str) -> None:
 # @return is undefined
 def download_genes_sm(output: str, kraken: str) -> None:
     id = output[5:-23]
-    if (check_for_assembly()) None else download_assembly()
+    None if check_for_assembly() else download_assembly()
     download_genome(id)
