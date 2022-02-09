@@ -16,14 +16,13 @@ def get_txid_from_assembly(id: str) -> str:
 
 # Gets the taxon id (NCBI) for the given id from the kraken report
 # @param id is the genome id from NCBI
-# @param kraken is the path to the kraken report
 # @return is the taxon id
-def get_txid(id: str, kraken: str) -> str:
-    with open(kraken, newline="") as krakenF:
-        tsv = csv.reader(krakenF, dialect=csv.excel_tab)
+def get_txid(id: str) -> str:
+    with open("run_assembly.txt") as runAssembly:
+        tsv = csv.reader(runAssembly, dialect=csv.excel_tab)
         firstLine = next(tsv)
         idIndex = firstLine.index("assembly_accession")
-        txIndex = firstLine.index("taxid")
+        txIndex = firstLine.index("species_taxid")
         for line in tsv:
             partialId = id.split("_")[0] + "_" + id.split("_")[1]
             if line[idIndex] == partialId:
@@ -34,7 +33,7 @@ def get_txid(id: str, kraken: str) -> str:
 # @param seqsFile is the path to the file to be parsed
 # @param seq_genes is a list of genes to be filtered for (N.B. I've only tested this with list size 1)
 # @return is a list containing the gene descriptor and the gene sequence
-def filter_seq_genes(seqsFile: str, seq_genes: str, kraken: str) -> list:
+def filter_seq_genes(seqsFile: str, seq_genes: str) -> list:
     id = seqsFile.split("/")[1].split("_cds")[0]
     fasta = open(seqsFile, "r")
     seqs = fasta.readlines()
@@ -56,7 +55,7 @@ def filter_seq_genes(seqsFile: str, seq_genes: str, kraken: str) -> list:
         if match:
             gene_name = seq_gene.strip('[gene=').strip(']')
             if gene_name.upper() in map(str.upper, seq_genes):
-                retVal = ">" + get_txid(id, kraken) + " " + " ".join(gene[0].split(" ")[1:])
+                retVal = ">" + get_txid(id) + " " + " ".join(gene[0].split(" ")[1:])
                 print(retVal)
                 print(gene[1])
                 return [retVal, gene[1]]
@@ -67,11 +66,11 @@ def filter_seq_genes(seqsFile: str, seq_genes: str, kraken: str) -> list:
 # @param output is the output file path for the snakemake rule, it is intended to take the form
 #        dir/GENE__restOfFileName.fasta
 # @return is undefined, instead it writes to output
-def filter_seq_genes_sm(seqsFile: str, output: str, kraken: str) -> None:
+def filter_seq_genes_sm(seqsFile: str, output: str) -> None:
     seq_genes = [output.split("/")[1].split("__")[0]]
     with open(output, "w") as out:
         try:
-            vals = filter_seq_genes(seqsFile, seq_genes, kraken)
+            vals = filter_seq_genes(seqsFile, seq_genes)
             for val in vals:
                 out.write(val + "\n")
         except TypeError:

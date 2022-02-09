@@ -31,7 +31,7 @@ rule get_ncbi_sequences:
     run:
         import scripts.downloadGenes as dg
 
-        dg.download_genes_sm(str(output), config["KRAKEN"])
+        dg.download_genes_sm(str(output))
 
 
 rule extract_marker_genes:
@@ -47,7 +47,7 @@ rule extract_marker_genes:
         import scripts.filterGenes as fg
 
         fg.filter_seq_genes_sm(
-            f"ncbi/{wildcards.id}_cds_from_genomic.fasta", str(output), config["KRAKEN"]
+            f"ncbi/{wildcards.id}_cds_from_genomic.fasta", str(output)
         )
 
 

@@ -7,34 +7,23 @@ import csv
 import sys
 import os
 
-# Checks for the existence of workflow/data/assembly_summary.txt
-# @return is True if the file exists, False otherwise
-def check_for_assembly() -> bool:
-    return os.path.exists("workflow/data/assembly_summary.txt")
-
-# Downloads assembly_summary.txt if it doens't already exist
-# @return is the exit status of os.system call to wget
-def download_assembly() -> int:
-    print("Getting assembly_summary.txt")
-    return os.system("wget -p workflow/data/ ftp://ftp.ncbi.nlm.nih.gov/genomes/refseq/bacteria/assembly_summary.txt")
-
-# Downloads the latest complete genome matching the input species-level taxon id
-# @param id is the taxon id
+# Downloads the latest complete genome matching the input genome id (which has a 1-to-1 correspondence with a species-level taxon id)
+# @param id is the genome id
 # @return is the exit code from the last os.system call
-def download_genome(id: str) -> str:
-    with open("workflow/data/assembly_summary.txt") as assembly:
+def download_genome(genomeId: str) -> str:
+    with open("run_assembly.txt") as assembly:
         tsv = csv.reader(assembly, dialect=csv.excel_tab)
         firstLine = next(tsv)
-        idIndex = firstLine.index("species_taxid")
         accIndex = firstLine.index("assembly_accession")
-        lvlIndex = firstLine.index("assembly_level")
         ftpIndex = firstLine.index("ftp_path")
+        print(genomeId.split("_")[:-1])
 
         for line in tsv:
-            if line[idIndex] == id and line[lvlIndex] == "Complete Genome":
-                url = "rsync" + line[ftpIndex][5:] + "/" + line[accIndex] + "_cds_from_genomic.fna.gz"
-                #os.system("wget " + url + " -P ncbi/")
-                os.system("rsync --copy-links --times --verbose " + url + " ncbi/")
+            if line[accIndex] == (genomeId.split("_")[0] + "_" + genomeId.split("_")[1]):
+                url = line[ftpIndex] + "/" + genomeId + "_cds_from_genomic.fna.gz"
+                #url = "rsync" + line[ftpIndex][5:] + "/" + line[accIndex] + "_cds_from_genomic.fna.gz"
+                os.system("wget " + url + " -P ncbi/")
+                #os.system("rsync --copy-links --times --verbose " + url + " ncbi/") # Recommended method but weird
                 os.system("gzip -d ncbi/" + line[accIndex] + "_cds_from_genomic.fna.gz")
                 return os.system("mv ncbi/" + line[accIndex] + "_cds_from_genomic.fna ncbi/" + line[accIndex] + "_cds_from_genomic.fasta")
 
@@ -62,9 +51,7 @@ def download_genes(id: str, kraken: str) -> None:
 
 # Wrapper for download_genes from snakemake
 # @param output is the output file containing the genome id
-# @param kraken is the kraken report file path
 # @return is undefined
-def download_genes_sm(output: str, kraken: str) -> None:
-    id = output[5:-23]
-    None if check_for_assembly() else download_assembly()
-    download_genome(id)
+def download_genes_sm(output: str) -> None:
+    genomeId = output[5:-23]
+    download_genome(genomeId)
