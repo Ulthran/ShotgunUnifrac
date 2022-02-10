@@ -34,8 +34,42 @@ def check_for_assembly() -> bool:
 # Downloads assembly_summary.txt if it doens't already exist
 # @return is the exit status of os.system call to wget
 def download_assembly() -> int:
-    print("Getting assembly_summary.txt")
-    return os.system("wget -p workflow/data/ ftp://ftp.ncbi.nlm.nih.gov/genomes/refseq/bacteria/assembly_summary.txt")
+    print("workflow/data/assembly_summary.txt not found, fetching...")
+    return os.system("wget -P workflow/data/ https://ftp.ncbi.nlm.nih.gov/genomes/refseq/bacteria/assembly_summary.txt")
+
+# Creates a file of the best genome accessions for a given list of species-level taxon ids
+# @param txids is the list of species-level taxon ids
+# @param naTol is the 'na'-tolerance, if True the function will include accessions with refseq_category of na, False by default
+# @return is the list of txids, where each one that a genome accession was found for has been removed
+def find_genome_accessions(txids: list, naTol: bool = False) -> list:
+    with tqdm.tqdm(total=os.path.getsize("workflow/data/assembly_summary.txt")) as pbar: # Add progress bar
+        with open("run_assembly.txt", "a") as run_assembly:
+            with open("workflow/data/assembly_summary.txt") as assembly:
+                reader = csv.reader(assembly, dialect=csv.excel_tab)
+                next(reader) # First row is a random comment
+                firstLine = next(reader) # This row has the headers
+                firstLine[0] = firstLine[0][2:]# Remove the "# " from the beginning of the first element
+
+                run_assembly.write("\t".join(firstLine) + "\n") # Write the first line of run_assembly.txt with column identifiers
+
+                idIndex = firstLine.index("species_taxid")
+                accIndex = firstLine.index("assembly_accession")
+                lvlIndex = firstLine.index("assembly_level")
+                refSeqIndex = firstLine.index("refseq_category")
+
+                # Write each line of assembly_summary.txt that has a genome assembly we want to run_assembly.txt
+                for line in reader:
+                    pbar.update(len(line)*14) # Multiplying by 14 cause that's what makes the progress bar accurate, issue with line coming from
+                                            # a csv.reader object instead of a file object
+                    for txid in txids:
+                        try:
+                            if line[idIndex] == txid[0] and (line[refSeqIndex] != "na" or (line[lvlIndex] == "Complete Genome" and naTol)):
+                                run_assembly.write("\t".join(line) + "\n")
+                                txids.remove(txid)
+                                break
+                        except IndexError:
+                            None # Incomplete entry in assembly_summary.txt
+    return txids
 
 # Check for existence of assembly_summary.txt
 None if check_for_assembly() else download_assembly()
@@ -49,46 +83,24 @@ with open(input) as inputF:
     data = csv.reader(inputF)
     for txid in data:
         txids.append(txid)
-nas = [] # Keep a list of genome ids found whose RefSeq category is "na" so that they can be replaced later if a better one is found
-naLines = [] # Hold the full entry for each of these to be written at the end
 
-with tqdm.tqdm(total=os.path.getsize("workflow/data/assembly_summary.txt")) as pbar: # Add progress bar
-    with open("run_assembly.txt", "w") as run_assembly:
-        with open("workflow/data/assembly_summary.txt") as assembly:
-            reader = csv.reader(assembly, dialect=csv.excel_tab)
-            next(reader) # First row is a random comment
-            firstLine = next(reader) # This row has the headers
-            firstLine[0] = firstLine[0][2:]# Remove the "# " from the beginning of the first element
+with open("run_assembly.txt", "w") as run_assembly:
+    run_assembly.write("") # Overwrite existing file, find_genome_accessions works in append mode
 
-            run_assembly.write("\t".join(firstLine) + "\n") # Write the first line of run_assembly.txt with column identifiers
-
-            idIndex = firstLine.index("species_taxid")
-            accIndex = firstLine.index("assembly_accession")
-            lvlIndex = firstLine.index("assembly_level")
-            refSeqIndex = firstLine.index("refseq_category")
-
-            # Write each line of assembly_summary.txt that has a genome assembly we want to run_assembly.txt
-            for line in reader:
-                pbar.update(len(line)*14) # Multiplying by 14 cause that's what makes the progress bar accurate, issue with line coming from
-                                          # a csv.reader object instead of a file object
-                for txid in txids:
-                    try:
-                        if line[idIndex] == txid[0] and line[lvlIndex] == "Complete Genome" and line[refSeqIndex] != "na":
-                            if line[refSeqIndex] != "na":
-                                run_assembly.write("\t".join(line) + "\n")
-                                txids.remove(txid)
-                                break
-                            else:
-                                nas.append(txid)
-                                naLines.append(line)
-                    except IndexError:
-                        None
+txids = find_genome_accessions(txids)
 
 if txids:
-    print("Could not find entries for:\n")
+    print("Could not find suitable entries for:\n")
     for txid in txids:
         print(txid[0])
-    print("\nQuitting...")
+    print("Trying with 'na'-tolerance...")
+    txids = find_genome_accessions(txids, True)
+
+if txids:
+    print("Could not find suitable entries for:\n")
+    for txid in txids:
+        print(txid[0])
+    print("\nNothing left to try. Quitting...")
     quit()
 
 ### Write config file for this run
@@ -120,4 +132,5 @@ if(singularity):
         os.system("yes | pip install singularity")
     os.system("snakemake -c --use-conda --use-singularity")
 else:
+    None
     os.system("snakemake -c --use-conda")
