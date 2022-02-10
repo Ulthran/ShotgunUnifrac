@@ -32,6 +32,12 @@ def test_extract_marker_genes():
             ".tests/data/TEST",
             workdir
         ])
+        # Copy run_assembly.txt to temporary workdir
+        sp.run([
+            "cp",
+            ".tests/run_assembly.txt",
+            workdir
+        ])
 
         # dbg
         print("sequences/secE__GCF_000010525.1_ASM1052v1.fasta", file=sys.stderr)
@@ -50,17 +56,14 @@ def test_extract_marker_genes():
             workdir,
         ])
 
-        # Clean config, logs, and data from workdir
+        # Clean config, logs, run_assembly, and data from workdir
         sp.run([
             "rm",
-            str(workdir) + "/config.yml",
-            "&&",
-            "rm",
             "-r",
+            str(workdir) + "/config.yml",
             str(workdir) + "/logs",
-            "&&",
-            "rm",
             str(workdir) + "/TEST",
+            str(workdir) + "/run_assembly.txt"
         ])
 
         # Check the output byte by byte using cmp.

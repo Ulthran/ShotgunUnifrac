@@ -3,17 +3,6 @@ import collections
 import re
 import csv
 
-# Gets the taxon id (NCBI) for the given genome id from the assembly report
-# DEPRECATED: Use get_txid() to get txid from the input kraken report
-# @param id is the genome id from NCBI
-# @return is the taxon id
-def get_txid_from_assembly(id: str) -> str:
-    assembly_report = open("ncbi/" + id + "_assembly_report.txt")
-    lines = assembly_report.readlines()
-    for line in lines:
-        if "# Taxid:" in line:
-            return re.findall(r'\d+', line)[0]
-
 # Gets the taxon id (NCBI) for the given id from the kraken report
 # @param id is the genome id from NCBI
 # @return is the taxon id
@@ -40,6 +29,7 @@ def filter_seq_genes(seqsFile: str, seq_genes: str) -> list:
     seqList = []
     seqObj = []
 
+    # Create list of description/sequence pairs of each gene
     for obj in seqs:
         if(obj[0] == ">"):
             seqList.append(seqObj)
@@ -49,6 +39,7 @@ def filter_seq_genes(seqsFile: str, seq_genes: str) -> list:
             seqObj[1] = seqObj[1] + obj.rstrip()
     seqList.pop(0) # Get rid of blank entry at the start
 
+    # Find the desired gene and return the description/sequence pair
     for gene in seqList:
         seq_gene = gene[0].split()[1]
         match = re.search("\[gene=.*\]", seq_gene)
@@ -59,7 +50,6 @@ def filter_seq_genes(seqsFile: str, seq_genes: str) -> list:
                 print(retVal)
                 print(gene[1])
                 return [retVal, gene[1]]
-                break
 
 # A wrapper for filter_seq_genes to be called from a snakemake rule
 # @param seqsFile is the path to the file to be parsed

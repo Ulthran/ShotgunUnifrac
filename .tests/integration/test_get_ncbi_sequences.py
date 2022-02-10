@@ -32,6 +32,12 @@ def test_get_ncbi_sequences():
             ".tests/data/TEST",
             workdir
         ])
+        # Copy run_assembly.txt to temporary workdir
+        sp.run([
+            "cp",
+            ".tests/run_assembly.txt",
+            workdir
+        ])
 
         # dbg
         print("ncbi/GCF_000010525.1_ASM1052v1_cds_from_genomic.fasta", file=sys.stderr)
@@ -50,7 +56,7 @@ def test_get_ncbi_sequences():
             workdir,
         ])
 
-        # Clean config, logs, and data from workdir
+        # Clean config, logs, run_assembly, and data from workdir
         sp.run([
             "rm",
             str(workdir) + "/config.yml",
@@ -61,6 +67,9 @@ def test_get_ncbi_sequences():
             "&&",
             "rm",
             str(workdir) + "/TEST",
+            "&&",
+            "rm",
+            str(workdir) + "/run_assembly.txt"
         ])
 
         # Check the output byte by byte using cmp.
