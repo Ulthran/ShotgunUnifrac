@@ -21,7 +21,7 @@ rule all_filtered_files:
 
 rule get_ncbi_sequences:
     input:
-        "dag.png",
+        "run_assembly.txt",
     output:
         temp("ncbi/{id}_cds_from_genomic.fasta"),
     log:
@@ -102,7 +102,7 @@ rule create_trees:
         "envs/raxml_env.yaml"
     shell:
         "cd trees/ && "
-        "raxmlHPC -s ../{input} -m GTRCAT -n {wildcards.gene} && "
+        "raxmlHPC -s ../{input} -m GTRCAT -n {wildcards.gene} -p 392781 && "
         "cd .."
 
 

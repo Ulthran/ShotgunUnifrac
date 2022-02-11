@@ -50,8 +50,6 @@ def find_genome_accessions(txids: list, naTol: bool = False) -> list:
                 firstLine = next(reader) # This row has the headers
                 firstLine[0] = firstLine[0][2:]# Remove the "# " from the beginning of the first element
 
-                run_assembly.write("\t".join(firstLine) + "\n") # Write the first line of run_assembly.txt with column identifiers
-
                 idIndex = firstLine.index("species_taxid")
                 accIndex = firstLine.index("assembly_accession")
                 lvlIndex = firstLine.index("assembly_level")
@@ -84,8 +82,15 @@ with open(input) as inputF:
     for txid in data:
         txids.append(txid)
 
+# Overwrite existing file with header line
 with open("run_assembly.txt", "w") as run_assembly:
-    run_assembly.write("") # Overwrite existing file, find_genome_accessions works in append mode
+    with open("workflow/data/assembly_summary.txt") as assembly:
+        reader = csv.reader(assembly, dialect=csv.excel_tab)
+        next(reader) # First row is a random comment
+        firstLine = next(reader) # This row has the headers
+        firstLine[0] = firstLine[0][2:]# Remove the "# " from the beginning of the first element
+
+        run_assembly.write("\t".join(firstLine) + "\n") # Write the first line of run_assembly.txt with column identifiers
 
 txids = find_genome_accessions(txids)
 
@@ -93,15 +98,18 @@ if txids:
     print("Could not find suitable entries for:\n")
     for txid in txids:
         print(txid[0])
-    print("Trying with 'na'-tolerance...")
+    print("\nTrying with 'na'-tolerance...")
     txids = find_genome_accessions(txids, True)
 
 if txids:
     print("Could not find suitable entries for:\n")
     for txid in txids:
         print(txid[0])
-    print("\nNothing left to try. Quitting...")
-    quit()
+    print("\nNothing left to try. Do you want to continue without the above taxa? (y/n) ")
+    ans = input()
+    if ans.upper() == "N":
+        print("\nQuitting...")
+        quit()
 
 ### Write config file for this run
 print("Writing config.yml for this run")

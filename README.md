@@ -9,6 +9,7 @@
   1. Anaconda/miniconda (https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html#regular-installation)
   2. Snakemake
   3. (For testing only) PyTest
+  4. (For containerization only) Singularity
 
 ## Running tests
 

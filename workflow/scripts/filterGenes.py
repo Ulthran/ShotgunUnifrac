@@ -29,7 +29,7 @@ def filter_seq_genes(seqsFile: str, seq_genes: str) -> list:
     seqList = []
     seqObj = []
 
-    # Create list of description/sequence pairs of each gene
+    # Loop through file to create list of description/sequence pairs of each gene
     for obj in seqs:
         if(obj[0] == ">"):
             seqList.append(seqObj)
@@ -41,7 +41,8 @@ def filter_seq_genes(seqsFile: str, seq_genes: str) -> list:
 
     # Find the desired gene and return the description/sequence pair
     for gene in seqList:
-        seq_gene = gene[0].split()[1]
+        # Search for [gene=GENENAME] pattern
+        seq_gene = gene[0].split()[1] # If there is a gene tag, it should be the fist item after the id
         match = re.search("\[gene=.*\]", seq_gene)
         if match:
             gene_name = seq_gene.strip('[gene=').strip(']')
@@ -50,6 +51,16 @@ def filter_seq_genes(seqsFile: str, seq_genes: str) -> list:
                 print(retVal)
                 print(gene[1])
                 return [retVal, gene[1]]
+        
+        # Search for [protein=*GENENAME*] pattern
+        protIndex = gene[0].find("[protein=")
+        endProtIndex = gene[0].find("]", protIndex)
+        proteinStr = gene[0][protIndex:endProtIndex]
+        if seq_genes[0].upper() in proteinStr.upper():
+            retVal = ">" + get_txid(id) + " " + " ".join(gene[0].split(" ")[1:])
+            print(retVal)
+            print(gene[1])
+            return [retVal, gene[1]]
 
 # A wrapper for filter_seq_genes to be called from a snakemake rule
 # @param seqsFile is the path to the file to be parsed

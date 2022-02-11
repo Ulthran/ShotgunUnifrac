@@ -1,4 +1,6 @@
 channels:
   - bioconda
+  - anaconda
 dependencies:
+  - anaconda::libgcc-ng>=9.4.0
   - bioconda::iqtree=2.2.0_beta
