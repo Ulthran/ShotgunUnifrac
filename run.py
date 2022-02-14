@@ -1,6 +1,6 @@
 #!~/anaconda3/bin/ python3
 # Wrapper for the tree building pipeline
-# @param input is the list of species-level taxon ids (one id per line)
+# @param inputFile is the list of species-level taxon ids (one id per line)
 # @param test is a boolean to determine whether or not to run tests before
 # running the pipeline, defaults to False
 # @param singularity is a boolean to determine whether or not to use the
@@ -14,7 +14,7 @@ import pytest
 import tqdm 
 
 ### Parse command line arguments
-input = sys.argv[1]
+inputFile = sys.argv[1]
 test = False
 singularity = False
 try:
@@ -77,7 +77,7 @@ print("Writing run_assembly.txt for this run, this could take a minute")
 
 # Create a list of txids from file
 txids = []
-with open(input) as inputF:
+with open(inputFile) as inputF:
     data = csv.reader(inputF)
     for txid in data:
         txids.append(txid)

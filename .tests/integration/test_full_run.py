@@ -36,7 +36,6 @@ def test_full_run():
             "-m",
             "snakemake", 
             "-c",
-            "--use-conda",
             "--directory",
             workdir,
         ])
