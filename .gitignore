@@ -11,7 +11,6 @@ logs/
 /trees/
 
 /config.yml
-/dag.png
 /run_assembly.txt
 /RAxML_rootedTree.final
 
