@@ -26,12 +26,6 @@ def test_merge_marker_genes():
             ".tests/config.yml",
             workdir
         ])
-        # Copy test data to temporary workdir
-        sp.run([
-            "cp",
-            ".tests/data/TEST",
-            workdir
-        ])
 
         # dbg
         print("sequences/secE.fasta", file=sys.stderr)
@@ -58,9 +52,6 @@ def test_merge_marker_genes():
             "rm",
             "-r",
             str(workdir) + "/logs",
-            "&&",
-            "rm",
-            str(workdir) + "/TEST",
         ])
 
         # Check the output byte by byte using cmp.

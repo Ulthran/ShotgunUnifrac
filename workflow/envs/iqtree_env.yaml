@@ -1,6 +1,6 @@
 channels:
   - bioconda
-  - anaconda
+  - conda-forge
 dependencies:
-  - anaconda::libgcc-ng>=9.4.0
+  - conda-forge::libgcc-ng>=9.4.0
   - bioconda::iqtree=2.2.0_beta

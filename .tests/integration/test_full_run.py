@@ -29,6 +29,13 @@ def test_full_run():
             ".tests/run_assembly.txt",
             workdir
         ])
+	    # Copy Astral to temporary workdir
+        sp.run([
+            "cp",
+            "-r",
+            "Astral",
+            workdir
+        ])
 
         # Run the test job.
         sp.check_output([
@@ -36,6 +43,7 @@ def test_full_run():
             "-m",
             "snakemake", 
             "-c",
+            "--use-conda",
             "--directory",
             workdir,
         ])
@@ -46,7 +54,8 @@ def test_full_run():
             "-r",
             str(workdir) + "/config.yml",
             str(workdir) + "/logs",
-            str(workdir) + "/run_assembly.txt"
+            str(workdir) + "/run_assembly.txt",
+            str(workdir) + "/Astral"
         ])
 
         # Check output
