@@ -1,6 +1,7 @@
 #!~/anaconda3/bin/ python3
 # Wrapper for the tree building pipeline
 # @param inputFile is the list of species-level taxon ids (one id per line)
+# @param geneFile is the list of genes to search for (one per line)
 # @param test is a boolean to determine whether or not to run tests before
 # running the pipeline, defaults to False
 # @param singularity is a boolean to determine whether or not to use the
@@ -14,17 +15,23 @@ import pytest
 import tqdm 
 
 ### Parse command line arguments
-inputFile = sys.argv[1]
-test = False
-singularity = False
+inputFile: str = sys.argv[1]
+geneFile: str = sys.argv[2]
+test: bool = False
+singularity: bool = False
 try:
-    test = sys.argv[2]
+    test = sys.argv[3]
 except IndexError:
     None
 try:
-    singularity = sys.argv[3]
+    singularity = sys.argv[4]
 except IndexError:
     None
+
+print("Taxon ID list file path: " + inputFile)
+print("Gene list file path: " + geneFile)
+print("Run tests: " + str(test))
+print("Run containerized: " + str(singularity))
 
 # Checks for the existence of workflow/data/assembly_summary.txt
 # @return is True if the file exists, False otherwise
@@ -113,20 +120,24 @@ if txids:
 
 ### Write config file for this run
 print("Writing config.yml for this run")
-with open("run_assembly.txt") as run_assembly:
-    tsv = csv.reader(run_assembly, dialect=csv.excel_tab)
+with open("run_assembly.txt") as run_assembly, open(geneFile) as gene_file:
+    run_assembly_reader = csv.reader(run_assembly, dialect=csv.excel_tab)
+    gene_file_reader = csv.reader(gene_file)
     
-    genomeIdIndex = next(tsv).index("ftp_path")
+    genomeIdIndex = next(run_assembly_reader).index("ftp_path")
     with open("config.yml", "w") as config:
         config.write("# Config file for tree building pipeline\n")
         config.write("# Genome accessions (NCBI)\n")
         config.write("IDS: [")
-        for line in tsv:
+        for line in run_assembly_reader:
             val = line[genomeIdIndex].split("/")[-1]
             config.write("\"" + val + "\", ")
         config.write("]\n")
         config.write("# Genes to build trees from\n")
-        config.write("GENES: [\"secE\", \"secG\", \"secY\", \"smpB\", \"tsaE\", \"yajC\"]") # Hardcoded for now, should read from data file
+        config.write("GENES: [")
+        for line in gene_file_reader:
+            config.write("\"" + line[0] + "\", ")
+        config.write("]")
 print("Created config.yml")
 
 ### Run tests
