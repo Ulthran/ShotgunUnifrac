@@ -2,15 +2,17 @@
 .Rhistory
 .snakemake/
 __pycache__/
-
-/data/
 logs/
+
 /ncbi/
 /sequences/
 /aligned-sequences/
 /filtered-sequences/
 /trees/
 
+/config.yml
+/dag.png
+/run_assembly.txt
 /RAxML_rootedTree.final
 
 /workflow/data/

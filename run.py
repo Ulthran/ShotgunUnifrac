@@ -140,14 +140,18 @@ with open("run_assembly.txt") as run_assembly, open(geneFile) as gene_file:
         config.write("]")
 print("Created config.yml")
 
-### Run tests
+### Check for pytest and install if not there, then run tests
 if(test):
+    if(not shutil.which(pytest)):
+        print("PyTest not installed, installing...")
+        os.system("yes | pip install -U pytest")
     retcode = pytest.main(["-x", ".tests/"])
     os.system("snakemake --lint")
 
 ### Check for singularity and install if not there, then run with singularity, else run without
 if(singularity):
     if(not shutil.which(singularity)):
+        print("Singularity not installed, installing...")
         os.system("yes | pip install singularity")
     os.system("snakemake -c --use-conda --use-singularity")
 else:
