@@ -2,6 +2,7 @@
 import collections
 import re
 import csv
+from typing import Union
 
 # Gets the taxon id (NCBI) for the given id from the kraken report
 # @param id is the genome id from NCBI
@@ -22,7 +23,7 @@ def get_txid(id: str) -> str:
 # @param seqsFile is the path to the file to be parsed
 # @param seq_genes is a list of genes to be filtered for (N.B. I've only tested this with list size 1)
 # @return is a list containing the gene descriptor and the gene sequence
-def filter_seq_genes(seqsFile: str, seq_genes: str) -> list:
+def filter_seq_genes(seqsFile: str, seq_genes: str) -> Union[list, None]:
     id = seqsFile.split("/")[1].split("_cds")[0]
     fasta = open(seqsFile, "r")
     seqs = fasta.readlines()
@@ -62,16 +63,28 @@ def filter_seq_genes(seqsFile: str, seq_genes: str) -> list:
             print(gene[1])
             return [retVal, gene[1]]
 
+        # Search for [product=*GENENAME*] pattern
+        prodIndex = gene[0].find("[product=")
+        endProdIndex = gene[0].find("]", prodIndex)
+        productStr = gene[0][prodIndex:endProdIndex]
+        if seq_genes[0].upper() in productStr.upper():
+            retVal = ">" + get_txid(id) + " " + " ".join(gene[0].split(" ")[1:])
+            print(retVal)
+            print(gene[1])
+            return [retVal, gene[1]]
+
 # A wrapper for filter_seq_genes to be called from a snakemake rule
 # @param seqsFile is the path to the file to be parsed
 # @param output is the output file path for the snakemake rule, it is intended to take the form
 #        dir/GENE__restOfFileName.fasta
 # @return is undefined, instead it writes to output
-def filter_seq_genes_sm(seqsFile: str, output: str) -> None:
+def filter_seq_genes_sm(cdsSeqsFile: str, rnaSeqsFile: str, output: str) -> None:
     seq_genes = [output.split("/")[1].split("__")[0]]
     with open(output, "w") as out:
         try:
-            vals = filter_seq_genes(seqsFile, seq_genes)
+            vals = filter_seq_genes(cdsSeqsFile, seq_genes)
+            if not vals:
+                vals = filter_seq_genes(rnaSeqsFile, seq_genes)
             for val in vals:
                 out.write(val + "\n")
         except TypeError:

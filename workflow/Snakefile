@@ -24,6 +24,7 @@ rule get_ncbi_sequences:
         "run_assembly.txt",
     output:
         temp("ncbi/{id}_cds_from_genomic.fasta"),
+        temp("ncbi/{id}_rna_from_genomic.fasta"),
     log:
         "logs/get_ncbi_sequences/{id}.log",
     conda:
@@ -37,6 +38,7 @@ rule get_ncbi_sequences:
 rule extract_marker_genes:
     input:
         "ncbi/{id}_cds_from_genomic.fasta",
+        "ncbi/{id}_rna_from_genomic.fasta",
     output:
         temp("sequences/{gene}__{id}.fasta"),
     log:
@@ -47,7 +49,7 @@ rule extract_marker_genes:
         import scripts.filterGenes as fg
 
         fg.filter_seq_genes_sm(
-            f"ncbi/{wildcards.id}_cds_from_genomic.fasta", str(output)
+            f"ncbi/{wildcards.id}_cds_from_genomic.fasta", f"ncbi/{wildcards.id}_rna_from_genomic.fasta", str(output)
         )
 
 
@@ -130,7 +132,7 @@ rule infer_weights:
     conda:
         "envs/iqtree_env.yaml"
     shell:
-        "iqtree -s filtered-sequences/secE.fasta -pre trees/iqtree -m MFP -g trees/final.unrooted"
+        "iqtree -s filtered-sequences/{config[GENES][0]}.fasta -pre trees/iqtree -m MFP -g trees/final.unrooted"
 
 
 rule root_tree:
