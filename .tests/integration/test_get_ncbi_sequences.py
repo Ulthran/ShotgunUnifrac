@@ -59,16 +59,10 @@ def test_get_ncbi_sequences():
         # Clean config, logs, run_assembly, and data from workdir
         sp.run([
             "rm",
-            str(workdir) + "/config.yml",
-            "&&",
-            "rm",
             "-r",
+            str(workdir) + "/config.yml",
             str(workdir) + "/logs",
-            "&&",
-            "rm",
             str(workdir) + "/TEST",
-            "&&",
-            "rm",
             str(workdir) + "/run_assembly.txt"
         ])
 
