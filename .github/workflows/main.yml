@@ -7,27 +7,6 @@ on:
     branches: [ master ]
 
 jobs:
-  format:
-    name: Snakefmt Snakefile
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v2
-        
-      - name: Setup Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: "3.x"
-      
-      - name: Install Dependencies
-        run: |
-          python -m pip install snakefmt
-
-      - name: Run Snakefmt
-        run: |
-          snakefmt workflow/Snakefile
-
   lint:
     name: Lint Code Base
     runs-on: ubuntu-latest
@@ -39,7 +18,7 @@ jobs:
       - name: Lint Code Base
         uses: github/super-linter@v3.17.0
         env:
-          VALIDATE_ALL_CODEBASE: false
+          VALIDATE_ALL_CODEBASE: true
           DEFAULT_BRANCH: master
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
