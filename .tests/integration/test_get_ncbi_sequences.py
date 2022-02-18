@@ -39,15 +39,13 @@ def test_get_ncbi_sequences():
             workdir
         ])
 
-        # dbg
-        print("ncbi/GCF_000010525.1_ASM1052v1_cds_from_genomic.fasta", file=sys.stderr)
-
         # Run the test job.
         sp.check_output([
             "python",
             "-m",
             "snakemake", 
             "ncbi/GCF_000010525.1_ASM1052v1_cds_from_genomic.fasta",
+            "ncbi/GCF_000010525.1_ASM1052v1_rna_from_genomic.fasta",
             "-F", 
             "-j1",
             "--keep-target-files",
@@ -63,11 +61,13 @@ def test_get_ncbi_sequences():
             str(workdir) + "/config.yml",
             str(workdir) + "/logs",
             str(workdir) + "/TEST",
-            str(workdir) + "/run_assembly.txt"
+            str(workdir) + "/run_assembly.txt",
         ])
 
         # Check the output byte by byte using cmp.
         # To modify this behavior, you can inherit from common.OutputChecker in here
         # and overwrite the method `compare_files(generated_file, expected_file), 
         # also see common.py.
-        common.OutputChecker(data_path, expected_path, workdir).check()
+        #common.OutputChecker(data_path, expected_path, workdir).check()
+        if not (os.path.exists(str(workdir) + "/ncbi/GCF_000010525.1_ASM1052v1_cds_from_genomic.fasta") and os.path.exists(str(workdir) + "/ncbi/GCF_000010525.1_ASM1052v1_rna_from_genomic.fasta")):
+            raise ValueError("Couldn't download both files")
