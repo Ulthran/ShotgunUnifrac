@@ -49,7 +49,9 @@ rule extract_marker_genes:
         import scripts.filterGenes as fg
 
         fg.filter_seq_genes_sm(
-            f"ncbi/{wildcards.id}_cds_from_genomic.fasta", f"ncbi/{wildcards.id}_rna_from_genomic.fasta", str(output)
+            f"ncbi/{wildcards.id}_cds_from_genomic.fasta",
+            f"ncbi/{wildcards.id}_rna_from_genomic.fasta",
+            str(output),
         )
 
 
