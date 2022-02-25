@@ -7,9 +7,9 @@ import shutil
 from pathlib import Path, PurePosixPath
 
 sys.path.insert(0, os.path.dirname(__file__))
+sys.path.append(str(os.path.dirname(__file__)) + "/../../workflow/scripts")
 
 import common
-
 
 def test_get_ncbi_sequences():
 
@@ -20,54 +20,19 @@ def test_get_ncbi_sequences():
 
         # Copy data to the temporary workdir.
         shutil.copytree(data_path, workdir)
-        # Copy config file to temporary workdir
-        sp.run([
-            "cp",
-            ".tests/config.yml",
-            workdir
-        ])
-        # Copy test data to temporary workdir
-        sp.run([
-            "cp",
-            ".tests/data/TEST",
-            workdir
-        ])
-        # Copy run_assembly.txt to temporary workdir
-        sp.run([
-            "cp",
-            ".tests/run_assembly.txt",
-            workdir
-        ])
 
-        # Run the test job.
-        sp.check_output([
-            "python",
-            "-m",
-            "snakemake", 
-            "ncbi/GCF_000010525.1_ASM1052v1_cds_from_genomic.fasta",
-            "ncbi/GCF_000010525.1_ASM1052v1_rna_from_genomic.fasta",
-            "-F", 
-            "-j1",
-            "--keep-target-files",
-    
-            "--directory",
-            workdir,
-        ])
+        # write run_assembly.txt in temporary workdir
+        with open(str(workdir) + "/run_assembly.txt", "w") as run_assembly:
+            run_assembly.write("assembly_accession	bioproject	biosample	wgs_master	refseq_category	taxid	species_taxid	organism_name	infraspecific_name	isolate	version_status	assembly_level	release_type	genome_rep	seq_rel_date	asm_name	submitter	gbrs_paired_asm	paired_asm_comp	ftp_path	excluded_from_refseq	relation_to_type_material	asm_not_live_date\n")
+            run_assembly.write("GCF_001735525.1	PRJNA224116	SAMN05384437	MCBT00000000.1	representative genome	23	23	Shewanella colwelliana	strain=CSB03KR		latest	Scaffold	Major	Full	2016/09/19	ASM173552v1	Chonnam National University	GCA_001735525.1	identical	https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/001/735/525/GCF_001735525.1_ASM173552v1			na")
 
-        # Clean config, logs, run_assembly, and data from workdir
-        sp.run([
-            "rm",
-            "-r",
-            str(workdir) + "/config.yml",
-            str(workdir) + "/logs",
-            str(workdir) + "/TEST",
-            str(workdir) + "/run_assembly.txt",
-        ])
+        # Run the test job
+        import downloadGenes as dg
+        os.system("mkdir " + str(workdir) + "/ncbi/")
+        downloaded_genome_ids, failed_genome_ids = dg.download_genomes(str(workdir))
 
-        # Check the output byte by byte using cmp.
-        # To modify this behavior, you can inherit from common.OutputChecker in here
-        # and overwrite the method `compare_files(generated_file, expected_file), 
-        # also see common.py.
-        #common.OutputChecker(data_path, expected_path, workdir).check()
-        if not (os.path.exists(str(workdir) + "/ncbi/GCF_000010525.1_ASM1052v1_cds_from_genomic.fasta") and os.path.exists(str(workdir) + "/ncbi/GCF_000010525.1_ASM1052v1_rna_from_genomic.fasta")):
-            raise ValueError("Couldn't download both files")
+        if failed_genome_ids:
+            raise ValueError("Failed to download: " + str(failed_genome_ids))
+        for id in downloaded_genome_ids:
+            if (not os.path.isfile(str(workdir) + "/ncbi/" + id + "_cds_from_genomic.fasta")) or (not os.path.isfile(str(workdir) + "/ncbi/" + id + "_rna_from_genomic.fasta")):
+                raise ValueError("Couldn't find: " + id)

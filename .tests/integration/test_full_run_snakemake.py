@@ -36,6 +36,13 @@ def test_full_run():
             "Astral",
             workdir
         ])
+        # Copy merged-sequences data to temporary workdir
+        sp.run([
+            "cp",
+            "-r",
+            ".tests/integration/full_run_snakemake/data/merged-sequences",
+            workdir
+        ])
 
         # Run the test job.
         sp.check_output([
@@ -46,16 +53,6 @@ def test_full_run():
             "--use-conda",
             "--directory",
             workdir,
-        ])
-
-        # Clean config, logs, run_assembly, and data from workdir
-        sp.run([
-            "rm",
-            "-r",
-            str(workdir) + "/config.yml",
-            str(workdir) + "/logs",
-            str(workdir) + "/run_assembly.txt",
-            str(workdir) + "/Astral"
         ])
 
         # Check output

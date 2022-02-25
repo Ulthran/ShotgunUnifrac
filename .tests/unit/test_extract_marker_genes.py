@@ -7,6 +7,7 @@ import shutil
 from pathlib import Path, PurePosixPath
 
 sys.path.insert(0, os.path.dirname(__file__))
+sys.path.append(str(os.path.dirname(__file__)) + "/../../workflow/scripts")
 
 import common
 
@@ -15,59 +16,42 @@ def test_extract_marker_genes():
 
     with TemporaryDirectory() as tmpdir:
         workdir = Path(tmpdir) / "workdir"
+        sys.path.insert(0, str(workdir))
         data_path = PurePosixPath(".tests/unit/extract_marker_genes/data")
         expected_path = PurePosixPath(".tests/unit/extract_marker_genes/expected")
 
         # Copy data to the temporary workdir.
         shutil.copytree(data_path, workdir)
-        # Copy config file to temporary workdir
-        sp.run([
-            "cp",
-            ".tests/config.yml",
-            workdir
-        ])
-        # Copy test data to temporary workdir
-        sp.run([
-            "cp",
-            ".tests/data/TEST",
-            workdir
-        ])
-        # Copy run_assembly.txt to temporary workdir
+
+        # Copy run_assembly.txt to temporary workdir (for matching genome id to taxon id)
         sp.run([
             "cp",
             ".tests/run_assembly.txt",
-            workdir
+            str(workdir)
         ])
 
-        # dbg
-        print("sequences/secE__GCF_000010525.1_ASM1052v1.fasta", file=sys.stderr)
+        # Write gene file
+        with open(str(workdir) + "geneFile", "w") as geneF:
+            geneF.write("secE")
 
-        # Run the test job.
-        sp.check_output([
-            "python",
-            "-m",
-            "snakemake", 
-            "sequences/secE__GCF_000010525.1_ASM1052v1.fasta",
-            "-F", 
-            "-j1",
-            "--keep-target-files",
-    
-            "--directory",
-            workdir,
-        ])
-
-        # Clean config, logs, run_assembly, and data from workdir
+        # Create downloaded genes
+        os.system("mkdir " + str(workdir) + "/ncbi/")
         sp.run([
-            "rm",
+            "cp",
             "-r",
-            str(workdir) + "/config.yml",
-            str(workdir) + "/logs",
-            str(workdir) + "/TEST",
-            str(workdir) + "/run_assembly.txt"
+            ".tests/unit/extract_marker_genes/data/ncbi",
+            str(workdir) + "/ncbi/"
         ])
 
-        # Check the output byte by byte using cmp.
-        # To modify this behavior, you can inherit from common.OutputChecker in here
-        # and overwrite the method `compare_files(generated_file, expected_file), 
-        # also see common.py.
-        common.OutputChecker(data_path, expected_path, workdir).check()
+        # Run the test job
+        import downloadGenes as dg
+        os.system("mkdir " + str(workdir) + "/sequences/")
+        gene_counter = dg.extract_genes(str(workdir) + "geneFile", ["GCF_000010525.1_ASM1052v1"], str(workdir))
+
+        # Check output
+        if os.path.isfile(str(workdir) + "/sequences/secE__GCF_000010525.1_ASM1052v1.fasta"):
+            if os.path.getsize(str(workdir) + "/sequences/secE__GCF_000010525.1_ASM1052v1.fasta") == 0:
+                raise ValueError("Gene file is empty, extraction failed")
+        else:
+            raise ValueError("Gene file doesn't exist")
+

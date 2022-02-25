@@ -11,10 +11,17 @@ import csv
 import sys
 import os
 import shutil
-import pytest
-import tqdm 
+from typing import Tuple
+try:
+    import tqdm
+except ImportError:
+    os.system("pip install tqdm")
+    import tqdm
+import workflow.scripts.downloadGenes as dg
+from collections import Counter
 
 ### Parse command line arguments
+
 inputFile: str = sys.argv[1]
 geneFile: str = sys.argv[2]
 test: bool = False
@@ -28,10 +35,17 @@ try:
 except IndexError:
     None
 
+logF = open("logs/main.log", "w")
+print("Writing logs to: " + logF.name)
+
 print("Taxon ID list file path: " + inputFile)
 print("Gene list file path: " + geneFile)
 print("Run tests: " + str(test))
 print("Run containerized: " + str(singularity))
+logF.write("Taxon ID list file path: " + inputFile + "\n")
+logF.write("Gene list file path: " + geneFile + "\n")
+logF.write("Run tests: " + str(test) + "\n")
+logF.write("Run containerized: " + str(singularity) + "\n")
 
 # Checks for the existence of workflow/data/assembly_summary.txt
 # @return is True if the file exists, False otherwise
@@ -68,7 +82,7 @@ def find_genome_accessions(txids: list, naTol: bool = False) -> list:
                                             # a csv.reader object instead of a file object
                     for txid in txids:
                         try:
-                            if line[idIndex] == txid[0] and (line[refSeqIndex] != "na" or (line[lvlIndex] == "Complete Genome" and naTol)):
+                            if line[idIndex] == txid and (line[refSeqIndex] != "na" or (line[lvlIndex] == "Complete Genome" and naTol)):
                                 run_assembly.write("\t".join(line) + "\n")
                                 txids.remove(txid)
                                 break
@@ -80,14 +94,17 @@ def find_genome_accessions(txids: list, naTol: bool = False) -> list:
 None if check_for_assembly() else download_assembly()
 
 ### Write run_assembly.txt for this run
+
 print("Writing run_assembly.txt for this run, this could take a minute")
 
-# Create a list of txids from file
+# Create a list of txids from file of tab delimited columns with txid in the first position
+# Ignores lines starting with '#'
 txids = []
 with open(inputFile) as inputF:
-    data = csv.reader(inputF)
-    for txid in data:
-        txids.append(txid)
+    data = csv.reader(inputF, dialect=csv.excel_tab)
+    for line in data:
+        if line[0][0] != "#":
+            txids.append(line[0])
 
 # Overwrite existing file with header line
 with open("run_assembly.txt", "w") as run_assembly:
@@ -103,52 +120,63 @@ txids = find_genome_accessions(txids)
 
 if txids:
     print("Could not find suitable entries for:\n")
+    logF.write("Could not find suitable entries for:\n")
     for txid in txids:
-        print(txid[0])
-    print("\nTrying with 'na'-tolerance...")
-    txids = find_genome_accessions(txids, True)
+        print(txid)
+        logF.write(txid + "\n")
 
-if txids:
-    print("Could not find suitable entries for:\n")
-    for txid in txids:
-        print(txid[0])
-    print("\nNothing left to try. Do you want to continue without the above taxa? (y/n) ")
-    ans = input()
-    if ans.upper() == "N":
-        print("\nQuitting...")
-        quit()
+### Download and curate data for run
+
+None if os.path.isdir("ncbi/") else os.system("mkdir ncbi/")
+None if os.path.isdir("sequences/") else os.system("mkdir sequences/")
+None if os.path.isdir("merged-sequences/") else os.system("mkdir merged-sequences/")
+
+# Download genomes
+downloaded_genome_ids, failed_genome_ids = dg.download_genomes()
+
+if failed_genome_ids:
+    logF.write("Failed to download genome(s) for:\n")
+    for failure in failed_genome_ids:
+        logF.write(failure + "\n")
+
+# Extract genes
+gene_counter = dg.extract_genes(geneFile, downloaded_genome_ids)
+
+logF.write("Gene extraction successes (total=" + str(len(downloaded_genome_ids)) + "):\n")
+for gene in gene_counter.most_common():
+    logF.write(gene[0] + ": " + str(gene[1]) + "\n")
+logF.write("Ignoring genes with fewer than 4 sequences...")
+
+# Merge genes
+gene_list = dg.merge_genes(gene_counter)
+
+# Clean up
+os.system("rm -r sequences/")
 
 ### Write config file for this run
+
 print("Writing config.yml for this run")
-with open("run_assembly.txt") as run_assembly, open(geneFile) as gene_file:
-    run_assembly_reader = csv.reader(run_assembly, dialect=csv.excel_tab)
-    gene_file_reader = csv.reader(gene_file)
-    
-    genomeIdIndex = next(run_assembly_reader).index("ftp_path")
-    with open("config.yml", "w") as config:
-        config.write("# Config file for tree building pipeline\n")
-        config.write("# Genome accessions (NCBI)\n")
-        config.write("IDS: [")
-        for line in run_assembly_reader:
-            val = line[genomeIdIndex].split("/")[-1]
-            config.write("\"" + val + "\", ")
-        config.write("]\n")
-        config.write("# Genes to build trees from\n")
-        config.write("GENES: [")
-        for line in gene_file_reader:
-            config.write("\"" + line[0] + "\", ")
-        config.write("]")
+with open("config.yml", "w") as config:
+    config.write("# Config file for tree building pipeline\n")
+    config.write("# Genes to build trees from\n")
+    config.write("GENES: [")
+    for gene in gene_list:
+        config.write("\"" + gene + "\", ")
+    config.write("]")
 print("Created config.yml")
 
 ### Check for pytest and install if not there, then run tests
+
 if(test):
     if(not shutil.which(pytest)):
         print("PyTest not installed, installing...")
         os.system("yes | pip install -U pytest")
+    import pytest
     retcode = pytest.main(["-x", ".tests/"])
     os.system("snakemake --lint")
 
 ### Check for singularity and install if not there, then run with singularity, else run without
+
 if(singularity):
     if(not shutil.which(singularity)):
         print("Singularity not installed, installing...")
@@ -157,3 +185,7 @@ if(singularity):
 else:
     None
     os.system("snakemake -c --use-conda")
+
+### Post-run summary
+
+logF.close()

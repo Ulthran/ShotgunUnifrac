@@ -7,8 +7,9 @@ import shutil
 from pathlib import Path, PurePosixPath
 
 sys.path.insert(0, os.path.dirname(__file__))
+sys.path.append(str(os.path.dirname(__file__)) + "/../../workflow/scripts")
 
-import common
+from collections import Counter
 
 
 def test_merge_marker_genes():
@@ -20,42 +21,19 @@ def test_merge_marker_genes():
 
         # Copy data to the temporary workdir.
         shutil.copytree(data_path, workdir)
-        # Copy config file to temporary workdir
-        sp.run([
-            "cp",
-            ".tests/config.yml",
-            workdir
-        ])
+        
+        # write gene extraction file to be "merged" into gene file
+        os.system("mkdir " + str(workdir) + "/sequences/")
+        os.system("mkdir " + str(workdir) + "/merged-sequences/")
+        with open(str(workdir) + "/sequences/secE.fasta", "w") as secE:
+            secE.write(">lcl|NC_009937.1_cds_WP_043878890.1_905 [gene=secE] [locus_tag=AZC_RS04525] [protein=preprotein translocase subunit SecE] [protein_id=WP_043878890.1] [location=983866..984063] [gbkey=CDS]")
+            secE.write("ATGGCAAAGAACAGTCCCGTGGAGTTCTTCCAGCAGGTCCGCACCGAGACGGCGAAGGTGACCTGGCCGTCCCGGCGCGAGACGCTGATCACCACCGCCATGGTCTTCGTCATGGTGCTGCTGGCGTCCATCTTCTTCCTGGTCGTGGACCAGATCCTGCGATTCGGCGTCAGCCAGATCCTCAGCATCGGCCATTGA")
 
-        # dbg
-        print("sequences/secE.fasta", file=sys.stderr)
+        # Run the test job
+        import downloadGenes as dg
+        gene_list = dg.merge_genes(Counter({"secE": 4}), str(workdir))
 
-        # Run the test job.
-        sp.check_output([
-            "python",
-            "-m",
-            "snakemake", 
-            "sequences/secE.fasta",
-            "-F", 
-            "-j1",
-            "--keep-target-files",
-    
-            "--directory",
-            workdir,
-        ])
-
-        # Clean config, logs, and data from workdir
-        sp.run([
-            "rm",
-            str(workdir) + "/config.yml",
-            "&&",
-            "rm",
-            "-r",
-            str(workdir) + "/logs",
-        ])
-
-        # Check the output byte by byte using cmp.
-        # To modify this behavior, you can inherit from common.OutputChecker in here
-        # and overwrite the method `compare_files(generated_file, expected_file), 
-        # also see common.py.
-        common.OutputChecker(data_path, expected_path, workdir).check()
+        if not gene_list:
+            raise ValueError("gene_list empty, something went wrong in merge_genes function")
+        if not os.path.isfile(str(workdir) + "/merged-sequences/secE.fasta"):
+            raise ValueError("Failed to create merged gene file")

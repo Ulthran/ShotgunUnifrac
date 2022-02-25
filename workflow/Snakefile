@@ -19,58 +19,9 @@ rule all_filtered_files:
         expand("filtered-sequences/{gene}.fasta", gene=config["GENES"]),
 
 
-rule get_ncbi_sequences:
-    input:
-        "run_assembly.txt",
-    output:
-        temp("ncbi/{id}_cds_from_genomic.fasta"),
-        temp("ncbi/{id}_rna_from_genomic.fasta"),
-    log:
-        "logs/get_ncbi_sequences/{id}.log",
-    conda:
-        ""
-    run:
-        import scripts.downloadGenes as dg
-
-        dg.download_genes_sm(str(output))
-
-
-rule extract_marker_genes:
-    input:
-        "ncbi/{id}_cds_from_genomic.fasta",
-        "ncbi/{id}_rna_from_genomic.fasta",
-    output:
-        temp("sequences/{gene}__{id}.fasta"),
-    log:
-        "logs/extract_marker_genes/{gene}__{id}.log",
-    conda:
-        ""
-    run:
-        import scripts.filterGenes as fg
-
-        fg.filter_seq_genes_sm(
-            f"ncbi/{wildcards.id}_cds_from_genomic.fasta",
-            f"ncbi/{wildcards.id}_rna_from_genomic.fasta",
-            str(output),
-        )
-
-
-rule merge_marker_genes:
-    input:
-        expand("sequences/{gene}__{id}.fasta", id=config["IDS"], gene=config["GENES"]),
-    output:
-        temp("sequences/{gene}.fasta"),
-    log:
-        "logs/merge_marker_genes/{gene}.log",
-    conda:
-        ""
-    shell:
-        "cat sequences/{wildcards.gene}__*.fasta > {output}"
-
-
 rule align_fasta:
     input:
-        "sequences/{gene}.fasta",
+        "merged-sequences/{gene}.fasta",
     output:
         temp("aligned-sequences/{gene}.fasta"),
     log:
@@ -78,7 +29,7 @@ rule align_fasta:
     conda:
         "envs/muscle_env.yaml"
     shell:
-        "muscle -in sequences/{wildcards.gene}.fasta -out aligned-sequences/{wildcards.gene}.fasta"
+        "muscle -in merged-sequences/{wildcards.gene}.fasta -out aligned-sequences/{wildcards.gene}.fasta"
 
 
 rule filter_columns:

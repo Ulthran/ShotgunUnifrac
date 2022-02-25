@@ -6,6 +6,7 @@ logs/
 
 /ncbi/
 /sequences/
+/merged-sequences/
 /aligned-sequences/
 /filtered-sequences/
 /trees/
