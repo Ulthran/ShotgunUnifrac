@@ -1,8 +1,15 @@
 # ShotgunUnifrac
 
+A dual use program for downloading and extracting genes from NCBI and for creating phylogenetic trees for many marker genes and merging the results into one
+
 ## Install
 
     git clone git@github.com:Ulthran/ShotgunUnifrac.git
+
+To install the `genetools` library for downloading, extracting, and merging genes from NCBI,
+
+    cd ShotgunUnifrac/workflow/scripts
+    pip install .
 
 ## Prereqs
 
@@ -11,9 +18,13 @@
   3. (For testing only) PyTest
   4. (For containerization only) Singularity
 
-N.B. PyTest and Singularity should be installed by `run.py` if they aren't detected on your system
-
 ## Running tests
+
+For the `genetools` package,
+
+    pytest workflow/scripts/tests
+
+For the tree building Snakemake workflow,
 
     pytest .tests/
     snakemake --lint
@@ -23,14 +34,21 @@ N.B. The linting and formatting steps are optional, you should run them on any c
 
 ## Running
 
+To download and curate data for tree building,
+
+    cd workflow/scripts
+    genetools /path/to/taxonid/list -f /path/to/gene/list -m --write_config
+
+N.B. You can include the `--remove_temp` flag as well to remove all the files except the final output, in this case the merged gene files
+
+This should download reference/representative genomes from NCBI for each taxon, extract each gene from each of those genomes into its own file (-f), and then combine those into one file per gene (-m) and write a config for the tree building pipeline (--write_config)
+
 To generate tree:
 
-    python run.py workflow/data/TEST_TXIDS.txt workflow/data/TEST_GENES.txt True True
+    cd ../..
+    cp workflow/scripts/output/config.yml .
+    snakemake -c --use-conda
 
-Arguments are:
-  1. str: Path to list of taxon ids (one per line)
-  2. str: Path to list of genes (one per line)
-  3. bool[False]: Run tests before pipeline
-  4. bool[False]: Run pipeline with singularity (containerized)
+This should output a file called `RAxML_rootedTree.final` which contains the final tree
 
 A worked example is given in the [wiki](https://github.com/Ulthran/ShotgunUnifrac/wiki)

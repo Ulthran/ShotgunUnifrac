@@ -84,8 +84,10 @@ rule infer_weights:
         "logs/infer_weights/iqtree.treefile.log",
     conda:
         "envs/iqtree_env.yaml"
+    params:
+        ref=config["GENES"][0],
     shell:
-        "iqtree -s filtered-sequences/{config[GENES][0]}.fasta -pre trees/iqtree -m MFP -g trees/final.unrooted"
+        "iqtree -s filtered-sequences/{params.ref}.fasta -pre trees/iqtree -m MFP -g trees/final.unrooted"
 
 
 rule root_tree:

@@ -14,7 +14,7 @@ import tqdm
 # @param run_path is the path to run_assembly.txt
 # @return is the taxon id
 def get_txid(id: str, run_path: str = "") -> str:
-    with open(run_path + "data/run_assembly.txt") as runAssembly:
+    with open(os.path.join(run_path + "data/run_assembly.txt")) as runAssembly:
         tsv = csv.reader(runAssembly, dialect=csv.excel_tab)
         firstLine = next(tsv)
         idIndex = firstLine.index("assembly_accession")
@@ -30,7 +30,7 @@ def get_txid(id: str, run_path: str = "") -> str:
 # @param targetGene is the gene to be found
 # @return is either a list containing the description/gene pair or None if it couldn't be found
 def filter_seq_file(seqFile: str, genomeId: str, targetGene: str) -> Union[list, None]:
-    run_assembly_path = "" if len(seqFile.split("data/")) == 1 else seqFile.split("data/")[0]
+    run_assembly_path = "" if len(seqFile.split("output/")) == 1 else seqFile.split("output/")[0]
     seqList = []
     seqObj = []
     # Fill seqList with all the description/sequence pairs from the file
@@ -89,8 +89,8 @@ def filter_seq_file(seqFile: str, genomeId: str, targetGene: str) -> Union[list,
 # @param ncbi_dir is the directory containing downloaded genomes
 # @return is a list containing the gene descriptor and the gene sequence
 def filter_seq_genes(genomeId: str, gene: str, ncbi_dir: str) -> list:
-    cds_path = ncbi_dir + genomeId + "_cds_from_genomic.fasta"
-    rna_path = ncbi_dir + genomeId + "_rna_from_genomic.fasta"
+    cds_path = os.path.join(ncbi_dir, genomeId + "_cds_from_genomic.fasta")
+    rna_path = os.path.join(ncbi_dir, genomeId + "_rna_from_genomic.fasta")
 
     vals = filter_seq_file(cds_path, genomeId, gene)
     if not vals:
@@ -102,9 +102,9 @@ def filter_seq_genes(genomeId: str, gene: str, ncbi_dir: str) -> list:
 # Extracts each gene in geneFile from each genome in downloaded_genome_ids
 # @param geneFile is the path to the file listing genes
 # @param downloaded_genome_ids is the list of successfully downloaded genome ids
-# @param prefix is a prefix to the path (for testing)
+# @param outputDir is the location to extract genes to
 # @return is a Counter containing how many of each gene was successfully extracted
-def extract_genes(geneFile: str, downloaded_genome_ids: list, prefix: str = "") -> Counter:
+def extract_genes(geneFile: str, downloaded_genome_ids: list, outputDir: str) -> Counter:
     gene_counter = Counter()
     with open(geneFile) as gene_file: # Initialize Counter so that it picks up genes that don't exist in any genomes
         gene_file_reader = csv.reader(gene_file)
@@ -112,8 +112,8 @@ def extract_genes(geneFile: str, downloaded_genome_ids: list, prefix: str = "") 
             if line[0][0] != "#":
                 gene_counter[line[0]] = 0
 
-    ncbi_dir = "output/ncbi/" if prefix == "" else prefix + "/output/ncbi/"
-    seq_dir = "output/sequences/" if prefix == "" else prefix + "/output/sequences/"
+    ncbi_dir = os.path.join(outputDir, "output/ncbi/")
+    seq_dir = os.path.join(outputDir, "output/sequences/")
     print("Extracting genes from genome files...\n")
     print(str(downloaded_genome_ids))
     with tqdm.tqdm(total=len(downloaded_genome_ids) * len(gene_counter.most_common())) as pbar: # Add progress bar

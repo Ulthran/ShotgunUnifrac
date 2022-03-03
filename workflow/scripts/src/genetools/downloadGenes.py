@@ -1,6 +1,7 @@
 # Downloads genome from NCBI for a given genome id
 import csv
 import gzip
+from io import TextIOWrapper
 import os
 import shutil
 import tqdm
@@ -52,9 +53,10 @@ def find_genome_accessions(txids: list, naTol: bool = False) -> list:
 
 # Prepares the run_assembly.txt file for downloading genomes
 # @param inputFile is the path to the list of taxon ids
-# @param logF is the path to the log file
+# @param outputDir is the output location for run_assembly.txt
+# @param logF is the log file to write to
 # @return is the list of taxon ids for which a reference/representative genome couldn't be found
-def prepare_run_assembly(inputFile: str, logF: str) -> list:
+def prepare_run_assembly(inputFile: str, outputDir: str, logF: TextIOWrapper) -> list:
     # Check for existence of assembly_summary.txt
     None if check_for_assembly() else download_assembly()
 
@@ -72,7 +74,7 @@ def prepare_run_assembly(inputFile: str, logF: str) -> list:
                 txids.append(line[0])
 
     # Overwrite existing file with header line
-    with open("data/run_assembly.txt", "w") as run_assembly:
+    with open(os.path.join(outputDir, "data/run_assembly.txt"), "w") as run_assembly:
         with open("data/assembly_summary.txt") as assembly:
             reader = csv.reader(assembly, dialect=csv.excel_tab)
             next(reader) # First row is a random comment
@@ -93,13 +95,14 @@ def prepare_run_assembly(inputFile: str, logF: str) -> list:
     return txids
 
 # Downloads genomes from NCBI for all the accessions in run_assembly.txt
-# @param prefix is a prefix to the path (for testing)
+# @param outputDir is the location to download genomes
+# @param logF is the log file to write to
 # @return is a tuple containing the ids of successfully downloaded genomes and those of failed genomes
-def download_genomes(logF: str, prefix: str = "") -> Tuple[list, list]:
+def download_genomes(outputDir: str, logF: TextIOWrapper) -> Tuple[list, list]:
     downloaded_genome_ids = []
     failed_genome_ids = []
-    ncbi_dir = "output/ncbi/" if prefix == "" else prefix + "output/ncbi/"
-    run_assembly_path = "data/run_assembly.txt" if prefix == "" else prefix + "/data/run_assembly.txt"
+    ncbi_dir = os.path.join(outputDir, "output/ncbi/")
+    run_assembly_path = os.path.join(outputDir, "data/run_assembly.txt")
     with open (run_assembly_path) as run_assembly:
         run_assembly_reader = csv.reader(run_assembly, dialect=csv.excel_tab)
         firstLine = next(run_assembly_reader)
