@@ -35,6 +35,17 @@ def _filter_genes(args, downloaded_genome_ids, logF):
 def _merge_genes(gene_counter):
     merge_genes(gene_counter)
 
+def _write_config(args, cfg_fp):
+    print("Writing " + cfg_fp + " for this run")
+    with open(cfg_fp, "w") as config:
+        config.write("# Config file for tree building pipeline\n")
+        config.write("# Genes to build trees from\n")
+        config.write("GENES: [")
+        for gene in args.filter_genes.readlines():
+            if gene[0] != "#":
+                config.write("\"" + gene.strip() + "\", ")
+        config.write("]")
+
 def main(argv=None):
     p = argparse.ArgumentParser()
     p.add_argument("taxon_list", help="Filepath to list of taxa to download genomes for (tsv with taxon id in first column)")
@@ -47,11 +58,17 @@ def main(argv=None):
     p.add_argument("--remove_temp", action="store_true",
         help=(
             "Removes any files that aren't produced in the final step of the program (i.e. if run with --merge-genes, this would remove the downloaded sequences and individual gene files, keeping only the merged gene files)"))
-    
+    p.add_argument("--write_config", action="store_true",
+        help=(
+            "Writes a config file for snakemake based on the genes provided in the --filter_genes arg"))
+
     args = p.parse_args(argv)
 
     if args.merge_genes and not args.filter_genes:
         p.error("Must include --filter_genes arg along with --merge_genes")
+    
+    if args.write_config and not args.filter_genes:
+        p.error("Must include --filter_genes arg along with --write_config")
     
     None if os.path.isdir("output/") else os.mkdir("output")
     None if os.path.isdir("output/ncbi/") else os.mkdir("output/ncbi")
@@ -65,6 +82,7 @@ def main(argv=None):
     gene_counter = Counter()
     if args.filter_genes:
         None if os.path.isdir("output/sequences/") else os.mkdir("output/sequences")
+        None if os.path.isdir("data/") else os.mkdir("data")
         logF.write("Extracting genes...\n")
         gene_counter = _filter_genes(args, ids, logF)
         if args.remove_temp:
@@ -76,6 +94,11 @@ def main(argv=None):
         _merge_genes(gene_counter)
         if args.remove_temp:
             shutil.rmtree("output/sequences/")
+    
+    if args.write_config:
+        cfg_fp = "output/config.yml"
+        logF.write("Writing config to " + cfg_fp)
+        _write_config(args, cfg_fp)
 
 
 

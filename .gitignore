@@ -19,4 +19,4 @@ logs/
 /workflow/scripts/build/
 /workflow/scripts/data/
 /workflow/scripts/output/
-/workflow/scripts/*.egg-info/
+/workflow/scripts/src/*.egg-info/
