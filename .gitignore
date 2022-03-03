@@ -16,3 +16,8 @@ logs/
 /RAxML_rootedTree.final
 
 /workflow/data/
+
+# Python lib
+/workflow/scripts/build
+/workflow/scripts/output
+
