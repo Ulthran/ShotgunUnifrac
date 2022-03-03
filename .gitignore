@@ -11,13 +11,12 @@ logs/
 /filtered-sequences/
 /trees/
 
-/config.yml
-/run_assembly.txt
 /RAxML_rootedTree.final
 
 /workflow/data/
 
 # Python lib
-/workflow/scripts/build
-/workflow/scripts/output
-
+/workflow/scripts/build/
+/workflow/scripts/data/
+/workflow/scripts/output/
+/workflow/scripts/*.egg-info/
