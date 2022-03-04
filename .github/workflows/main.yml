@@ -23,8 +23,9 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
           VALIDATE_SNAKEMAKE_SNAKEFMT: true
-  test:
-    name: Test Code Base
+  
+  test-snakemake:
+    name: Test Tree Building
     runs-on: ubuntu-latest
     
     steps:
@@ -48,7 +49,25 @@ jobs:
       - name: Run Tests
         run: |
           pytest .tests/
-          
+  
+  test-genetools:
+    name: Test Gene Tools
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+      
+      - name: Install Dependencies
+        run: |
+          cd workflow/scripts
+          python -m pip install .
+          python -m pip install -U pytest
+      
+      - name: Run Tests
+        run: |
+          cd workflow/scripts
+          pytest tests/
           
           
 

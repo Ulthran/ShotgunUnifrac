@@ -14,7 +14,7 @@ import tqdm
 # @param run_path is the path to run_assembly.txt
 # @return is the taxon id
 def get_txid(id: str, run_path: str = "") -> str:
-    with open(os.path.join(run_path + "data/run_assembly.txt")) as runAssembly:
+    with open(os.path.join(run_path, "data/run_assembly.txt")) as runAssembly:
         tsv = csv.reader(runAssembly, dialect=csv.excel_tab)
         firstLine = next(tsv)
         idIndex = firstLine.index("assembly_accession")
@@ -26,7 +26,7 @@ def get_txid(id: str, run_path: str = "") -> str:
 
 # Filter through the given fasta file and find targetGene if it's there
 # @param seqFile is the path to the fasta file
-# @param genomeId is the id of the desired genome
+# @param genomeId is the id of the genome in seqFile (needed for getting the taxon id)
 # @param targetGene is the gene to be found
 # @return is either a list containing the description/gene pair or None if it couldn't be found
 def filter_seq_file(seqFile: str, genomeId: str, targetGene: str) -> Union[list, None]:
@@ -48,23 +48,22 @@ def filter_seq_file(seqFile: str, genomeId: str, targetGene: str) -> Union[list,
     
     # Find the desired gene and return the description/sequence pair
     for gene in seqList:
-        # Search for [gene=GENENAME] pattern
-        seq_gene = gene[0].split()[1] # If there is a gene tag, it should be the fist item after the id
-        match = re.search("\[gene=.*\]", seq_gene)
-        if match:
-            gene_name = seq_gene.strip('[gene=').strip(']')
-            if gene_name.upper() == targetGene.upper():
-                retVal = ">" + get_txid(genomeId, run_assembly_path) + " " + " ".join(gene[0].split(" ")[1:])
-                #print(retVal)
-                #print(gene[1])
-                return [retVal, gene[1]]
+        # Search for [gene=*GENENAME*] pattern
+        geneIndex = gene[0].find("[gene=")
+        endGeneIndex = gene[0].find("]", geneIndex)
+        geneStr = gene[0][geneIndex:endGeneIndex]
+        if targetGene.upper() in geneStr.upper():
+            retVal = ">" + get_txid(genomeId, run_assembly_path)
+            #print(retVal)
+            #print(gene[1])
+            return [retVal, gene[1]]
         
         # Search for [protein=*GENENAME*] pattern
         protIndex = gene[0].find("[protein=")
         endProtIndex = gene[0].find("]", protIndex)
         proteinStr = gene[0][protIndex:endProtIndex]
         if targetGene.upper() in proteinStr.upper():
-            retVal = ">" + get_txid(genomeId, run_assembly_path) + " " + " ".join(gene[0].split(" ")[1:])
+            retVal = ">" + get_txid(genomeId, run_assembly_path)
             #print(retVal)
             #print(gene[1])
             return [retVal, gene[1]]
@@ -74,7 +73,7 @@ def filter_seq_file(seqFile: str, genomeId: str, targetGene: str) -> Union[list,
         endProdIndex = gene[0].find("]", prodIndex)
         productStr = gene[0][prodIndex:endProdIndex]
         if targetGene.upper() in productStr.upper():
-            retVal = ">" + get_txid(genomeId, run_assembly_path) + " " + " ".join(gene[0].split(" ")[1:])
+            retVal = ">" + get_txid(genomeId, run_assembly_path)
             #print(retVal)
             #print(gene[1])
             return [retVal, gene[1]]

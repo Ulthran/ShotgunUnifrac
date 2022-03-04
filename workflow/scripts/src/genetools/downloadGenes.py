@@ -4,6 +4,7 @@ import gzip
 from io import TextIOWrapper
 import os
 import shutil
+from urllib.error import URLError
 import tqdm
 import wget
 from typing import NoReturn, Tuple
@@ -114,7 +115,11 @@ def download_genomes(outputDir: str, logF: TextIOWrapper) -> Tuple[list, list]:
             for ext in ["_cds_from_genomic.fna.gz", "_rna_from_genomic.fna.gz"]:
                 if not os.path.isfile(ncbi_dir + genomeId + ext[:-6] + "fasta"):
                     url = line[ftpIndex] + "/" + genomeId + ext
-                    wget.download(url, out=ncbi_dir)
+                    try:
+                        wget.download(url, out=ncbi_dir)
+                    except URLError as e:
+                        print(str(e) + ": " + url)
+                        break
                     with gzip.open(ncbi_dir + genomeId + ext, "rb") as f_in:
                         with open(ncbi_dir + genomeId + ext[:-6] + "fasta", "wb") as f_out:
                             shutil.copyfileobj(f_in, f_out)
@@ -124,7 +129,7 @@ def download_genomes(outputDir: str, logF: TextIOWrapper) -> Tuple[list, list]:
                         print(e)
                 else:
                     logF.write("Found " + ncbi_dir + genomeId + ext[:-6] + "fasta, skipping download\n")
-            if os.path.isfile(ncbi_dir + genomeId + "_cds_from_genomic.fasta") and os.path.isfile(ncbi_dir + genomeId + "_rna_from_genomic.fasta"):
+            if os.path.exists(ncbi_dir + genomeId + "_cds_from_genomic.fasta") and os.path.exists(ncbi_dir + genomeId + "_rna_from_genomic.fasta"):
                 downloaded_genome_ids.append(genomeId)
             else:
                 failed_genome_ids.append(genomeId)
