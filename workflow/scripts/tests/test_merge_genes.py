@@ -43,10 +43,10 @@ class MergeGenesTests(unittest.TestCase):
         merge_genes(self.gene_counter, self.temp_dir)
 
         with open(os.path.join(self.temp_dir, "output/merged-sequences/TEST_GENE.fasta")) as f:
-            self.assertEqual(next(f), "TEST_2\n")
-            self.assertEqual(next(f), "GCTA\n")
-            self.assertEqual(next(f), "TEST_1\n")
-            self.assertEqual(next(f), "ATCG\n")
+            results = [next(f), next(f), next(f), next(f)]
+            expected = ["TEST_2\n", "GCTA\n", "TEST_1\n", "ATCG\n"]
+            diff = set(results) ^ set(expected)
+            self.assertEqual(diff, set())
         
         self.assertEqual(os.path.exists(os.path.join(self.temp_dir, "output/merged-sequences/FAILED_TEST_GENE.fasta")), False)
 
