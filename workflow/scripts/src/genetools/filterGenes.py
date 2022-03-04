@@ -133,18 +133,3 @@ def extract_genes(geneFile: str, downloaded_genome_ids: list, outputDir: str) ->
                         if os.path.getsize(seq_dir + line[0] + "__" + genomeId + ".fasta") != 0:
                             gene_counter[line[0]] += 1
     return gene_counter
-
-# A wrapper for filter_seq_genes to be called from a snakemake rule
-# @param seqsFile is the path to the file to be parsed
-# @param output is the output file path for the snakemake rule, it is intended to take the form
-#        dir/GENE__restOfFileName.fasta
-# @param genomeId is the genome id that can be passed if it's there when calling to increase the robustness of this function
-# @return is None, instead it writes to output
-def filter_seq_genes_sm(genomeId: str, gene: str, ncbi_dir: str, seq_dir: str) -> None:
-    with open(seq_dir + gene + "__" + genomeId + ".fasta", "w") as out:
-        try:
-            vals = filter_seq_genes(genomeId, gene, ncbi_dir)
-            for val in vals:
-                out.write(val + "\n")
-        except TypeError:
-            None

@@ -19,7 +19,7 @@ def merge_genes(gene_counter: Counter, outputDir: str) -> list:
             directory = os.fsencode(seq_dir)
             for file in os.listdir(directory):
                 filename = os.fsdecode(file)
-                if gene in filename: 
+                if gene in filename:
                     with open(seq_dir + filename) as seqF:
                         for line in seqF.readlines():
                             mergedF.write(line)

@@ -21,11 +21,12 @@ def download_assembly() -> int:
 
 # Creates a file of the best genome accessions for a given list of species-level taxon ids
 # @param txids is the list of species-level taxon ids
+# @param outputDir is the output location for run_assembly.txt
 # @param naTol is the 'na'-tolerance, if True the function will include accessions with refseq_category of na, False by default
 # @return is the list of txids, where each one that a genome accession was found for has been removed
-def find_genome_accessions(txids: list, naTol: bool = False) -> list:
+def find_genome_accessions(txids: list, outputDir: str, naTol: bool = False) -> list:
     with tqdm.tqdm(total=os.path.getsize("data/assembly_summary.txt")) as pbar: # Add progress bar
-        with open("data/run_assembly.txt", "a") as run_assembly:
+        with open(os.path.join(outputDir, "data/run_assembly.txt"), "a") as run_assembly:
             with open("data/assembly_summary.txt") as assembly:
                 reader = csv.reader(assembly, dialect=csv.excel_tab)
                 next(reader) # First row is a random comment
@@ -83,7 +84,7 @@ def prepare_run_assembly(inputFile: str, outputDir: str, logF: TextIOWrapper) ->
 
             run_assembly.write("\t".join(firstLine) + "\n") # Write the first line of run_assembly.txt with column identifiers
 
-    txids = find_genome_accessions(txids)
+    txids = find_genome_accessions(txids, outputDir)
 
     if txids:
         print("Could not find suitable entries for:\n")
@@ -128,16 +129,6 @@ def download_genomes(outputDir: str, logF: TextIOWrapper) -> Tuple[list, list]:
             else:
                 failed_genome_ids.append(genomeId)
     return downloaded_genome_ids, failed_genome_ids
-
-# Wrapper for download_genes from snakemake
-# @param output is the output file containing the genome id
-# @return is undefined
-def download_genes_sm(output: str) -> NoReturn:
-    outputs = output.split(" ")
-    for out in outputs:
-        genomeId = out[5:-23]
-        ext = out[-23:-5] + "fna.gz"
-        download_genome(genomeId, ext)
 
 
 
