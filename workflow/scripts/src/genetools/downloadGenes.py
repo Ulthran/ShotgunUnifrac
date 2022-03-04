@@ -10,15 +10,17 @@ import wget
 from typing import NoReturn, Tuple
 
 # Checks for the existence of data/assembly_summary.txt
+# @param outputDir is the location to check for assembly_summary.txt
 # @return is True if the file exists, False otherwise
-def check_for_assembly() -> bool:
-    return os.path.exists("data/assembly_summary.txt")
+def check_for_assembly(outputDir: str) -> bool:
+    return os.path.exists(os.path.join(outputDir, "data/assembly_summary.txt"))
 
 # Downloads assembly_summary.txt if it doens't already exist
+# @param outputDir is the location to download assembly_summary.txt to
 # @return is the file downloaded by wget
-def download_assembly() -> int:
-    print("data/assembly_summary.txt not found, fetching...")
-    return wget.download("https://ftp.ncbi.nlm.nih.gov/genomes/refseq/bacteria/assembly_summary.txt", out="data/")
+def download_assembly(outputDir: str) -> int:
+    print(str(os.path.join(outputDir, "data/assembly_summary.txt")) + " not found, fetching...")
+    return wget.download("https://ftp.ncbi.nlm.nih.gov/genomes/refseq/bacteria/assembly_summary.txt", out=os.path.join(outputDir, "data/"))
 
 # Creates a file of the best genome accessions for a given list of species-level taxon ids
 # @param txids is the list of species-level taxon ids
@@ -26,9 +28,9 @@ def download_assembly() -> int:
 # @param naTol is the 'na'-tolerance, if True the function will include accessions with refseq_category of na, False by default
 # @return is the list of txids, where each one that a genome accession was found for has been removed
 def find_genome_accessions(txids: list, outputDir: str, naTol: bool = False) -> list:
-    with tqdm.tqdm(total=os.path.getsize("data/assembly_summary.txt")) as pbar: # Add progress bar
+    with tqdm.tqdm(total=os.path.getsize(os.path.join(outputDir, "data/assembly_summary.txt"))) as pbar: # Add progress bar
         with open(os.path.join(outputDir, "data/run_assembly.txt"), "a") as run_assembly:
-            with open("data/assembly_summary.txt") as assembly:
+            with open(os.path.join(outputDir, "data/assembly_summary.txt")) as assembly:
                 reader = csv.reader(assembly, dialect=csv.excel_tab)
                 next(reader) # First row is a random comment
                 firstLine = next(reader) # This row has the headers
@@ -60,7 +62,7 @@ def find_genome_accessions(txids: list, outputDir: str, naTol: bool = False) -> 
 # @return is the list of taxon ids for which a reference/representative genome couldn't be found
 def prepare_run_assembly(inputFile: str, outputDir: str, logF: TextIOWrapper) -> list:
     # Check for existence of assembly_summary.txt
-    None if check_for_assembly() else download_assembly()
+    None if check_for_assembly(outputDir) else download_assembly(outputDir)
 
     ### Write run_assembly.txt for this run
 
@@ -77,7 +79,7 @@ def prepare_run_assembly(inputFile: str, outputDir: str, logF: TextIOWrapper) ->
 
     # Overwrite existing file with header line
     with open(os.path.join(outputDir, "data/run_assembly.txt"), "w") as run_assembly:
-        with open("data/assembly_summary.txt") as assembly:
+        with open(os.path.join(outputDir, "data/assembly_summary.txt")) as assembly:
             reader = csv.reader(assembly, dialect=csv.excel_tab)
             next(reader) # First row is a random comment
             firstLine = next(reader) # This row has the headers

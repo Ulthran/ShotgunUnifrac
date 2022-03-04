@@ -4,7 +4,7 @@ import subprocess
 import tempfile
 import unittest
 
-from genetools.downloadGenes import (find_genome_accessions, prepare_run_assembly, download_genomes)
+from genetools.downloadGenes import (check_for_assembly, download_assembly, find_genome_accessions, prepare_run_assembly, download_genomes)
 
 class DownloadGenesTests(unittest.TestCase):
     def setUp(self):
@@ -29,6 +29,7 @@ class DownloadGenesTests(unittest.TestCase):
         shutil.rmtree(self.temp_dir)
     
     def test_find_genome_accessions(self):
+        None if check_for_assembly(self.temp_dir) else download_assembly(self.temp_dir)
         self.assertEqual(
             find_genome_accessions(["23", "24", "NOT_FOUND"], self.temp_dir),
             ["NOT_FOUND"])

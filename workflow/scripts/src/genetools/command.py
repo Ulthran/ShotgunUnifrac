@@ -81,7 +81,6 @@ def main(argv=None):
     if args.write_config and not args.filter_genes:
         p.error("Must include --filter_genes arg along with --write_config")
     
-    None if os.path.isdir("data/") else os.mkdir("data/") # For assembly_summary.txt, always goes in the same place
     None if os.path.isdir(os.path.join(args.output_dir, "data/")) else os.mkdir(os.path.join(args.output_dir, "data"))
     None if os.path.isdir(os.path.join(args.output_dir, "output/")) else os.mkdir(os.path.join(args.output_dir, "output/"))
     None if os.path.isdir(os.path.join(args.output_dir, "output/ncbi/")) else os.mkdir(os.path.join(args.output_dir, "output/ncbi"))
