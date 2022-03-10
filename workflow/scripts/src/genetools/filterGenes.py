@@ -24,12 +24,25 @@ def get_txid(id: str, run_path: str = "") -> str:
             if line[idIndex] == partialId:
                 return line[txIndex]
 
+# Finds the given pattern in the gene description
+# @param pattern is the pattern to search for (i.e. "[gene=")
+# @param description is the gene's description to pattern match on
+# @param endPattern is the end of the pattern to search for (i.e. "]")
+# @return is the uppercase search result
+def find_gene(pattern: str, description: str, endPattern: str = "]") -> str:
+    # Search for [pattern=*GENENAME*]
+    geneIndex = description.find(pattern)
+    endGeneIndex = description.find(endPattern, geneIndex)
+    geneStr = description[geneIndex:endGeneIndex]
+    return geneStr.upper()
+
 # Filter through the given fasta file and find targetGene if it's there
 # @param seqFile is the path to the fasta file
 # @param genomeId is the id of the genome in seqFile (needed for getting the taxon id)
 # @param targetGene is the gene to be found
+# @param rename is a boolean telling the function whether or not to reannotate gene descriptions
 # @return is either a list containing the description/gene pair or None if it couldn't be found
-def filter_seq_file(seqFile: str, genomeId: str, targetGene: str) -> Union[list, None]:
+def filter_seq_file(seqFile: str, genomeId: str, targetGene: str, rename: bool = True) -> Union[list, None]:
     run_assembly_path = "" if len(seqFile.split("output/")) == 1 else seqFile.split("output/")[0]
     seqList = []
     seqObj = []
@@ -47,35 +60,18 @@ def filter_seq_file(seqFile: str, genomeId: str, targetGene: str) -> Union[list,
         seqList.append(seqObj)
     
     # Find the desired gene and return the description/sequence pair
+    # Searching [gene=*], [protein=*], and [product=*]
     for gene in seqList:
-        # Search for [gene=*GENENAME*] pattern
-        geneIndex = gene[0].find("[gene=")
-        endGeneIndex = gene[0].find("]", geneIndex)
-        geneStr = gene[0][geneIndex:endGeneIndex]
-        if targetGene.upper() in geneStr.upper():
-            retVal = ">" + get_txid(genomeId, run_assembly_path)
-            #print(retVal)
-            #print(gene[1])
+        if targetGene.upper() in find_gene("[gene=", gene[0]):
+            retVal = ">" + get_txid(genomeId, run_assembly_path) if rename else gene[0]
             return [retVal, gene[1]]
         
-        # Search for [protein=*GENENAME*] pattern
-        protIndex = gene[0].find("[protein=")
-        endProtIndex = gene[0].find("]", protIndex)
-        proteinStr = gene[0][protIndex:endProtIndex]
-        if targetGene.upper() in proteinStr.upper():
-            retVal = ">" + get_txid(genomeId, run_assembly_path)
-            #print(retVal)
-            #print(gene[1])
+        if targetGene.upper() in find_gene("[protein=", gene[0]):
+            retVal = ">" + get_txid(genomeId, run_assembly_path) if rename else gene[0]
             return [retVal, gene[1]]
 
-        # Search for [product=*GENENAME*] pattern
-        prodIndex = gene[0].find("[product=")
-        endProdIndex = gene[0].find("]", prodIndex)
-        productStr = gene[0][prodIndex:endProdIndex]
-        if targetGene.upper() in productStr.upper():
-            retVal = ">" + get_txid(genomeId, run_assembly_path)
-            #print(retVal)
-            #print(gene[1])
+        if targetGene.upper() in find_gene("[product=", gene[0]):
+            retVal = ">" + get_txid(genomeId, run_assembly_path) if rename else gene[0]
             return [retVal, gene[1]]
     
     return None
@@ -86,24 +82,25 @@ def filter_seq_file(seqFile: str, genomeId: str, targetGene: str) -> Union[list,
 # @param genomeId is the genome id for the fasta file to be parsed
 # @param gene is the gene to be found
 # @param ncbi_dir is the directory containing downloaded genomes
+# @param rename is a boolean telling the function whether or not to reannotate gene descriptions
 # @return is a list containing the gene descriptor and the gene sequence
-def filter_seq_genes(genomeId: str, gene: str, ncbi_dir: str) -> list:
-    cds_path = os.path.join(ncbi_dir, genomeId + "_cds_from_genomic.fasta")
-    rna_path = os.path.join(ncbi_dir, genomeId + "_rna_from_genomic.fasta")
-
-    vals = filter_seq_file(cds_path, genomeId, gene)
-    if not vals:
-        vals = filter_seq_file(rna_path, genomeId, gene)
-    if not vals:
-        return []
-    return vals
+def filter_seq_genes(genomeId: str, gene: str, ncbi_dir: str, rename: bool = True) -> list:
+    directory = os.fsencode(ncbi_dir)
+    for file in os.listdir(directory):
+        filename = os.fsdecode(file)
+        if genomeId in filename and (filename.split('.')[-1] == "fasta" or filename.split('.')[-1] == "fna"):
+            vals = filter_seq_file(os.path.join(ncbi_dir, filename), genomeId, gene, rename)
+            if vals:
+                return vals
+    return []
 
 # Extracts each gene in geneFile from each genome in downloaded_genome_ids
 # @param geneFile is the path to the file listing genes
 # @param downloaded_genome_ids is the list of successfully downloaded genome ids
 # @param outputDir is the location to extract genes to
+# @param inputDir is an alternative to the default ncbi directory to find genomes in
 # @return is a Counter containing how many of each gene was successfully extracted
-def extract_genes(geneFile: str, downloaded_genome_ids: list, outputDir: str) -> Counter:
+def extract_genes(geneFile: str, downloaded_genome_ids: list, outputDir: str, inputDir: str = "") -> Counter:
     gene_counter = Counter()
     with open(geneFile) as gene_file: # Initialize Counter so that it picks up genes that don't exist in any genomes
         gene_file_reader = csv.reader(gene_file)
@@ -112,6 +109,12 @@ def extract_genes(geneFile: str, downloaded_genome_ids: list, outputDir: str) ->
                 gene_counter[line[0]] = 0
 
     ncbi_dir = os.path.join(outputDir, "output/ncbi/")
+    if inputDir != "": # Handle alternative input, add each file in dir to downloaded_genome_ids
+        directory = os.fsencode(inputDir)
+        for file in os.listdir(directory):
+            filename = os.fsdecode(file)
+            downloaded_genome_ids.append('.'.join(filename.split(".")[:-1]))
+        ncbi_dir = inputDir
     seq_dir = os.path.join(outputDir, "output/sequences/")
     print("Extracting genes from genome files...\n")
     print(str(downloaded_genome_ids))
@@ -123,7 +126,7 @@ def extract_genes(geneFile: str, downloaded_genome_ids: list, outputDir: str) ->
                     if line[0][0] != "#":
                         with open(seq_dir + line[0] + "__" + genomeId + ".fasta", "w") as out:
                             try:
-                                vals = filter_seq_genes(genomeId, line[0], ncbi_dir)
+                                vals = filter_seq_genes(genomeId, line[0], ncbi_dir, rename=False)
                                 for val in vals:
                                     out.write(val + "\n")
                             except TypeError:
