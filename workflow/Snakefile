@@ -101,7 +101,7 @@ rule root_tree:
         "envs/raxml_env.yaml"
     shell:
         "cd trees/ && "
-        "raxmlHPC -f I -m GTRCAT -t iqtree.treefile -n final && "
+        "raxmlHPC -f I -m GTRCAT -o 2173 -t iqtree.treefile -n final && "
         "mv RAxML_rootedTree.final ../ && "
         "cd .. && "
         "rm -r trees/"

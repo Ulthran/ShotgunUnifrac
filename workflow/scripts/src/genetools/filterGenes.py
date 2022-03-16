@@ -126,7 +126,11 @@ def extract_genes(geneFile: str, downloaded_genome_ids: list, outputDir: str, in
                     if line[0][0] != "#":
                         with open(seq_dir + line[0] + "__" + genomeId + ".fasta", "w") as out:
                             try:
-                                vals = filter_seq_genes(genomeId, line[0], ncbi_dir, rename=False)
+                                vals = []
+                                if inputDir != "":
+                                    vals = filter_seq_genes(genomeId, line[0], ncbi_dir, rename=False)
+                                else:
+                                    vals = filter_seq_genes(genomeId, line[0], ncbi_dir, rename=True)
                                 for val in vals:
                                     out.write(val + "\n")
                             except TypeError:

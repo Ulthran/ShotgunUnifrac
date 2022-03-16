@@ -21,7 +21,7 @@ def check_for_assembly(outputDir: str) -> bool:
 def download_assembly(outputDir: str) -> int:
     print(str(os.path.join(outputDir, "data/assembly_summary.txt")) + " not found, fetching...")
     return wget.download("https://ftp.ncbi.nlm.nih.gov/genomes/refseq/bacteria/assembly_summary.txt", out=os.path.join(outputDir, "data/"))
-
+    
 # Creates a file of the best genome accessions for a given list of species-level taxon ids
 # @param txids is the list of species-level taxon ids
 # @param outputDir is the output location for run_assembly.txt
@@ -63,6 +63,8 @@ def find_genome_accessions(txids: list, outputDir: str, naTol: bool = False) -> 
 def prepare_run_assembly(inputFile: str, outputDir: str, logF: TextIOWrapper) -> list:
     # Check for existence of assembly_summary.txt
     None if check_for_assembly(outputDir) else download_assembly(outputDir)
+    with open(os.path.join(outputDir, "data/assembly_summary.txt"), 'a') as f: # Add optional outgroup
+        f.write("GCF_000016525.1	PRJNA224116	SAMN02604313		representative genome	420247	2173	Methanobrevibacter smithii ATCC 35061	strain=ATCC 35061; PS; DSMZ 861		latest	Complete Genome	Major	Full	2007/06/04	ASM1652v1	Washington University Center for Genome Sciences	GCA_000016525.1	identical	https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/016/525/GCF_000016525.1_ASM1652v1		assembly from type material	na\n")
 
     ### Write run_assembly.txt for this run
 

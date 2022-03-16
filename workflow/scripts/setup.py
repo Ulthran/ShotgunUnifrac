@@ -7,7 +7,9 @@ setuptools.setup(
     author='Charlie Bushman',
     author_email='ctbushman@gmail.com',
     url='https://github.com/PennChopMicrobiomeProgram',
-    packages=['genetools'],
+    package_dir={"": "src"},
+    packages=setuptools.find_packages(where="src"),
+    python_requires=">=3.6",
     entry_points={
         'console_scripts': [
             'genetools=genetools.command:main',
