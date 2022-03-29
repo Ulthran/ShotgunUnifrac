@@ -97,11 +97,14 @@ rule root_tree:
         "RAxML_rootedTree.final",
     log:
         "logs/root_tree/RAxML_rootedTree.final.log",
+    params:
+        ref=config["GENES"][0],
     conda:
         "envs/raxml_env.yaml"
     shell:
         "cd trees/ && "
-        "raxmlHPC -f I -m GTRCAT -t iqtree.treefile -n final && "
-        "mv RAxML_rootedTree.final ../ && "
+        #"raxmlHPC -f I -m GTRCAT -t iqtree.treefile -n final && "
+        "raxmlHPC -s ../filtered-sequences/{params.ref}.fasta -o 2173 -m GTRCAT -t iqtree.treefile -n final && "
+        "mv RAxML_result.final ../ && "
         "cd .. && "
         "rm -r trees/"
