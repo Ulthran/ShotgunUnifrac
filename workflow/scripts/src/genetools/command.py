@@ -7,11 +7,14 @@ import tqdm
 from collections import Counter
 from typing import Tuple
 
-from .downloadGenes import prepare_run_assembly, download_genomes
+from .downloadGenes import add_outgroup, prepare_run_assembly, download_genomes
 from .filterGenes import extract_genes
 from .mergeGenes import merge_genes
 
 def _download_genes(args, logF):
+    if not args.no_outgroup:
+        with open(args.taxon_list, "a") as tl:
+            add_outgroup(tl)
     prepare_run_assembly(args.taxon_list, args.output_dir, logF)
     downloaded_genome_ids, failed_genome_ids = download_genomes(args.output_dir, logF)
 
@@ -39,7 +42,7 @@ def _filter_genes(args, logF, downloaded_genome_ids = []):
 def _merge_genes(args, gene_counter):
     merge_genes(gene_counter, args.output_dir)
 
-def _write_config(gene_counter, cfg_fp):
+def _write_config(gene_counter, cfg_fp, no):
     print("Writing " + cfg_fp + " for this run")
     with open(cfg_fp, "w") as config:
         config.write("# Config file for tree building pipeline\n")
@@ -49,6 +52,10 @@ def _write_config(gene_counter, cfg_fp):
             if gene[0] != "#" and count > 3:
                 config.write("\"" + gene.strip() + "\", ")
         config.write("]")
+        if no:
+            config.write("OUTGROUP: false")
+        else:
+            config.write("OUTGROUP: true")
 
 def dir_path(string):
     if string == "":
@@ -76,6 +83,9 @@ def main(argv=None):
     p.add_argument("-o", "--output_dir", default="", type=dir_path,
         help=(
             "Location to write outputs to, can be an absolute path or a path relative to the library base"))
+    p.add_argument("-no", "--no_outgroup", action="store_true",
+        help=(
+            "Doesn't include methanobrevibacter smithii in the taxon list for outgroup rooting"))
 
     args = p.parse_args(argv)
 
@@ -121,7 +131,7 @@ def main(argv=None):
     if args.write_config:
         cfg_fp = os.path.join(args.output_dir, "output/config.yml")
         logF.write("Writing config to " + cfg_fp)
-        _write_config(gene_counter, cfg_fp)
+        _write_config(gene_counter, cfg_fp, args.no_outgroup)
 
     logF.close()
 
