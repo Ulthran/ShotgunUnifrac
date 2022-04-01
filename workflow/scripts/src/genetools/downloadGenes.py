@@ -88,7 +88,6 @@ def prepare_run_assembly(inputFile: str, outputDir: str, logF: TextIOWrapper) ->
     with open(inputFile) as inputF:
         data = csv.reader(inputF, dialect=csv.excel_tab)
         for line in data:
-            print(line)
             if line[0][0] != "#":
                 txids.append(line[0])
 
