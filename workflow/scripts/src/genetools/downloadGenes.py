@@ -31,7 +31,7 @@ def add_outgroup(taxon_list: TextIOWrapper) -> None:
         if txid.strip() == outgroup:
             outgroupExists = True
     if not outgroupExists:
-        taxon_list.write("\n{0}".format(outgroup))
+        taxon_list.write(outgroup)
         
 
 # Creates a file of the best genome accessions for a given list of species-level taxon ids
@@ -88,6 +88,7 @@ def prepare_run_assembly(inputFile: str, outputDir: str, logF: TextIOWrapper) ->
     with open(inputFile) as inputF:
         data = csv.reader(inputF, dialect=csv.excel_tab)
         for line in data:
+            print(line)
             if line[0][0] != "#":
                 txids.append(line[0])
 

@@ -13,7 +13,7 @@ from .mergeGenes import merge_genes
 
 def _download_genes(args, logF):
     if not args.no_outgroup:
-        with open(args.taxon_list, "a") as tl:
+        with open(args.taxon_list, "a+") as tl:
             add_outgroup(tl)
     prepare_run_assembly(args.taxon_list, args.output_dir, logF)
     downloaded_genome_ids, failed_genome_ids = download_genomes(args.output_dir, logF)
@@ -51,7 +51,7 @@ def _write_config(gene_counter, cfg_fp, no):
         for gene, count in gene_counter.most_common():
             if gene[0] != "#" and count > 3:
                 config.write("\"" + gene.strip() + "\", ")
-        config.write("]")
+        config.write("]\n")
         if no:
             config.write("OUTGROUP: false")
         else:
