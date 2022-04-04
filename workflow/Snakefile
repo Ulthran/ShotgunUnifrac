@@ -3,7 +3,13 @@ configfile: "config.yml"
 
 container: "docker://ctbushman/shotguntree:latest"
 
-TARGET = "RAxML_outgroupRootedTree.final" if config["OUTGROUP"] else "RAxML_midpointRootedTree.final"
+
+TARGET = (
+    "RAxML_outgroupRootedTree.final"
+    if config["OUTGROUP"]
+    else "RAxML_midpointRootedTree.final"
+)
+
 
 rule all:
     input:
