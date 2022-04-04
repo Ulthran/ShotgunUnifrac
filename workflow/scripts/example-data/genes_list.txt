@@ -1,0 +1,9 @@
+tRNA-Ser
+tRNA-Glu
+tRNA-Lys
+secE
+secG
+secY
+smpB
+tsaE
+yajC
