@@ -3,10 +3,11 @@ configfile: "config.yml"
 
 container: "docker://ctbushman/shotguntree:latest"
 
+TARGET = "RAxML_outgroupRootedTree.final" if config["OUTGROUP"] else "RAxML_midpointRootedTree.final"
 
 rule all:
     input:
-        "RAxML_rootedTree.final",
+        TARGET,
 
 
 rule all_gene_files:
@@ -90,25 +91,39 @@ rule infer_weights:
         "iqtree -s filtered-sequences/{params.ref}.fasta -pre trees/iqtree -m MFP -g trees/final.unrooted"
 
 
-rule root_tree:
+rule outgroup_root_tree:
     input:
         "trees/iqtree.treefile",
     output:
-        "RAxML_rootedTree.final",
+        "RAxML_outgroupRootedTree.final",
     log:
         "logs/root_tree/RAxML_rootedTree.final.log",
     params:
         ref=config["GENES"][0],
-        outgroup=config["OUTGROUP"],
     conda:
         "envs/raxml_env.yaml"
     shell:
-        "cd trees/ "
-        "if {params.outgroup}; then "
-        "   raxmlHPC -s ../filtered-sequences/{params.ref}.fasta -o 2173 -m GTRCAT -t iqtree.treefile -n final "
-        "else "
-        "   raxmlHPC -f I -m GTRCAT -t iqtree.treefile -n final "
-        "fi "
-        "mv RAxML_result.final ../ "
-        "cd .. "
+        "cd trees/ && "
+        "raxmlHPC -s ../filtered-sequences/{params.ref}.fasta -o 2173 -m GTRCAT -t iqtree.treefile -n final && "
+        "mv RAxML_result.final ../{output} && "
+        "cd .. && "
+        "rm -r trees/"
+
+
+rule midpoint_root_tree:
+    input:
+        "trees/iqtree.treefile",
+    output:
+        "RAxML_midpointRootedTree.final",
+    log:
+        "logs/root_tree/RAxML_rootedTree.final.log",
+    params:
+        ref=config["GENES"][0],
+    conda:
+        "envs/raxml_env.yaml"
+    shell:
+        "cd trees/ && "
+        "raxmlHPC -f I -m GTRCAT -t iqtree.treefile -n final && "
+        "mv RAxML_result.final ../{output} && "
+        "cd .. && "
         "rm -r trees/"
