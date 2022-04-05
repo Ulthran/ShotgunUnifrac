@@ -4,16 +4,20 @@ configfile: "config.yml"
 container: "docker://ctbushman/shotguntree:latest"
 
 
-TARGET = (
+MAIN_TARGET = (
     "RAxML_outgroupRootedTree.final"
     if config["OUTGROUP"]
     else "RAxML_midpointRootedTree.final"
 )
 
 
+BENCHMARK_TARGET = "gene_tree_benchmark_report.txt"
+
+
 rule all:
     input:
-        TARGET,
+        MAIN_TARGET,
+        BENCHMARK_TARGET,
 
 
 rule all_gene_files:
@@ -66,6 +70,18 @@ rule create_trees:
         "cd trees/ && "
         "raxmlHPC -s ../{input} -m GTRCAT -n {wildcards.gene} -p 392781 && "
         "cd .."
+
+
+rule benchmark_trees:
+    input:
+        expand("tress/RAxML_bestTree.{gene}", gene=config["GENES"]),
+    output:
+        "gene_tree_benchmark_report.txt",
+    log:
+        "logs/benchmark_report.log",
+    conda:
+        "envs/unifrac_env/yaml"
+    
 
 
 rule merge_trees:
