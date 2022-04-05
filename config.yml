@@ -1,3 +1,3 @@
 # Config file for tree building pipeline
 # Genes to build trees from
-GENES: ["tRNA-Asp", "tRNA-Glu", "tRNA-Lys", "tRNA-Ser", "tRNA-Thr", "alaS", "era", "ftsY", "infB", "nusA", "rpoB", "secY", "serS", "ffh", "fmt", "frr", "gmk", "infC", "lepA", "leuS", "nusG", "pheS", "prfA", "rplA", "rplB", "rplC", "rpmA", "rpmC", "rpmI", "rpsB", "rpsC", "rpsD", "rsmH", "smpB", "yajC", "dnaG", "hisS", "ileS", "recA", "rsfS", "ruvB", "ruvX", "secE", "secG", "tsaE", "pheT", "dnaX", "rpoA", "cgtA", ]
+GENES: ["tRNA-Ser", "tRNA-Lys", "secY", "secG", "tRNA-Glu", "smpB", "secE", "tsaE", "yajC", ]

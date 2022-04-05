@@ -22,6 +22,18 @@ def download_assembly(outputDir: str) -> int:
     print(str(os.path.join(outputDir, "data/assembly_summary.txt")) + " not found, fetching...")
     return wget.download("https://ftp.ncbi.nlm.nih.gov/genomes/refseq/bacteria/assembly_summary.txt", out=os.path.join(outputDir, "data/"))
     
+# Adds 2173 (Methanobrevibacter smithii) to the taxon list for outgroup rooting
+# @param taxon_list is the taxon list file
+def add_outgroup(taxon_list: TextIOWrapper) -> None:
+    outgroupExists = False
+    outgroup = "2173"
+    for txid in taxon_list.readlines():
+        if txid.strip() == outgroup:
+            outgroupExists = True
+    if not outgroupExists:
+        taxon_list.write(outgroup)
+        
+
 # Creates a file of the best genome accessions for a given list of species-level taxon ids
 # @param txids is the list of species-level taxon ids
 # @param outputDir is the output location for run_assembly.txt

@@ -56,5 +56,5 @@ def test_full_run():
         ])
 
         # Check output
-        if not os.path.exists(str(workdir) + "/RAxML_rootedTree.final"):
-            raise ValueError("Full run did not produce RAxML_rootedTree.final")
+        if not os.path.exists(os.path.join(str(workdir), "RAxML_outgroupRootedTree.final")):
+            raise ValueError("Full run did not produce RAxML_outgroupRootedTree.final")

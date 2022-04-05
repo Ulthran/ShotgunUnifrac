@@ -58,7 +58,8 @@ class CommandTests(unittest.TestCase):
         with open(os.path.join(self.temp_dir, "output/config.yml")) as f:
             self.assertEqual(next(f), "# Config file for tree building pipeline\n")
             self.assertEqual(next(f), "# Genes to build trees from\n")
-            self.assertEqual(next(f), "GENES: [\"tRNA-Ser\", \"tRNA-Glu\", \"secE\", \"tsaE\", ]")
+            self.assertEqual(next(f), "GENES: [\"tRNA-Ser\", \"tRNA-Glu\", \"secE\", \"tsaE\", ]\n")
+            self.assertEqual(next(f), "OUTGROUP: true")
         
         with open(os.path.join(self.temp_dir, "data/run_assembly.txt")) as f:
             self.assertEqual(next(f), "assembly_accession	bioproject	biosample	wgs_master	refseq_category	taxid	species_taxid	organism_name	infraspecific_name	isolate	version_status	assembly_level	release_type	genome_rep	seq_rel_date	asm_name	submitter	gbrs_paired_asm	paired_asm_comp	ftp_path	excluded_from_refseq	relation_to_type_material	asm_not_live_date\n")
