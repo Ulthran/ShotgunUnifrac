@@ -47,7 +47,7 @@ To generate tree:
 
     cd ../..
     cp workflow/scripts/output/config.yml .
-    snakemake -c --use-conda
+    snakemake --use-conda
 
 This should output a file called `RAxML_rootedTree.final` which contains the final tree
 
