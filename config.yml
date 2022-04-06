@@ -1,3 +1,4 @@
 # Config file for tree building pipeline
 # Genes to build trees from
 GENES: ["tRNA-Ser", "tRNA-Lys", "secY", "secG", "tRNA-Glu", "smpB", "secE", "tsaE", "yajC", ]
+OUTGROUP: true

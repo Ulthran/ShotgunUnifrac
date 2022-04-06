@@ -49,7 +49,6 @@ def find_genome_accessions(txids: list, outputDir: str, naTol: bool = False) -> 
                 firstLine[0] = firstLine[0][2:]# Remove the "# " from the beginning of the first element
 
                 idIndex = firstLine.index("species_taxid")
-                accIndex = firstLine.index("assembly_accession")
                 lvlIndex = firstLine.index("assembly_level")
                 refSeqIndex = firstLine.index("refseq_category")
 
@@ -77,6 +76,7 @@ def prepare_run_assembly(inputFile: str, outputDir: str, logF: TextIOWrapper) ->
     None if check_for_assembly(outputDir) else download_assembly(outputDir)
     with open(os.path.join(outputDir, "data/assembly_summary.txt"), 'a') as f: # Add optional outgroup
         f.write("GCF_000016525.1	PRJNA224116	SAMN02604313		representative genome	420247	2173	Methanobrevibacter smithii ATCC 35061	strain=ATCC 35061; PS; DSMZ 861		latest	Complete Genome	Major	Full	2007/06/04	ASM1652v1	Washington University Center for Genome Sciences	GCA_000016525.1	identical	https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/016/525/GCF_000016525.1_ASM1652v1		assembly from type material	na\n")
+        # Switch out for \t
 
     ### Write run_assembly.txt for this run
 
@@ -97,7 +97,7 @@ def prepare_run_assembly(inputFile: str, outputDir: str, logF: TextIOWrapper) ->
             reader = csv.reader(assembly, dialect=csv.excel_tab)
             next(reader) # First row is a random comment
             firstLine = next(reader) # This row has the headers
-            firstLine[0] = firstLine[0][2:]# Remove the "# " from the beginning of the first element
+            firstLine[0] = firstLine[0][2:] # Remove the "# " from the beginning of the first element
 
             run_assembly.write("\t".join(firstLine) + "\n") # Write the first line of run_assembly.txt with column identifiers
 

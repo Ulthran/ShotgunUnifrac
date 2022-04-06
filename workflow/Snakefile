@@ -74,14 +74,15 @@ rule create_trees:
 
 rule benchmark_trees:
     input:
-        expand("tress/RAxML_bestTree.{gene}", gene=config["GENES"]),
+        expand("trees/RAxML_bestTree.{gene}", gene=config["GENES"]),
     output:
         "gene_tree_benchmark_report.txt",
     log:
         "logs/benchmark_report.log",
     conda:
-        "envs/unifrac_env/yaml"
-    
+        "envs/unifrac_env.yaml"
+    script:
+        "benchmark_trees.py"
 
 
 rule merge_trees:

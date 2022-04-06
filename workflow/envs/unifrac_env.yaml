@@ -1,4 +1,6 @@
 channels:
   - bioconda
 dependencies:
+  - numpy
+  - scikit-bio
   - unifrac
