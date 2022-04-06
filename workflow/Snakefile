@@ -11,13 +11,12 @@ MAIN_TARGET = (
 )
 
 
-BENCHMARK_TARGET = "gene_tree_benchmark_report.txt"
+# BENCHMARK_TARGET = "gene_tree_benchmark_report.txt"
 
 
 rule all:
     input:
-        MAIN_TARGET,
-        BENCHMARK_TARGET,
+        MAIN_TARGET, #BENCHMARK_TARGET,
 
 
 rule all_gene_files:
@@ -37,6 +36,8 @@ rule align_fasta:
         temp("aligned-sequences/{gene}.fasta"),
     log:
         "logs/align_fasta/{gene}.log",
+    benchmark:
+        "benchmarks/align_fasta/{gene}.txt"
     conda:
         "envs/muscle_env.yaml"
     shell:
@@ -51,8 +52,8 @@ rule filter_columns:
         "filtered-sequences/{gene}.fasta",
     log:
         "logs/filter_columns/{gene}.log",
-    conda:
-        ""
+    benchmark:
+        "benchmarks/filter_columns/{gene}.txt"
     shell:
         "cp aligned-sequences/{wildcards.gene}.fasta filtered-sequences/{wildcards.gene}.fasta"
 
@@ -64,6 +65,8 @@ rule create_trees:
         temp("trees/RAxML_bestTree.{gene}"),
     log:
         "logs/create_trees/RAxML_bestTree.{gene}.log",
+    benchmark:
+        "benchmarks/create_trees/{gene}.txt"
     conda:
         "envs/raxml_env.yaml"
     shell:
@@ -92,6 +95,8 @@ rule merge_trees:
         "trees/final.unrooted",
     log:
         "logs/merge_trees/final.rooted.log",
+    benchmark:
+        "benchmarks/merge_trees/benchmark.txt"
     conda:
         "envs/openjdk_env.yaml"
     shell:
@@ -106,6 +111,8 @@ rule infer_weights:
         "trees/iqtree.treefile",
     log:
         "logs/infer_weights/iqtree.treefile.log",
+    benchmark:
+        "benchmarks/infer_weights/benchmark.txt"
     conda:
         "envs/iqtree_env.yaml"
     params:
@@ -121,6 +128,8 @@ rule outgroup_root_tree:
         "RAxML_outgroupRootedTree.final",
     log:
         "logs/root_tree/RAxML_rootedTree.final.log",
+    benchmark:
+        "benchmarks/outgroup_root_tree/benchmark.txt"
     params:
         ref=config["GENES"][0],
     conda:
@@ -140,6 +149,8 @@ rule midpoint_root_tree:
         "RAxML_midpointRootedTree.final",
     log:
         "logs/root_tree/RAxML_rootedTree.final.log",
+    benchmark:
+        "benchmarks/midpoint_root_tree/benchmark.txt"
     params:
         ref=config["GENES"][0],
     conda:

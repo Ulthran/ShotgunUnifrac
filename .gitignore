@@ -3,6 +3,7 @@
 .snakemake/
 __pycache__/
 logs/
+benchmarks/
 
 /ncbi/
 /sequences/
