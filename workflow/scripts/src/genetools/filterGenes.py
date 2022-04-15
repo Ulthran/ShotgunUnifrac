@@ -36,6 +36,25 @@ def find_gene(pattern: str, description: str, endPattern: str = "]") -> str:
     geneStr = description[geneIndex:endGeneIndex]
     return geneStr.upper()
 
+# Finds genes not found by annotation using vsearch
+# @param refDB is the path to the reference DB fasta file
+# @param queryDB is the path to the query fasta
+# @param out is the path to the output file, should be in the proper output location for gene sequences (i.e. output/sequences/)
+# @param txid is the taxon id of the given refDB fasta
+def vsearch_gene(refDB: str, queryDB: str, out: str, txid: str):
+    # Ex: vsearch --usearch_global output/ncbi/GCF_000008865.2_ASM886v2_cds_from_genomic.fasta --db secG.fasta --fastapairs out.out --id 0.9
+    os.system(f"vsearch --usearch_global {refDB} --db {queryDB} --fastapairs {out} --id 0.9")
+    with open(out) as f:
+        data = f.readlines()
+    if data != []:
+        with open(out, "w") as f:
+            f.write(f"> {txid}\n")
+            for line in data[1:]:
+                if line[0] != ">":
+                    f.write(line)
+                else:
+                    break
+
 # Filter through the given fasta file and find targetGene if it's there
 # @param seqFile is the path to the fasta file
 # @param genomeId is the id of the genome in seqFile (needed for getting the taxon id)
