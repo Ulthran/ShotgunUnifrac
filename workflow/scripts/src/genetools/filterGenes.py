@@ -41,7 +41,8 @@ def find_gene(pattern: str, description: str, endPattern: str = "]") -> str:
 # @param queryDB is the path to the query fasta
 # @param out is the path to the output file, should be in the proper output location for gene sequences (i.e. output/sequences/)
 # @param txid is the taxon id of the given refDB fasta
-def vsearch_gene(refDB: str, queryDB: str, out: str, txid: str):
+# @return is True if the gene was found, False otherwise
+def vsearch_gene(refDB: str, queryDB: str, out: str, txid: str) -> bool:
     # Ex: vsearch --usearch_global output/ncbi/GCF_000008865.2_ASM886v2_cds_from_genomic.fasta --db secG.fasta --fastapairs out.out --id 0.9
     os.system(f"vsearch --usearch_global {refDB} --db {queryDB} --fastapairs {out} --id 0.9")
     with open(out) as f:
@@ -54,13 +55,16 @@ def vsearch_gene(refDB: str, queryDB: str, out: str, txid: str):
                     f.write(line)
                 else:
                     break
+        return True
+    else:
+        return False
 
 # Filter through the given fasta file and find targetGene if it's there
 # @param seqFile is the path to the fasta file
 # @param genomeId is the id of the genome in seqFile (needed for getting the taxon id)
 # @param targetGene is the gene to be found
 # @param rename is a boolean telling the function whether or not to reannotate gene descriptions
-# @return is either a list containing the description/gene pair or None if it couldn't be found
+# @return is either a list containing the description/gene pair or None if it was written with vsearch or couldn't be found
 def filter_seq_file(seqFile: str, genomeId: str, targetGene: str, rename: bool = True) -> Union[list, None]:
     run_assembly_path = "" if len(seqFile.split("output/")) == 1 else seqFile.split("output/")[0]
     seqList = []
@@ -93,6 +97,15 @@ def filter_seq_file(seqFile: str, genomeId: str, targetGene: str, rename: bool =
             retVal = ">" + get_txid(genomeId, run_assembly_path) if rename else gene[0]
             return [retVal, gene[1]]
     
+    # Search with vsearch if annotation pattern matching didn't find anything
+    target_fp = os.path.join(run_assembly_path, f"output/ref-genes/{targetGene}.fasta")
+    output_fp = os.path.join(run_assembly_path, f"output/sequences/{targetGene}__{genomeId}.fasta")
+    if vsearch_gene(seqFile, target_fp, output_fp, get_txid(genomeId, run_assembly_path)):
+        print(f"Found {targetGene} in {seqFile} using vsearch")
+        return None
+    else:
+        print(f"Didn't find {targetGene} in {seqFile} using vsearch")
+    
     return None
 
 
@@ -107,7 +120,8 @@ def filter_seq_genes(genomeId: str, gene: str, ncbi_dir: str, rename: bool = Tru
     directory = os.fsencode(ncbi_dir)
     for file in os.listdir(directory):
         filename = os.fsdecode(file)
-        if genomeId in filename and (filename.split('.')[-1] == "fasta" or filename.split('.')[-1] == "fna"):
+        if (genomeId in filename and (filename.split('.')[-1] == "fasta" or filename.split('.')[-1] == "fna")
+            and (("tRNA" in gene and "rna" in filename) or ("tRNA" not in gene and "cds" in filename))):
             vals = filter_seq_file(os.path.join(ncbi_dir, filename), genomeId, gene, rename)
             if vals:
                 return vals
