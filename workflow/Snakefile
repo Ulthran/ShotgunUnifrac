@@ -64,7 +64,8 @@ rule create_trees:
         "envs/raxml_env.yaml"
     shell:
         "cd trees/ && "
-        "raxmlHPC -s ../{input} -m GTRCAT -n {wildcards.gene} -p 392781 && "
+        #"raxmlHPC -s ../{input} -m GTRCAT -n {wildcards.gene} -p 392781 && "
+        "raxmlHPC -s ../{input} -m PROTCATLG -n {wildcards.gene} -p 392781 && "
         "cd .."
 
 
@@ -110,7 +111,7 @@ rule outgroup_root_tree:
         "envs/raxml_env.yaml"
     shell:
         "cd trees/ && "
-        "raxmlHPC -s ../filtered-sequences/{params.ref}.fasta -o 2173 -m GTRCAT -t iqtree.treefile -n final && "
+        "raxmlHPC -s ../filtered-sequences/{params.ref}.fasta -o 2173 -m PROTCATLG -t iqtree.treefile -n final && "
         "mv RAxML_result.final ../{output} && "
         "cd .. && "
         "rm -r trees/"
@@ -129,7 +130,7 @@ rule midpoint_root_tree:
         "envs/raxml_env.yaml"
     shell:
         "cd trees/ && "
-        "raxmlHPC -f I -m GTRCAT -t iqtree.treefile -n final && "
+        "raxmlHPC -f I -m PROTCATLG -t iqtree.treefile -n final && "
         "mv RAxML_result.final ../{output} && "
         "cd .. && "
         "rm -r trees/"

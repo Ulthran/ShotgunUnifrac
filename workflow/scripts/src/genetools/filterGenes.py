@@ -172,3 +172,83 @@ def extract_genes(geneFile: str, downloaded_genome_ids: list, outputDir: str, in
                         if os.path.getsize(seq_dir + line[0] + "__" + genomeId + ".fasta") != 0:
                             gene_counter[line[0]] += 1
     return gene_counter
+
+import pyhmmer.plan7
+import pyhmmer.easel
+import csv
+import io
+import urllib.request
+import collections
+
+def write_sequence(out: TextIOWrapper, seqs: TextIOWrapper, result: list, txid: str):
+    seq = ""
+    add = False
+    for l in seqs.readlines():
+        if add:
+            if l[0] != ">":
+                seq += l.strip()
+            break
+        if result.query in l:
+            add = True
+            seq += f"> {txid}\n"
+    
+    out.write(seq + "\n")
+
+# From pyhmmer docs https://pyhmmer.readthedocs.io/en/stable/examples/fetchmgs.html
+def run_hmmscan(downloaded_genome_ids: list, output_dir: str):
+    url = "https://github.com/motu-tool/fetchMGs/raw/master/lib/MG_BitScoreCutoffs.allhits.txt"
+
+    cutoffs = {}
+    with urllib.request.urlopen(url) as f:
+        for line in csv.reader(io.TextIOWrapper(f), dialect="excel-tab"):
+            if not line[0].startswith("#"):
+                cutoffs[line[0]] = float(line[1])
+
+    baseurl = "https://github.com/motu-tool/fetchMGs/raw/master/lib/{}.hmm"
+
+    hmms = []
+    for cog in cutoffs:
+        with urllib.request.urlopen(baseurl.format(cog)) as f:
+            hmm = next(pyhmmer.plan7.HMMFile(f))
+            cutoff = cutoffs[hmm.name.decode()]
+            hmm.cutoffs.trusted = (cutoff, cutoff)
+            hmms.append(hmm)
+
+    ncbi_dir = os.path.join(output_dir, "output/ncbi/")
+
+    for id in downloaded_genome_ids:
+        with pyhmmer.easel.SequenceFile(os.path.join(ncbi_dir, id + "_protein.faa"), digital=True) as seqs_file:
+            proteins = list(seqs_file)
+
+        Result = collections.namedtuple("Result", ["query", "cog", "bitscore"])
+        
+        results = []
+        for top_hits in pyhmmer.hmmsearch(hmms, proteins, bit_cutoffs="trusted"):
+            for hit in top_hits:
+                cog = hit.best_domain.alignment.hmm_name.decode()
+                results.append(Result(hit.name.decode(), cog, hit.score))
+
+        best_results = {}
+        keep_query = set()
+        for result in results:
+            if result.query in best_results:
+                previous_bitscore = best_results[result.query].bitscore
+                if result.bitscore > previous_bitscore:
+                    best_results[result.query] = result
+                    keep_query.add(result.query)
+                elif result.bitscore == previous_bitscore:
+                    if best_results[result.query].cog != hit.cog:
+                        keep_query.remove(result.query)
+            else:
+                best_results[result.query] = result
+                keep_query.add(result.query)
+
+        filtered_results = [best_results[k] for k in sorted(best_results) if k in keep_query]
+
+        for result in filtered_results:
+            with open(os.path.join(output_dir, "output/sequences/", result.cog + "__" + id), "w") as f:
+                with open(os.path.join(output_dir, "output/ncbi/", id + "_protein.faa")) as g:
+                    write_sequence(f, g, result, get_txid(id, output_dir))
+
+        for result in filtered_results[:10]:
+            print(result.query, "{:.1f}".format(result.bitscore), result.cog, sep="\t")

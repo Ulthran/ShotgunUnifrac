@@ -8,7 +8,7 @@ from collections import Counter
 from typing import Tuple
 
 from .downloadGenes import add_outgroup, prepare_run_assembly, download_genomes
-from .filterGenes import extract_genes
+from .filterGenes import extract_genes, run_hmmscan
 from .mergeGenes import merge_genes
 
 def _download_genes(args, logF):
@@ -28,7 +28,8 @@ def _download_genes(args, logF):
 def _filter_genes(args, logF, downloaded_genome_ids = []):
     gene_counter = Counter()
     if os.path.isfile(args.taxon_list):
-        gene_counter = extract_genes(args.filter_genes.name, downloaded_genome_ids, args.output_dir)
+        #gene_counter = extract_genes(args.filter_genes.name, downloaded_genome_ids, args.output_dir)
+        run_hmmscan(downloaded_genome_ids, args.output_dir)
     else:
         gene_counter = extract_genes(args.filter_genes.name, downloaded_genome_ids, args.output_dir, args.taxon_list)
 
