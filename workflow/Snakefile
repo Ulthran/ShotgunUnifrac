@@ -57,7 +57,7 @@ rule create_trees:
     input:
         "filtered-sequences/{gene}.fasta",
     output:
-        temp("trees/RAxML_bestTree.{gene}"),
+        "trees/RAxML_bestTree.{gene}",
     log:
         "logs/create_trees/RAxML_bestTree.{gene}.log",
     conda:
@@ -112,9 +112,7 @@ rule outgroup_root_tree:
     shell:
         "cd trees/ && "
         "raxmlHPC -s ../filtered-sequences/{params.ref}.fasta -o 2173 -m PROTCATLG -t iqtree.treefile -n final && "
-        "mv RAxML_result.final ../{output} && "
-        "cd .. && "
-        "rm -r trees/"
+        "mv RAxML_result.final ../{output}"
 
 
 rule midpoint_root_tree:
@@ -131,6 +129,4 @@ rule midpoint_root_tree:
     shell:
         "cd trees/ && "
         "raxmlHPC -f I -m PROTCATLG -t iqtree.treefile -n final && "
-        "mv RAxML_result.final ../{output} && "
-        "cd .. && "
-        "rm -r trees/"
+        "mv RAxML_result.final ../{output}"
