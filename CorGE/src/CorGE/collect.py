@@ -15,10 +15,14 @@ OUTGROUP_OUTPUT_FP = ""
 
 def check_assembly_summary():
     if not os.path.exists(os.path.join(OUTPUT_FP, "assembly_summary.txt")):
-        log("assembly_summary.txt not found, fetching...")
+        log(1, "assembly_summary.txt not found, fetching...")
         wget.download("https://ftp.ncbi.nlm.nih.gov/genomes/refseq/bacteria/assembly_summary.txt", out=OUTPUT_FP)
 
-def accession_for(txid: str) -> str:
+        with open(os.path.join(OUTPUT_FP, "assembly_summary.txt"), "a") as f: # Append 2173 default outgroup
+            f.write("GCF_000016525.1\tPRJNA224116\tSAMN02604313\t\trepresentative genome\t420247\t2173\tMethanobrevibacter smithii ATCC 35061\tstrain=ATCC 35061; PS; DSMZ 861\t\tlatest\tComplete Genome\tMajor\tFull\t2007/06/04\tASM1652v1\tWashington University Center for Genome Sciences\tGCA_000016525.1\tidentical\thttps://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/016/525/GCF_000016525.1_ASM1652v1\t\tassembly from type material\tna")
+
+
+def accession_for(txid: str) -> str or None:
     check_assembly_summary()
     
     with open(os.path.join(OUTPUT_FP, "assembly_summary.txt")) as f:
@@ -29,14 +33,17 @@ def accession_for(txid: str) -> str:
 
         idIndex = headers.index("species_taxid")
         accIndex = headers.index("assembly_accession")
+        lvlIndex = headers.index("assembly_level")
         refSeqIndex = headers.index("refseq_category")
 
         for line in reader:
             try:
-                if line[idIndex] == txid and (line[refSeqIndex] == "reference genome" or line[refSeqIndex] == "representative genome"):
+                if int(line[idIndex]) == int(txid) and line[refSeqIndex] != "na":
                     return line[accIndex]
             except IndexError:
                 None # Incomplete assembly_summary entry
+
+    return None        
 
 def url_for(acc: str) -> str:
     check_assembly_summary()
@@ -64,7 +71,7 @@ def download(url_prefix: str, full_acc: str, acc: str, out: str, suffix: str, ex
         warn(str(e))
     
     with gzip.open(os.path.join(out, f"{full_acc}{suffix}{ext}.gz"), "rb") as f_in:
-        with open(os.path.join(out, f"{acc}.fna"), "wb") as f_out:
+        with open(os.path.join(out, f"{acc}{ext}"), "wb") as f_out:
             shutil.copyfileobj(f_in, f_out)
 
     try:
@@ -72,22 +79,25 @@ def download(url_prefix: str, full_acc: str, acc: str, out: str, suffix: str, ex
     except OSError as e:
         warn(str(e))
 
-def fetch_genome(acc: str):
-    url_prefix = url_for(acc)
-    full_acc = url_prefix.split('/')[-1]
-    
-    if f"{acc}.fna" in os.listdir(NUCL_OUTPUT_FP):
-        log(f"Found existing nucleotide file for {acc}")
-    else:
-        download(url_prefix, full_acc, acc, NUCL_OUTPUT_FP, "_cds_from_genomic", ".fna")
+def fetch_genome(acc: str or None):
+    print(acc)
+    if acc:
+        url_prefix = url_for(acc)
+        full_acc = url_prefix.split('/')[-1]
+        
+        if f"{acc}.fna" in os.listdir(NUCL_OUTPUT_FP):
+            log(1, f"Found existing nucleotide file for {acc}")
+        else:
+            download(url_prefix, full_acc, acc, NUCL_OUTPUT_FP, "_cds_from_genomic", ".fna")
 
-    if f"{acc}.faa" in os.listdir(PROT_OUTPUT_FP):
-        log(f"Found existing protein file for {acc}")
-    else:
-        download(url_prefix, full_acc, acc, PROT_OUTPUT_FP, "_protein", ".faa")
+        if f"{acc}.faa" in os.listdir(PROT_OUTPUT_FP):
+            log(1, f"Found existing protein file for {acc}")
+        else:
+            download(url_prefix, full_acc, acc, PROT_OUTPUT_FP, "_protein", ".faa")
 
 def collect_ncbi_species(ids: TextIOWrapper):
     for id in ids.readlines():
+        print(id)
         fetch_genome(accession_for(id))
 
 def collect_ncbi_accessions(accs: TextIOWrapper):
@@ -104,9 +114,9 @@ def collect_local(dir: str):
             prot_list.append(fp)
 
     for n in nucl_list:
-        if n in prot_list:
-            shutil.copyfile(os.path.join(dir, f"{n}.fna"), os.path.join(NUCL_OUTPUT_FP, f"{n}.fna"))
-            shutil.copyfile(os.path.join(dir, f"{n}.faa"), os.path.join(PROT_OUTPUT_FP, f"{n}.faa"))
+        if n.replace(".fna", ".faa") in prot_list:
+            shutil.copyfile(os.path.join(dir, n), os.path.join(NUCL_OUTPUT_FP, n))
+            shutil.copyfile(os.path.join(dir, n.replace(".fna", ".faa")), os.path.join(PROT_OUTPUT_FP, n.replace(".fna", ".faa")))
 
 def collect_outgroup(id: str):
     if len(os.listdir(OUTGROUP_OUTPUT_FP)):
@@ -114,7 +124,8 @@ def collect_outgroup(id: str):
         shutil.rmtree(OUTGROUP_OUTPUT_FP)
         os.mkdir(OUTGROUP_OUTPUT_FP)
     if id.isdigit():
-        fetch_genome(accession_for(id))
+        id = accession_for(id)
+        fetch_genome(id)
     
     try:
         os.rename(os.path.join(NUCL_OUTPUT_FP, f"{id}.fna"), os.path.join(OUTGROUP_OUTPUT_FP, f"{id}.fna"))
@@ -134,9 +145,9 @@ def collect_genomes(output: str, ncbi_species: TextIOWrapper or None, ncbi_acces
     NUCL_OUTPUT_FP = os.path.join(output, "nucleotide")
     PROT_OUTPUT_FP = os.path.join(output, "protein")
     OUTGROUP_OUTPUT_FP = os.path.join(output, "outgroup")
-    None if not os.path.isdir(NUCL_OUTPUT_FP) else os.mkdir(NUCL_OUTPUT_FP)
-    None if not os.path.isdir(PROT_OUTPUT_FP) else os.mkdir(PROT_OUTPUT_FP)
-    None if not os.path.isdir(OUTGROUP_OUTPUT_FP) else os.mkdir(OUTGROUP_OUTPUT_FP)
+    None if os.path.isdir(NUCL_OUTPUT_FP) else os.mkdir(NUCL_OUTPUT_FP)
+    None if os.path.isdir(PROT_OUTPUT_FP) else os.mkdir(PROT_OUTPUT_FP)
+    None if os.path.isdir(OUTGROUP_OUTPUT_FP) else os.mkdir(OUTGROUP_OUTPUT_FP)
 
     if ncbi_species:
         collect_ncbi_species(ncbi_species)

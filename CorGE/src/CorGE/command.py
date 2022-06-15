@@ -1,26 +1,23 @@
 import argparse
 import logging
+import sys
 from pathlib import Path
 from .collect import collect_genomes
 from .extract import extract_genes
 
-def collect_genomes(args: argparse.Namespace):
+def _collect_genomes(args: argparse.Namespace):
     logging.debug(args)
-    ncbi_species = open(args.ncbi_species) if args.ncbi_species else None
-    ncbi_accessions = open(args.ncbi_accessions) if args.ncbi_accessions else None
-    collect_genomes(args.output_dir, ncbi_species, ncbi_accessions, args.local, args.outgroup)
-    ncbi_species.close()
-    ncbi_accessions.close()
+    collect_genomes(args.output_dir, args.ncbi_species, args.ncbi_accessions, args.local, args.outgroup)
 
-def extract_genes(args: argparse.Namespace):
+def _extract_genes(args: argparse.Namespace):
     logging.debug(args)
     extract_genes(args.genomes, args.output)
 
-def dir_path(path):
-    if Path.is_dir(path):
-        return path
+def dir_path(dir: str):
+    if Path.is_dir(Path(dir)):
+        return dir
     else:
-        raise argparse.ArgumentTypeError(f"readable_dir:{path} is not a valid path")
+        raise argparse.ArgumentTypeError(f"readable_dir:{dir} is not a valid path")
 
 def main(argv=None):
     main_parser = argparse.ArgumentParser()
@@ -50,7 +47,7 @@ def main(argv=None):
         type=str,
         default="2173",
         help="Specify the outgroup for tree rooting. Integers will be parsed as species level taxon ids and retrieved from NCBI. Otherwise will search for a matching nucleotide-encoded file in ouput_dir or local (Default: 2173, enter None to not use outgroup rooting)")
-    collect_genomes_subparser.set_defaults(func=collect_genomes)
+    collect_genomes_subparser.set_defaults(func=_collect_genomes)
 
     extract_genes_subparser.add_argument("genomes",
         type=dir_path,
@@ -59,9 +56,14 @@ def main(argv=None):
         type=dir_path,
         default="./",
         help="Directory to write output to (Default: ./)")
-    extract_genes_subparser.set_defaults(func=extract_genes)
+    extract_genes_subparser.set_defaults(func=_extract_genes)
 
     args = main_parser.parse_args(argv)
+
+    # print usage if user only enters the program name
+    if len(sys.argv) < 2:
+        main_parser.print_usage()
+        sys.exit(1)
 
     args.func(args)
 
