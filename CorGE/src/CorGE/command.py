@@ -65,5 +65,6 @@ def main(argv=None):
         main_parser.print_usage()
         sys.exit(1)
 
+    logging.basicConfig()
     args.func(args)
 

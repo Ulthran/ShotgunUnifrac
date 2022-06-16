@@ -1,11 +1,12 @@
 import csv
 import gzip
+import logging
 import os
 import shutil
 import sys
+import tqdm
 import wget
 from io import TextIOWrapper
-from logging import log
 from warnings import warn
 
 OUTPUT_FP = ""
@@ -15,7 +16,7 @@ OUTGROUP_OUTPUT_FP = ""
 
 def check_assembly_summary():
     if not os.path.exists(os.path.join(OUTPUT_FP, "assembly_summary.txt")):
-        log(1, "assembly_summary.txt not found, fetching...")
+        logging.log(1, "assembly_summary.txt not found, fetching...")
         wget.download("https://ftp.ncbi.nlm.nih.gov/genomes/refseq/bacteria/assembly_summary.txt", out=OUTPUT_FP)
 
         with open(os.path.join(OUTPUT_FP, "assembly_summary.txt"), "a") as f: # Append 2173 default outgroup
@@ -33,7 +34,6 @@ def accession_for(txid: str) -> str or None:
 
         idIndex = headers.index("species_taxid")
         accIndex = headers.index("assembly_accession")
-        lvlIndex = headers.index("assembly_level")
         refSeqIndex = headers.index("refseq_category")
 
         for line in reader:
@@ -80,24 +80,24 @@ def download(url_prefix: str, full_acc: str, acc: str, out: str, suffix: str, ex
         warn(str(e))
 
 def fetch_genome(acc: str or None):
-    print(acc)
     if acc:
         url_prefix = url_for(acc)
         full_acc = url_prefix.split('/')[-1]
         
         if f"{acc}.fna" in os.listdir(NUCL_OUTPUT_FP):
-            log(1, f"Found existing nucleotide file for {acc}")
+            logging.log(1, f"Found existing nucleotide file for {acc}")
         else:
             download(url_prefix, full_acc, acc, NUCL_OUTPUT_FP, "_cds_from_genomic", ".fna")
 
         if f"{acc}.faa" in os.listdir(PROT_OUTPUT_FP):
-            log(1, f"Found existing protein file for {acc}")
+            logging.log(1, f"Found existing protein file for {acc}")
         else:
             download(url_prefix, full_acc, acc, PROT_OUTPUT_FP, "_protein", ".faa")
+    else:
+        logging.log(1, "Failed to find accession")
 
 def collect_ncbi_species(ids: TextIOWrapper):
     for id in ids.readlines():
-        print(id)
         fetch_genome(accession_for(id))
 
 def collect_ncbi_accessions(accs: TextIOWrapper):

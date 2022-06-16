@@ -23,39 +23,26 @@ rule all_gene_files:
 
 rule all_filtered_files:
     input:
-        expand("filtered-sequences/{gene}.fasta", gene=config["GENES"]),
+        expand("aligned-sequences/{gene}.fasta", gene=config["GENES"]),
 
 
 rule align_fasta:
     input:
         "merged-sequences/{gene}.fasta",
     output:
-        temp("aligned-sequences/{gene}.fasta"),
+        "aligned-sequences/{gene}.fasta",
     log:
         "logs/align_fasta/{gene}.log",
     conda:
         "envs/muscle_env.yaml"
     shell:
         "muscle -in merged-sequences/{wildcards.gene}.fasta -out aligned-sequences/{wildcards.gene}.fasta"
-
-
-rule filter_columns:
-    # Identity op for now, okfasta
-    input:
-        "aligned-sequences/{gene}.fasta",
-    output:
-        "filtered-sequences/{gene}.fasta",
-    log:
-        "logs/filter_columns/{gene}.log",
-    conda:
-        ""
-    shell:
-        "cp aligned-sequences/{wildcards.gene}.fasta filtered-sequences/{wildcards.gene}.fasta"
+        # Consider adding filtering on here as well
 
 
 rule create_trees:
     input:
-        "filtered-sequences/{gene}.fasta",
+        "aligned-sequences/{gene}.fasta",
     output:
         "trees/RAxML_bestTree.{gene}",
     log:
@@ -95,7 +82,7 @@ rule infer_weights:
     params:
         ref=config["GENES"][0],
     shell:
-        "iqtree -s filtered-sequences/{params.ref}.fasta -pre trees/iqtree -m MFP -g trees/final.unrooted"
+        "iqtree -s aligned-sequences/{params.ref}.fasta -pre trees/iqtree -m MFP -g trees/final.unrooted"
 
 
 rule outgroup_root_tree:
@@ -111,7 +98,7 @@ rule outgroup_root_tree:
         "envs/raxml_env.yaml"
     shell:
         "cd trees/ && "
-        "raxmlHPC -s ../filtered-sequences/{params.ref}.fasta -o 2173 -m PROTCATLG -t iqtree.treefile -n final && "
+        "raxmlHPC -s ../aligned-sequences/{params.ref}.fasta -o 2173 -m PROTCATLG -t iqtree.treefile -n final && "
         "mv RAxML_result.final ../{output}"
 
 
