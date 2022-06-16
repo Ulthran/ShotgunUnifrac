@@ -142,6 +142,10 @@ def extract_genes(genomes: str, output: str):
         sys.exit("Invalid path to collected genomes")
     if not os.path.isdir(output):
         sys.exit("Invalid output path")
+    if [fn.split('.fna')[0] for fn in os.listdir(os.path.join(genomes, "nucleotide"))] != \
+        [fn.split('.faa')[0] for fn in os.listdir(os.path.join(genomes, "protein"))]:
+            sys.exit(f"Contents of {os.path.join(genomes, 'nucleotide')} and {os.path.join(genomes, 'protein')} are not perfectly paired")
+
 
     global OUTPUT_FP, FILTERED_SEQUENCES_FP, MERGED_SEQUENCES_FP
     OUTPUT_FP = output

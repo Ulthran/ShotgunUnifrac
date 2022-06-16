@@ -59,7 +59,7 @@ def url_for(acc: str) -> str:
 
         for line in reader:
             try:
-                if line[accIndex] == acc:
+                if line[accIndex] == acc.strip():
                     return line[ftpIndex]
             except IndexError:
                 None # Incomplete assembly_summary entry
