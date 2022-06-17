@@ -20,6 +20,8 @@ def test_full_run():
         shutil.copytree("Astral/", os.path.join(tmpdir, "Astral/")) # Would be better to have this defined in config
         shutil.copytree(".tests/integration/full_run_snakemake/data/merged-sequences/", os.path.join(tmpdir, "merged-sequences/"))
 
+        os.system("conda config --set channel_priority strict")
+
         # Run the test job.
         sp.check_output([
             "python",
