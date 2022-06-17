@@ -26,6 +26,7 @@ class CommandTests(unittest.TestCase):
 
         # extract_genes output
         self.filtered_seqs_fp = os.path.join(self.temp_dir, "filtered-sequences")
+        self.filtered_nucl_seqs_fp = os.path.join(self.temp_dir, "filtered-nucl-sequences")
         self.merged_seqs_fp = os.path.join(self.temp_dir, "merged-sequences")
     
     def tearDown(self):
@@ -49,7 +50,7 @@ class CommandTests(unittest.TestCase):
             'GCF_001735525.1.faa', 'GCF_007197645.1.faa', 'GCF_001375595.1.faa', 'GCF_000218545.1.faa', 'GCF_000010525.1\n.faa',\
             'GCF_000378225.1.faa', 'GCF_900111765.1.faa', 'GCF_023159115.1.faa'].sort())
 
-    def test_extract_genes(self):
+    def test_extract_prot_genes(self):
         main([
             "extract_genes",
             self.collected_geneomes_fp,
@@ -60,7 +61,22 @@ class CommandTests(unittest.TestCase):
         self.assertEqual(len(os.listdir(self.merged_seqs_fp)), 41)
 
         with open(os.path.join(self.filtered_seqs_fp, "COG0012__GCF_000007725.1.faa")) as f:
-            self.assertEqual(next(f).strip(), "> GCF_000007725.1")
+            self.assertEqual(next(f).strip(), ">WP_011091313.1 redox-regulated ATPase YchF [Buchnera aphidicola]")
+            self.assertEqual(next(f).strip(), "MGFKCGFVGLPNVGKSTLFNYLTKLNIPADNYPFCTIKSNVGIVPVLDNRLNKIAQVVCSNKIIPATIELVDIAGLVKGA")
+
+    def test_extract_nucl_genes(self):
+        main([
+            "extract_genes",
+            self.collected_geneomes_fp,
+            "--output", self.temp_dir,
+            "--type", "nucl",
+        ])
+
+        self.assertEqual(len(os.listdir(self.filtered_nucl_seqs_fp)), 488)
+        self.assertEqual(len(os.listdir(self.merged_seqs_fp)), 41)
+
+        with open(os.path.join(self.filtered_nucl_seqs_fp, "COG0012__GCF_000007725.1.faa")) as f:
+            self.assertEqual(next(f).strip(), ">WP_011091313.1 redox-regulated ATPase YchF [Buchnera aphidicola]")
             self.assertEqual(next(f).strip(), "MGFKCGFVGLPNVGKSTLFNYLTKLNIPADNYPFCTIKSNVGIVPVLDNRLNKIAQVVCSNKIIPATIELVDIAGLVKGA")
 
 
