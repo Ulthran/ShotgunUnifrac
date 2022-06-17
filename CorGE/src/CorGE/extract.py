@@ -112,7 +112,7 @@ def merge_sequences():
     for seq in all_filtered_seqs:
         cog = seq.split("__")[0]
         with open(os.path.join(FILTERED_SEQUENCES_FP, seq)) as f:
-            with open(os.path.join(MERGED_SEQUENCES_FP, f"{cog}.faa"), "a") as g:
+            with open(os.path.join(MERGED_SEQUENCES_FP, f"{cog}.fasta"), "a") as g:
                 g.writelines(f.readlines())
 
 
