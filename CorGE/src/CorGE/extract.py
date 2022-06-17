@@ -2,6 +2,7 @@ import collections
 import csv
 import logging
 import os
+from CorGE.src.CorGE.collect import NUCL_OUTPUT_FP
 import pyhmmer.plan7
 import pyhmmer.easel
 import shutil
@@ -10,12 +11,13 @@ import tqdm
 import urllib.request
 from io import TextIOWrapper
 from warnings import warn
+from .command import FileType
 
 OUTPUT_FP = ""
 FILTERED_SEQUENCES_FP = ""
 MERGED_SEQUENCES_FP = ""
 
-def write_sequence(out: TextIOWrapper, seqs: TextIOWrapper, result: list, acc: str):
+def write_sequence(out: TextIOWrapper, seqs: TextIOWrapper, query: str, acc: str = None):
     seq = ""
     add = False
     for l in seqs.readlines():
@@ -23,9 +25,12 @@ def write_sequence(out: TextIOWrapper, seqs: TextIOWrapper, result: list, acc: s
             if l[0] != ">":
                 seq += l.strip()
             break
-        if result.query in l:
+        if query in l and l[0] == '>':
             add = True
-            seq += f"> {acc}\n"
+            if acc:
+                seq += f"> {acc}\n"
+            else:
+                seq += f"{l.strip()}\n"
     
     out.write(seq + "\n")
 
@@ -75,16 +80,15 @@ def run_hmmscan(proteins: list) -> list:
     return [best_results[k] for k in sorted(best_results) if k in keep_query]
 
 def filter_sequences(dir: str):
-    NUCL_INPUT_FP = os.path.join(dir, "nucleotide")
-    PROT_INPUT_FP = os.path.join(dir, "protein")
-    OUTGROUP_INPUT_FP = os.path.join(dir, "outgroup")
+    prot_input_fp = os.path.join(dir, "protein")
+    outgroup_input_fp = os.path.join(dir, "outgroup")
     
-    prot_list = os.listdir(PROT_INPUT_FP)
-    prot_fp_list = [os.path.join(PROT_INPUT_FP, prot) for prot in prot_list]
-    outgroup = os.listdir(OUTGROUP_INPUT_FP)
+    prot_list = os.listdir(prot_input_fp)
+    prot_fp_list = [os.path.join(prot_input_fp, prot) for prot in prot_list]
+    outgroup = os.listdir(outgroup_input_fp)
     for fp in outgroup:
         if ".faa" in fp:
-            prot_fp_list.append(os.path.join(OUTGROUP_INPUT_FP, fp))
+            prot_fp_list.append(os.path.join(outgroup_input_fp, fp))
 
     logging.log(1, "Filtering sequences...")
     with tqdm.tqdm(total=len(prot_list)) as pbar:
@@ -100,23 +104,42 @@ def filter_sequences(dir: str):
             for result in results:
                 with open(os.path.join(FILTERED_SEQUENCES_FP, f"{result.cog}__{acc}.faa"), "w") as f:
                     with open(prot_fp) as g:
-                        write_sequence(f, g, result, acc)
+                        write_sequence(f, g, result.query)
 
             for result in results[:10]:
                 print(result.query, "{:.1f}".format(result.bitscore), result.cog, sep="\t")
 
+def filter_nucl_sequences(dir: str):
+    global FILTERED_SEQUENCES_FP
+    filtered_prot_sequences_fp = FILTERED_SEQUENCES_FP
+    FILTERED_SEQUENCES_FP = os.path.join(OUTPUT_FP, "filtered-nucl-sequences")
+    nucl_input_fp = os.path.join(dir, "nucleotide")
+
+    for fp in os.listdir(filtered_prot_sequences_fp):
+        cog = fp.split("__")[0]
+        acc = fp.split("__")[1].split(".faa")[0]
+        
+        query = ""
+        with open(os.path.join(filtered_prot_sequences_fp, fp)) as f:
+            query = f.readline().strip()[1:].split(' ')[0]
+        
+        with open(os.path.join(FILTERED_SEQUENCES_FP, f"{cog}__{acc}.fna"), "w") as f:
+            with open(os.path.join(nucl_input_fp, f"{acc}.fna")) as g:
+                write_sequence(f, g, query)
 
 def merge_sequences():
     all_filtered_seqs = os.listdir(FILTERED_SEQUENCES_FP)
     
     for seq in all_filtered_seqs:
         cog = seq.split("__")[0]
+        acc = seq.split("__")[1]
         with open(os.path.join(FILTERED_SEQUENCES_FP, seq)) as f:
             with open(os.path.join(MERGED_SEQUENCES_FP, f"{cog}.fasta"), "a") as g:
-                g.writelines(f.readlines())
+                g.write(f"> {acc}\n")
+                g.write(f.readlines()[1])
 
 
-def write_config(dir: str):
+def write_config(dir: str, t: FileType):
     OUTGROUP_INPUT_FP = os.path.join(dir, "outgroup")
 
     all_merged_seqs = os.listdir(MERGED_SEQUENCES_FP)
@@ -133,11 +156,14 @@ def write_config(dir: str):
         cfg += "OUTGROUP: true" #TODO: change this to specify outgroup name
     else:
         cfg += "OUTGROUP: false"
+    
+    cfg += f"# File type contained in merged-sequences (prot or nucl)\nTYPE: {str(t)}"
+    
 
     with open(os.path.join(OUTPUT_FP, "config.yml"), "w") as f:
         f.write(cfg)
 
-def extract_genes(genomes: str, output: str):
+def extract_genes(genomes: str, output: str, output_type: FileType):
     if not os.path.isdir(genomes):
         sys.exit("Invalid path to collected genomes")
     if not os.path.isdir(output):
@@ -171,5 +197,7 @@ def extract_genes(genomes: str, output: str):
         sys.exit("Problem creating output directories")
 
     filter_sequences(genomes)
+    if str(output_type) == 'nucl':
+        filter_nucl_sequences(genomes)
     merge_sequences()
-    write_config(genomes)
+    write_config(genomes, output_type)

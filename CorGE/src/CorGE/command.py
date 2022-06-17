@@ -1,9 +1,17 @@
 import argparse
 import logging
 import sys
+from enum import Enum
 from pathlib import Path
 from .collect import collect_genomes
 from .extract import extract_genes
+
+class FileType(Enum):
+    prot = 'prot'
+    nucl = 'nucl'
+
+    def __str__(self):
+        return self.value
 
 def _collect_genomes(args: argparse.Namespace):
     logging.debug(args)
@@ -11,7 +19,7 @@ def _collect_genomes(args: argparse.Namespace):
 
 def _extract_genes(args: argparse.Namespace):
     logging.debug(args)
-    extract_genes(args.genomes, args.output)
+    extract_genes(args.genomes, args.output, args.type)
 
 def dir_path(dir: str):
     if Path.is_dir(Path(dir)):
@@ -56,6 +64,11 @@ def main(argv=None):
         type=dir_path,
         default="./",
         help="Directory to write output to (Default: ./)")
+    extract_genes_subparser.add_argument("-t", "--type",
+        type=FileType,
+        choices=list(FileType),
+        default="prot",
+        help="Output in merged-sequences can be nucleotide- or protein-encoded (Default: prot)")
     extract_genes_subparser.set_defaults(func=_extract_genes)
 
     args = main_parser.parse_args(argv)
