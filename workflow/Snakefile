@@ -36,8 +36,7 @@ rule align_fasta:
     conda:
         "envs/muscle_env.yaml"
     shell:
-        "muscle -in merged-sequences/{wildcards.gene}.fasta -out aligned-sequences/{wildcards.gene}.fasta"
-        # Consider adding filtering on here as well
+        "muscle -in merged-sequences/{wildcards.gene}.fasta -out aligned-sequences/{wildcards.gene}.fasta" # Consider adding filtering on here as well
 
 
 rule create_trees:
@@ -51,9 +50,9 @@ rule create_trees:
         "envs/raxml_env.yaml"
     shell:
         "cd trees/ && "
-        #"raxmlHPC -s ../{input} -m GTRCAT -n {wildcards.gene} -p 392781 && "
+
         "raxmlHPC -s ../{input} -m PROTCATLG -n {wildcards.gene} -p 392781 && "
-        "cd .."
+        "cd .." #"raxmlHPC -s ../{input} -m GTRCAT -n {wildcards.gene} -p 392781 && "
 
 
 rule merge_trees:
