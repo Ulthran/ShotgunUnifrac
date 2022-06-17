@@ -1,5 +1,6 @@
 import collections
 import csv
+import imp
 import logging
 import os
 from CorGE.src.CorGE.collect import NUCL_OUTPUT_FP
@@ -11,7 +12,15 @@ import tqdm
 import urllib.request
 from io import TextIOWrapper
 from warnings import warn
-from .command import FileType
+#from .command import FileType
+
+from enum import Enum
+class FileType(Enum):
+    prot = 'prot'
+    nucl = 'nucl'
+
+    def __str__(self):
+        return self.value
 
 OUTPUT_FP = ""
 FILTERED_SEQUENCES_FP = ""
