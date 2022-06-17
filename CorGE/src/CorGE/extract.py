@@ -11,7 +11,6 @@ import tqdm
 import urllib.request
 from io import TextIOWrapper
 from warnings import warn
-from .command import FileType
 
 OUTPUT_FP = ""
 FILTERED_SEQUENCES_FP = ""
@@ -139,7 +138,7 @@ def merge_sequences():
                 g.write(f.readlines()[1])
 
 
-def write_config(dir: str, t: FileType):
+def write_config(dir: str, t: str):
     OUTGROUP_INPUT_FP = os.path.join(dir, "outgroup")
 
     all_merged_seqs = os.listdir(MERGED_SEQUENCES_FP)
@@ -157,13 +156,13 @@ def write_config(dir: str, t: FileType):
     else:
         cfg += "OUTGROUP: false"
     
-    cfg += f"# File type contained in merged-sequences (prot or nucl)\nTYPE: {str(t)}"
+    cfg += f"# File type contained in merged-sequences (prot or nucl)\nTYPE: {t}"
     
 
     with open(os.path.join(OUTPUT_FP, "config.yml"), "w") as f:
         f.write(cfg)
 
-def extract_genes(genomes: str, output: str, output_type: FileType):
+def extract_genes(genomes: str, output: str, output_type: str):
     if not os.path.isdir(genomes):
         sys.exit("Invalid path to collected genomes")
     if not os.path.isdir(output):

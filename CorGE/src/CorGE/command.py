@@ -19,7 +19,7 @@ def _collect_genomes(args: argparse.Namespace):
 
 def _extract_genes(args: argparse.Namespace):
     logging.debug(args)
-    extract_genes(args.genomes, args.output, args.type)
+    extract_genes(args.genomes, args.output, str(args.type))
 
 def dir_path(dir: str):
     if Path.is_dir(Path(dir)):
