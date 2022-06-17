@@ -3,7 +3,6 @@ import csv
 import imp
 import logging
 import os
-from CorGE.src.CorGE.collect import NUCL_OUTPUT_FP
 import pyhmmer.plan7
 import pyhmmer.easel
 import shutil
@@ -12,15 +11,7 @@ import tqdm
 import urllib.request
 from io import TextIOWrapper
 from warnings import warn
-#from .command import FileType
-
-from enum import Enum
-class FileType(Enum):
-    prot = 'prot'
-    nucl = 'nucl'
-
-    def __str__(self):
-        return self.value
+from .command import FileType
 
 OUTPUT_FP = ""
 FILTERED_SEQUENCES_FP = ""
