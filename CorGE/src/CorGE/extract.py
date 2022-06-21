@@ -112,6 +112,7 @@ def filter_nucl_sequences(dir: str):
     global FILTERED_SEQUENCES_FP
     filtered_prot_sequences_fp = FILTERED_SEQUENCES_FP
     FILTERED_SEQUENCES_FP = os.path.join(OUTPUT_FP, "filtered-nucl-sequences")
+    os.mkdir(FILTERED_SEQUENCES_FP)
     nucl_input_fp = os.path.join(dir, "nucleotide")
 
     for fp in os.listdir(filtered_prot_sequences_fp):
@@ -139,7 +140,7 @@ def merge_sequences():
 
 
 def write_config(dir: str, t: str):
-    OUTGROUP_INPUT_FP = os.path.join(dir, "outgroup")
+    outgroup_input_fp = os.path.join(dir, "outgroup")
 
     all_merged_seqs = os.listdir(MERGED_SEQUENCES_FP)
 
@@ -151,7 +152,7 @@ def write_config(dir: str, t: str):
     cfg += "]\n"
 
     cfg += "# Outgroup to use for rooting, false if outgroup rooting shouldn't be used\n"
-    if len(os.listdir(OUTGROUP_INPUT_FP)) == 2:
+    if len(os.listdir(outgroup_input_fp)) == 2:
         cfg += "OUTGROUP: true" #TODO: change this to specify outgroup name
     else:
         cfg += "OUTGROUP: false"
