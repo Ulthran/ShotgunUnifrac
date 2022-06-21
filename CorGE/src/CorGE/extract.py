@@ -114,6 +114,8 @@ def filter_nucl_sequences(dir: str):
     FILTERED_SEQUENCES_FP = os.path.join(OUTPUT_FP, "filtered-nucl-sequences")
     os.mkdir(FILTERED_SEQUENCES_FP)
     nucl_input_fp = os.path.join(dir, "nucleotide")
+    outgroup_input_fp = os.path.join(OUTPUT_FP, "outgroup")
+    outgroup_acc = os.listdir(outgroup_input_fp)[0].split("__")[1].split(".f")[0]
 
     for fp in os.listdir(filtered_prot_sequences_fp):
         cog = fp.split("__")[0]
@@ -124,8 +126,12 @@ def filter_nucl_sequences(dir: str):
             query = f.readline().strip()[1:].split(' ')[0]
         
         with open(os.path.join(FILTERED_SEQUENCES_FP, f"{cog}__{acc}.fna"), "w") as f:
-            with open(os.path.join(nucl_input_fp, f"{acc}.fna")) as g:
-                write_sequence(f, g, query)
+            if acc != outgroup_acc:
+                with open(os.path.join(nucl_input_fp, f"{acc}.fna")) as g:
+                    write_sequence(f, g, query)
+            else:
+                with open(os.path.join(outgroup_input_fp, f"{cog}__{acc}.fna")) as g:
+                    write_sequence(f, g, query)
 
 def merge_sequences():
     all_filtered_seqs = os.listdir(FILTERED_SEQUENCES_FP)
