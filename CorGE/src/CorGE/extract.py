@@ -109,7 +109,7 @@ def filter_sequences(dir: str):
                 print(result.query, "{:.1f}".format(result.bitscore), result.cog, sep="\t")
 
 def filter_nucl_sequences(dir: str):
-    global FILTERED_SEQUENCES_FP
+    global FILTERED_SEQUENCES_FP, OUTPUT_FP
     filtered_prot_sequences_fp = FILTERED_SEQUENCES_FP
     FILTERED_SEQUENCES_FP = os.path.join(OUTPUT_FP, "filtered-nucl-sequences")
     os.mkdir(FILTERED_SEQUENCES_FP)
