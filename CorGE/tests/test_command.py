@@ -71,6 +71,8 @@ class CommandTests(unittest.TestCase):
             "--output", self.temp_dir,
             "--type", "nucl",
         ])
+        
+        self.maxDiff = None # See full output for failed assertions
 
         self.assertEqual(len(os.listdir(self.filtered_nucl_seqs_fp)), 488)
         self.assertEqual(len(os.listdir(self.merged_seqs_fp)), 41)
