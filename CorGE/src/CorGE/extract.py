@@ -190,7 +190,8 @@ def write_config(t: str):
 
     cfg += "# Outgroup to use for rooting, false if outgroup rooting shouldn't be used\n"
     if len(os.listdir(outgroup_input_fp)) == 2:
-        cfg += "OUTGROUP: true\n" #TODO: change this to specify outgroup name
+        
+        cfg += f"OUTGROUP: {txid_for(os.listdir(outgroup_input_fp)[0].split('.f')[0])}\n" #TODO: change this to specify outgroup name
     else:
         cfg += "OUTGROUP: false\n"
     

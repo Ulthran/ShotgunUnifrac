@@ -1,5 +1,5 @@
 # Config file for tree building pipeline
 # Genes to build trees from
 GENES: ["COG0012", "COG0016", "COG0018", ]
-OUTGROUP: true
+OUTGROUP: 2173
 TYPE: prot

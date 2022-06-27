@@ -96,11 +96,12 @@ rule outgroup_root_tree:
     params:
         ref=config["GENES"][0],
         alg='PROTCATLG' if config["TYPE"] == 'prot' else 'GTRCAT',
+        outgroup=config["OUTGROUP"],
     conda:
         "envs/raxml_env.yaml"
     shell:
         "cd trees/ && "
-        "raxmlHPC -s ../aligned-sequences/{params.ref}.fasta -o GCF_000016525.1 -m {params.alg} -t iqtree.treefile -n final && "
+        "raxmlHPC -s ../aligned-sequences/{params.ref}.fasta -o {params.outgroup} -m {params.alg} -t iqtree.treefile -n final && "
         "mv RAxML_result.final ../{output}"
 
 
