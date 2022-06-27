@@ -112,10 +112,18 @@ def filter_nucl_sequences(dir: str):
     global FILTERED_SEQUENCES_FP, OUTPUT_FP
     filtered_prot_sequences_fp = FILTERED_SEQUENCES_FP
     FILTERED_SEQUENCES_FP = os.path.join(OUTPUT_FP, "filtered-nucl-sequences")
-    os.mkdir(FILTERED_SEQUENCES_FP)
+    try:
+        os.mkdir(FILTERED_SEQUENCES_FP)
+    except FileExistsError:
+        warn("filtered-nucl-sequences output directory already exist and will be overwritten")
+        shutil.rmtree(FILTERED_SEQUENCES_FP)
+        os.mkdir(FILTERED_SEQUENCES_FP)
+    except OSError:
+        sys.exit("Problem creating nucl output directories")
+
     nucl_input_fp = os.path.join(dir, "nucleotide")
     outgroup_input_fp = os.path.join(OUTPUT_FP, "outgroup")
-    outgroup_acc = os.listdir(outgroup_input_fp)[0].split("__")[1].split(".f")[0]
+    outgroup_acc = os.listdir(outgroup_input_fp)[0].split(".f")[0]
 
     for fp in os.listdir(filtered_prot_sequences_fp):
         cog = fp.split("__")[0]
@@ -130,7 +138,7 @@ def filter_nucl_sequences(dir: str):
                 with open(os.path.join(nucl_input_fp, f"{acc}.fna")) as g:
                     write_sequence(f, g, query)
             else:
-                with open(os.path.join(outgroup_input_fp, f"{cog}__{acc}.fna")) as g:
+                with open(os.path.join(outgroup_input_fp, f"{acc}.fna")) as g:
                     write_sequence(f, g, query)
 
 def merge_sequences():
@@ -159,11 +167,11 @@ def write_config(dir: str, t: str):
 
     cfg += "# Outgroup to use for rooting, false if outgroup rooting shouldn't be used\n"
     if len(os.listdir(outgroup_input_fp)) == 2:
-        cfg += "OUTGROUP: true" #TODO: change this to specify outgroup name
+        cfg += "OUTGROUP: true\n" #TODO: change this to specify outgroup name
     else:
-        cfg += "OUTGROUP: false"
+        cfg += "OUTGROUP: false\n"
     
-    cfg += f"# File type contained in merged-sequences (prot or nucl)\nTYPE: {t}"
+    cfg += f"# File type contained in merged-sequences (prot or nucl)\nTYPE: {t}\n"
     
 
     with open(os.path.join(OUTPUT_FP, "config.yml"), "w") as f:

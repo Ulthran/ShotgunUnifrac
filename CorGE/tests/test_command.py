@@ -22,7 +22,7 @@ class CommandTests(unittest.TestCase):
         self.outgroup_fp = os.path.join(self.temp_dir, "outgroup/")
 
         # extract_genes input
-        self.collected_geneomes_fp = os.path.join(self.data_dir, "collected-genomes")
+        self.collected_genomes_fp = os.path.join(self.data_dir, "collected-genomes")
 
         # extract_genes output
         self.filtered_seqs_fp = os.path.join(self.temp_dir, "filtered-sequences")
@@ -53,7 +53,7 @@ class CommandTests(unittest.TestCase):
     def test_extract_prot_genes(self):
         main([
             "extract_genes",
-            self.collected_geneomes_fp,
+            self.collected_genomes_fp,
             "--output", self.temp_dir,
         ])
 
@@ -67,7 +67,7 @@ class CommandTests(unittest.TestCase):
     def test_extract_nucl_genes(self):
         main([
             "extract_genes",
-            self.collected_geneomes_fp,
+            self.collected_genomes_fp,
             "--output", self.temp_dir,
             "--type", "nucl",
         ])
