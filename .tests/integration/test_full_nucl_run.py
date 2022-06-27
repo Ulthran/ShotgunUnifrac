@@ -16,9 +16,9 @@ def test_full_run():
         os.makedirs(tmpdir)
         tmpdir = str(tmpdir)
 
-        shutil.copyfile(".tests/integration/full_run_snakemake/data/config.yml", os.path.join(tmpdir, "config.yml"))
+        shutil.copyfile(".tests/integration/full_nucl_run/data/config.yml", os.path.join(tmpdir, "config.yml"))
         shutil.copytree("Astral/", os.path.join(tmpdir, "Astral/")) # Would be better to have this defined in config
-        shutil.copytree(".tests/integration/full_run_snakemake/data/merged-sequences/", os.path.join(tmpdir, "merged-sequences/"))
+        shutil.copytree(".tests/integration/full_nucl_run/data/merged-sequences/", os.path.join(tmpdir, "merged-sequences/"))
 
         os.system("conda config --set channel_priority strict")
 
