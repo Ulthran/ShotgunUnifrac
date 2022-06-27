@@ -50,7 +50,7 @@ rule create_trees:
     conda:
         "envs/raxml_env.yaml"
     params:
-        alg = 'PROTCATLG' if config["TYPE"] == 'prot' else 'GTRCAT',
+        alg='PROTCATLG' if config["TYPE"] == 'prot' else 'GTRCAT',
     shell:
         "cd trees/ && "
         "raxmlHPC -s ../{input} -m {params.alg} -n {wildcards.gene} -p 392781 && "
@@ -95,7 +95,7 @@ rule outgroup_root_tree:
         "logs/root_tree/RAxML_rootedTree.final.log",
     params:
         ref=config["GENES"][0],
-        alg = 'PROTCATLG' if config["TYPE"] == 'prot' else 'GTRCAT',
+        alg='PROTCATLG' if config["TYPE"] == 'prot' else 'GTRCAT',
     conda:
         "envs/raxml_env.yaml"
     shell:
@@ -113,7 +113,7 @@ rule midpoint_root_tree:
         "logs/root_tree/RAxML_rootedTree.final.log",
     params:
         ref=config["GENES"][0],
-        alg = 'PROTCATLG' if config["TYPE"] == 'prot' else 'GTRCAT',
+        alg='PROTCATLG' if config["TYPE"] == 'prot' else 'GTRCAT',
     conda:
         "envs/raxml_env.yaml"
     shell:
