@@ -1,6 +1,5 @@
 import collections
 import csv
-import imp
 import logging
 import os
 import pyhmmer.plan7
@@ -158,7 +157,7 @@ def write_config(dir: str, t: str):
 
     all_merged_seqs = os.listdir(MERGED_SEQUENCES_FP)
 
-    cogs = [fp.split(".faa")[0] for fp in all_merged_seqs]
+    cogs = [fp.split(".fasta")[0] for fp in all_merged_seqs]
     
     cfg = "# Config file for tree building pipeline\n# Genes to build trees from\nGENES: ["
     for cog in cogs:

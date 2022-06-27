@@ -1,6 +1,6 @@
 # Config file for tree building pipeline
 # Genes to build trees from
-GENES: ["COG0012.fasta", "COG0016.fasta", "COG0018.fasta", "COG0048.fasta", "COG0049.fasta", "COG0052.fasta", "COG0080.fasta", "COG0081.fasta", "COG0085.fasta", "COG0086.fasta", "COG0087.fasta", "COG0088.fasta", "COG0090.fasta", "COG0091.fasta", "COG0092.fasta", "COG0093.fasta", "COG0094.fasta", "COG0096.fasta", "COG0097.fasta", "COG0098.fasta", "COG0099.fasta", "COG0100.fasta", "COG0102.fasta", "COG0103.fasta", "COG0124.fasta", "COG0172.fasta", "COG0184.fasta", "COG0185.fasta", "COG0186.fasta", "COG0197.fasta", "COG0200.fasta", "COG0201.fasta", "COG0202.fasta", "COG0215.fasta", "COG0256.fasta", "COG0495.fasta", "COG0522.fasta", "COG0525.fasta", "COG0533.fasta", "COG0541.fasta", "COG0552.fasta", ]
+GENES: ["COG0012", "COG0016", "COG0018", "COG0048", "COG0049", "COG0052", "COG0080", "COG0081", "COG0085", "COG0086", "COG0087", "COG0088", "COG0090", "COG0091", "COG0092", "COG0093", "COG0094", "COG0096", "COG0097", "COG0098", "COG0099", "COG0100", "COG0102", "COG0103", "COG0124", "COG0172", "COG0184", "COG0185", "COG0186", "COG0197", "COG0200", "COG0201", "COG0202", "COG0215", "COG0256", "COG0495", "COG0522", "COG0525", "COG0533", "COG0541", "COG0552", ]
 # Outgroup to use for rooting, false if outgroup rooting shouldn't be used
 OUTGROUP: true
 # File type contained in merged-sequences (prot or nucl)

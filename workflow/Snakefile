@@ -36,7 +36,7 @@ rule align_fasta:
     conda:
         "envs/muscle_env.yaml"
     shell:
-        # Consider adding filtering on here as well
+        # Consider adding filtering here as well
         "muscle -in merged-sequences/{wildcards.gene}.fasta -out aligned-sequences/{wildcards.gene}.fasta"
 
 
@@ -46,13 +46,14 @@ rule create_trees:
     output:
         "trees/RAxML_bestTree.{gene}",
     log:
-        "logs/create_trees/RAxML_bestTree.{gene}.log",
+        "logs/prot_create_trees/RAxML_bestTree.{gene}.log",
     conda:
         "envs/raxml_env.yaml"
+    params:
+        alg = 'PROTCATLG' if config["TYPE"] == 'prot' else 'GTRCAT',
     shell:
-        #"raxmlHPC -s ../{input} -m GTRCAT -n {wildcards.gene} -p 392781 && " # for nucl
         "cd trees/ && "
-        "raxmlHPC -s ../{input} -m PROTCATLG -n {wildcards.gene} -p 392781 && "
+        "raxmlHPC -s ../{input} -m {params.alg} -n {wildcards.gene} -p 392781 && "
         "cd .."
 
 
@@ -94,11 +95,12 @@ rule outgroup_root_tree:
         "logs/root_tree/RAxML_rootedTree.final.log",
     params:
         ref=config["GENES"][0],
+        alg = 'PROTCATLG' if config["TYPE"] == 'prot' else 'GTRCAT',
     conda:
         "envs/raxml_env.yaml"
     shell:
         "cd trees/ && "
-        "raxmlHPC -s ../aligned-sequences/{params.ref}.fasta -o GCF_000016525.1 -m PROTCATLG -t iqtree.treefile -n final && "
+        "raxmlHPC -s ../aligned-sequences/{params.ref}.fasta -o GCF_000016525.1 -m {params.alg} -t iqtree.treefile -n final && "
         "mv RAxML_result.final ../{output}"
 
 
@@ -111,9 +113,10 @@ rule midpoint_root_tree:
         "logs/root_tree/RAxML_rootedTree.final.log",
     params:
         ref=config["GENES"][0],
+        alg = 'PROTCATLG' if config["TYPE"] == 'prot' else 'GTRCAT',
     conda:
         "envs/raxml_env.yaml"
     shell:
         "cd trees/ && "
-        "raxmlHPC -f I -m PROTCATLG -t iqtree.treefile -n final && "
+        "raxmlHPC -f I -m {params.alg} -t iqtree.treefile -n final && "
         "mv RAxML_result.final ../{output}"
