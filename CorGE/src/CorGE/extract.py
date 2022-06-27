@@ -8,14 +8,22 @@ import shutil
 import sys
 import tqdm
 import urllib.request
+import wget
 from io import TextIOWrapper
 from warnings import warn
-from .collect import check_assembly_summary
 
 INPUT_FP = ""
 OUTPUT_FP = ""
 FILTERED_SEQUENCES_FP = ""
 MERGED_SEQUENCES_FP = ""
+
+def check_assembly_summary():
+    if not os.path.exists(os.path.join(INPUT_FP, "assembly_summary.txt")):
+        logging.log(1, "assembly_summary.txt not found, fetching...")
+        wget.download("https://ftp.ncbi.nlm.nih.gov/genomes/refseq/bacteria/assembly_summary.txt", out=INPUT_FP)
+
+        with open(os.path.join(INPUT_FP, "assembly_summary.txt"), "a") as f: # Append 2173 default outgroup
+            f.write("GCF_000016525.1\tPRJNA224116\tSAMN02604313\t\trepresentative genome\t420247\t2173\tMethanobrevibacter smithii ATCC 35061\tstrain=ATCC 35061; PS; DSMZ 861\t\tlatest\tComplete Genome\tMajor\tFull\t2007/06/04\tASM1652v1\tWashington University Center for Genome Sciences\tGCA_000016525.1\tidentical\thttps://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/016/525/GCF_000016525.1_ASM1652v1\t\tassembly from type material\tna")
 
 def txid_for(acc: str) -> str:
     check_assembly_summary()
