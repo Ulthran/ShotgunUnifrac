@@ -2,3 +2,4 @@
 # Genes to build trees from
 GENES: ["COG0012", "COG0016", "COG0018", ]
 OUTGROUP: true
+TYPE: prot
