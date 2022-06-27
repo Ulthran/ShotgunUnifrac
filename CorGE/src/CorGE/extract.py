@@ -22,7 +22,8 @@ def write_sequence(out: TextIOWrapper, seqs: TextIOWrapper, query: str, acc: str
         if add:
             if l[0] != ">":
                 seq += l.strip()
-            break
+            else:
+                break
         if query in l and l[0] == '>':
             add = True
             if acc:
