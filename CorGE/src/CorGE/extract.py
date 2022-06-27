@@ -10,10 +10,33 @@ import tqdm
 import urllib.request
 from io import TextIOWrapper
 from warnings import warn
+from .collect import check_assembly_summary
 
+INPUT_FP = ""
 OUTPUT_FP = ""
 FILTERED_SEQUENCES_FP = ""
 MERGED_SEQUENCES_FP = ""
+
+def txid_for(acc: str) -> str:
+    check_assembly_summary()
+    
+    with open(os.path.join(INPUT_FP, "assembly_summary.txt")) as f:
+        reader = csv.reader(f, dialect=csv.excel_tab)
+        next(reader) # First row is a comment
+        headers = next(reader) # This row has the headers
+        headers[0] = headers[0][2:]# Remove the "# " from the beginning of the first element
+
+        idIndex = headers.index("species_taxid")
+        accIndex = headers.index("assembly_accession")
+
+        for line in reader:
+            try:
+                if line[accIndex] == acc:
+                    return line[idIndex]
+            except IndexError:
+                None # Incomplete assembly_summary entry
+
+    return acc
 
 def write_sequence(out: TextIOWrapper, seqs: TextIOWrapper, query: str, acc: str = None):
     seq = ""
@@ -78,9 +101,9 @@ def run_hmmscan(proteins: list) -> list:
 
     return [best_results[k] for k in sorted(best_results) if k in keep_query]
 
-def filter_sequences(dir: str):
-    prot_input_fp = os.path.join(dir, "protein")
-    outgroup_input_fp = os.path.join(dir, "outgroup")
+def filter_sequences():
+    prot_input_fp = os.path.join(INPUT_FP, "protein")
+    outgroup_input_fp = os.path.join(INPUT_FP, "outgroup")
     
     prot_list = os.listdir(prot_input_fp)
     prot_fp_list = [os.path.join(prot_input_fp, prot) for prot in prot_list]
@@ -108,7 +131,7 @@ def filter_sequences(dir: str):
             for result in results[:10]:
                 print(result.query, "{:.1f}".format(result.bitscore), result.cog, sep="\t")
 
-def filter_nucl_sequences(dir: str):
+def filter_nucl_sequences():
     global FILTERED_SEQUENCES_FP, OUTPUT_FP
     filtered_prot_sequences_fp = FILTERED_SEQUENCES_FP
     FILTERED_SEQUENCES_FP = os.path.join(OUTPUT_FP, "filtered-nucl-sequences")
@@ -121,8 +144,8 @@ def filter_nucl_sequences(dir: str):
     except OSError:
         sys.exit("Problem creating nucl output directories")
 
-    nucl_input_fp = os.path.join(dir, "nucleotide")
-    outgroup_input_fp = os.path.join(dir, "outgroup")
+    nucl_input_fp = os.path.join(INPUT_FP, "nucleotide")
+    outgroup_input_fp = os.path.join(INPUT_FP, "outgroup")
     outgroup_acc = os.listdir(outgroup_input_fp)[0].split(".f")[0]
 
     for fp in os.listdir(filtered_prot_sequences_fp):
@@ -146,15 +169,15 @@ def merge_sequences():
     
     for seq in all_filtered_seqs:
         cog = seq.split("__")[0]
-        acc = seq.split("__")[1]
+        acc = seq.split("__")[1].split(".f")[0]
         with open(os.path.join(FILTERED_SEQUENCES_FP, seq)) as f:
             with open(os.path.join(MERGED_SEQUENCES_FP, f"{cog}.fasta"), "a") as g:
-                g.write(f"> {acc}\n")
+                g.write(f"> {txid_for(acc)}\n")
                 g.write(f.readlines()[1])
 
 
-def write_config(dir: str, t: str):
-    outgroup_input_fp = os.path.join(dir, "outgroup")
+def write_config(t: str):
+    outgroup_input_fp = os.path.join(INPUT_FP, "outgroup")
 
     all_merged_seqs = os.listdir(MERGED_SEQUENCES_FP)
 
@@ -187,7 +210,8 @@ def extract_genes(genomes: str, output: str, output_type: str):
             sys.exit(f"Contents of {os.path.join(genomes, 'nucleotide')} and {os.path.join(genomes, 'protein')} are not perfectly paired")
 
 
-    global OUTPUT_FP, FILTERED_SEQUENCES_FP, MERGED_SEQUENCES_FP
+    global INPUT_FP, OUTPUT_FP, FILTERED_SEQUENCES_FP, MERGED_SEQUENCES_FP
+    INPUT_FP = genomes
     OUTPUT_FP = output
     FILTERED_SEQUENCES_FP = os.path.join(output, "filtered-sequences")
     MERGED_SEQUENCES_FP = os.path.join(output, "merged-sequences")
@@ -210,8 +234,8 @@ def extract_genes(genomes: str, output: str, output_type: str):
     except OSError:
         sys.exit("Problem creating output directories")
 
-    filter_sequences(genomes)
+    filter_sequences()
     if str(output_type) == 'nucl':
-        filter_nucl_sequences(genomes)
+        filter_nucl_sequences()
     merge_sequences()
-    write_config(genomes, output_type)
+    write_config(output_type)

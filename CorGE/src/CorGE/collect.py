@@ -43,7 +43,7 @@ def accession_for(txid: str) -> str or None:
             except IndexError:
                 None # Incomplete assembly_summary entry
 
-    return None        
+    return None
 
 def url_for(acc: str) -> str:
     check_assembly_summary()
