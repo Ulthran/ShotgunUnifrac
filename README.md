@@ -6,9 +6,9 @@ A dual use program for downloading and extracting genes from NCBI and for creati
 
     git clone git@github.com:Ulthran/ShotgunUnifrac.git
 
-To install the `genetools` library for downloading, extracting, and merging genes from NCBI,
+To install the `CorGE` library for downloading, extracting, and merging genes,
 
-    cd ShotgunUnifrac/workflow/scripts
+    cd ShotgunUnifrac/CorGE
     pip install .
 
 ## Prereqs
@@ -20,9 +20,9 @@ To install the `genetools` library for downloading, extracting, and merging gene
 
 ## Running tests
 
-For the `genetools` package,
+For the `CorGE` package,
 
-    pytest workflow/scripts/tests
+    pytest CorGE/tests
 
 For the tree building Snakemake workflow,
 
@@ -34,20 +34,17 @@ N.B. The linting and formatting steps are optional, you should run them on any c
 
 ## Running
 
-To download and curate data for tree building,
+To download and collect genomes for tree building,
 
-    cd workflow/scripts
-    genetools /path/to/taxonid/list -f /path/to/gene/list -m --write_config
+    CorGE collect_genomes ./ --ncbi_species LIST_OF_TXIDS.txt --ncbi_accessions LIST_OF_ACCS.txt --local /path/to/local/db --outgroup 2173
 
-N.B. You can include the `--remove_temp` flag as well to remove all the files except the final output, in this case the merged gene files
+And then to filter out genes of interest and curate everything for tree building,
 
-This should download reference/representative genomes from NCBI for each taxon, extract each gene from each of those genomes into its own file (-f), and then combine those into one file per gene (-m) and write a config for the tree building pipeline (--write_config)
+    CorGE extract_genes /path/to/previous/output --output . --type prot
 
-To generate tree:
+The default `--type` behavior is 'prot' so that can be left off or switched to 'nucl' if you want to build trees based on nucleotide sequences. Finally to generate the tree, make sure you're in the directory with all the output from the previous step and run,
 
-    cd ../..
-    cp workflow/scripts/output/config.yml .
-    snakemake --use-conda
+    snakemake -c --use-conda --conda-prefix .snakemake/
 
 This should output a file called `RAxML_rootedTree.final` which contains the final tree
 
