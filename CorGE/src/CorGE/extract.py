@@ -121,7 +121,7 @@ def filter_nucl_sequences(dir: str):
         sys.exit("Problem creating nucl output directories")
 
     nucl_input_fp = os.path.join(dir, "nucleotide")
-    outgroup_input_fp = os.path.join(OUTPUT_FP, "outgroup")
+    outgroup_input_fp = os.path.join(dir, "outgroup")
     outgroup_acc = os.listdir(outgroup_input_fp)[0].split(".f")[0]
 
     for fp in os.listdir(filtered_prot_sequences_fp):

@@ -100,7 +100,7 @@ rule outgroup_root_tree:
         "envs/raxml_env.yaml"
     shell:
         "cd trees/ && "
-        "raxmlHPC -s ../aligned-sequences/{params.ref}.fasta -o GCF_000016525.1 -m {params.alg} -t iqtree.treefile -n final && "
+        "raxmlHPC -s ../aligned-sequences/{params.ref}.fasta -o GCF_000016525.1.fna -m {params.alg} -t iqtree.treefile -n final && "
         "mv RAxML_result.final ../{output}"
 
 
