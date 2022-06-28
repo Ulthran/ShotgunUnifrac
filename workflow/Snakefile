@@ -23,48 +23,37 @@ rule all_gene_files:
 
 rule all_filtered_files:
     input:
-        expand("filtered-sequences/{gene}.fasta", gene=config["GENES"]),
+        expand("aligned-sequences/{gene}.fasta", gene=config["GENES"]),
 
 
 rule align_fasta:
     input:
         "merged-sequences/{gene}.fasta",
     output:
-        temp("aligned-sequences/{gene}.fasta"),
+        "aligned-sequences/{gene}.fasta",
     log:
         "logs/align_fasta/{gene}.log",
     conda:
         "envs/muscle_env.yaml"
     shell:
+        # Consider adding filtering here as well
         "muscle -in merged-sequences/{wildcards.gene}.fasta -out aligned-sequences/{wildcards.gene}.fasta"
-
-
-rule filter_columns:
-    # Identity op for now, okfasta
-    input:
-        "aligned-sequences/{gene}.fasta",
-    output:
-        "filtered-sequences/{gene}.fasta",
-    log:
-        "logs/filter_columns/{gene}.log",
-    conda:
-        ""
-    shell:
-        "cp aligned-sequences/{wildcards.gene}.fasta filtered-sequences/{wildcards.gene}.fasta"
 
 
 rule create_trees:
     input:
-        "filtered-sequences/{gene}.fasta",
+        "aligned-sequences/{gene}.fasta",
     output:
-        temp("trees/RAxML_bestTree.{gene}"),
+        "trees/RAxML_bestTree.{gene}",
     log:
-        "logs/create_trees/RAxML_bestTree.{gene}.log",
+        "logs/prot_create_trees/RAxML_bestTree.{gene}.log",
     conda:
         "envs/raxml_env.yaml"
+    params:
+        alg='PROTCATLG' if config["TYPE"] == 'prot' else 'GTRCAT',
     shell:
         "cd trees/ && "
-        "raxmlHPC -s ../{input} -m GTRCAT -n {wildcards.gene} -p 392781 && "
+        "raxmlHPC -s ../{input} -m {params.alg} -n {wildcards.gene} -p 392781 && "
         "cd .."
 
 
@@ -94,7 +83,7 @@ rule infer_weights:
     params:
         ref=config["GENES"][0],
     shell:
-        "iqtree -s filtered-sequences/{params.ref}.fasta -pre trees/iqtree -m MFP -g trees/final.unrooted"
+        "iqtree -s aligned-sequences/{params.ref}.fasta -pre trees/iqtree -m MFP -g trees/final.unrooted"
 
 
 rule outgroup_root_tree:
@@ -106,14 +95,14 @@ rule outgroup_root_tree:
         "logs/root_tree/RAxML_rootedTree.final.log",
     params:
         ref=config["GENES"][0],
+        alg='PROTCATLG' if config["TYPE"] == 'prot' else 'GTRCAT',
+        outgroup=config["OUTGROUP"],
     conda:
         "envs/raxml_env.yaml"
     shell:
         "cd trees/ && "
-        "raxmlHPC -s ../filtered-sequences/{params.ref}.fasta -o 2173 -m GTRCAT -t iqtree.treefile -n final && "
-        "mv RAxML_result.final ../{output} && "
-        "cd .. && "
-        "rm -r trees/"
+        "raxmlHPC -s ../aligned-sequences/{params.ref}.fasta -o {params.outgroup} -m {params.alg} -t iqtree.treefile -n final && "
+        "mv RAxML_result.final ../{output}"
 
 
 rule midpoint_root_tree:
@@ -125,11 +114,10 @@ rule midpoint_root_tree:
         "logs/root_tree/RAxML_rootedTree.final.log",
     params:
         ref=config["GENES"][0],
+        alg='PROTCATLG' if config["TYPE"] == 'prot' else 'GTRCAT',
     conda:
         "envs/raxml_env.yaml"
     shell:
         "cd trees/ && "
-        "raxmlHPC -f I -m GTRCAT -t iqtree.treefile -n final && "
-        "mv RAxML_result.final ../{output} && "
-        "cd .. && "
-        "rm -r trees/"
+        "raxmlHPC -f I -m {params.alg} -t iqtree.treefile -n final && "
+        "mv RAxML_result.final ../{output}"

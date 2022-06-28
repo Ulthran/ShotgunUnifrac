@@ -2,9 +2,13 @@ name: CI
 
 on:
   push:
-    branches: [ master ]
+    branches:
+      - master
+      - dev
   pull_request:
-    branches: [ master ]
+    branches:
+      - master
+      - dev
 
 jobs:
   lint:
@@ -50,8 +54,8 @@ jobs:
         run: |
           pytest .tests/
   
-  test-genetools:
-    name: Test Gene Tools
+  test-corge:
+    name: Test CorGE
     runs-on: ubuntu-latest
 
     steps:
@@ -60,14 +64,13 @@ jobs:
       
       - name: Install Dependencies
         run: |
-          cd workflow/scripts
+          cd CorGE
           python -m pip install .
           python -m pip install -U pytest
       
       - name: Run Tests
         run: |
-          cd workflow/scripts
-          pytest tests/
+          pytest CorGE/tests/
           
           
 

@@ -36,12 +36,35 @@ def find_gene(pattern: str, description: str, endPattern: str = "]") -> str:
     geneStr = description[geneIndex:endGeneIndex]
     return geneStr.upper()
 
+# Finds genes not found by annotation using vsearch
+# @param refDB is the path to the reference DB fasta file
+# @param queryDB is the path to the query fasta
+# @param out is the path to the output file, should be in the proper output location for gene sequences (i.e. output/sequences/)
+# @param txid is the taxon id of the given refDB fasta
+# @return is True if the gene was found, False otherwise
+def vsearch_gene(refDB: str, queryDB: str, out: str, txid: str) -> bool:
+    # Ex: vsearch --usearch_global output/ncbi/GCF_000008865.2_ASM886v2_cds_from_genomic.fasta --db secG.fasta --fastapairs out.out --id 0.9
+    os.system(f"vsearch --usearch_global {refDB} --db {queryDB} --fastapairs {out} --id 0.9")
+    with open(out) as f:
+        data = f.readlines()
+    if data != []:
+        with open(out, "w") as f:
+            f.write(f"> {txid}\n")
+            for line in data[1:]:
+                if line[0] != ">":
+                    f.write(line)
+                else:
+                    break
+        return True
+    else:
+        return False
+
 # Filter through the given fasta file and find targetGene if it's there
 # @param seqFile is the path to the fasta file
 # @param genomeId is the id of the genome in seqFile (needed for getting the taxon id)
 # @param targetGene is the gene to be found
 # @param rename is a boolean telling the function whether or not to reannotate gene descriptions
-# @return is either a list containing the description/gene pair or None if it couldn't be found
+# @return is either a list containing the description/gene pair or None if it was written with vsearch or couldn't be found
 def filter_seq_file(seqFile: str, genomeId: str, targetGene: str, rename: bool = True) -> Union[list, None]:
     run_assembly_path = "" if len(seqFile.split("output/")) == 1 else seqFile.split("output/")[0]
     seqList = []
@@ -74,6 +97,15 @@ def filter_seq_file(seqFile: str, genomeId: str, targetGene: str, rename: bool =
             retVal = ">" + get_txid(genomeId, run_assembly_path) if rename else gene[0]
             return [retVal, gene[1]]
     
+    # Search with vsearch if annotation pattern matching didn't find anything
+    target_fp = os.path.join(run_assembly_path, f"output/ref-genes/{targetGene}.fasta")
+    output_fp = os.path.join(run_assembly_path, f"output/sequences/{targetGene}__{genomeId}.fasta")
+    if vsearch_gene(seqFile, target_fp, output_fp, get_txid(genomeId, run_assembly_path)):
+        print(f"Found {targetGene} in {seqFile} using vsearch")
+        return None
+    else:
+        print(f"Didn't find {targetGene} in {seqFile} using vsearch")
+    
     return None
 
 
@@ -88,7 +120,8 @@ def filter_seq_genes(genomeId: str, gene: str, ncbi_dir: str, rename: bool = Tru
     directory = os.fsencode(ncbi_dir)
     for file in os.listdir(directory):
         filename = os.fsdecode(file)
-        if genomeId in filename and (filename.split('.')[-1] == "fasta" or filename.split('.')[-1] == "fna"):
+        if (genomeId in filename and (filename.split('.')[-1] == "fasta" or filename.split('.')[-1] == "fna")
+            and (("tRNA" in gene and "rna" in filename) or ("tRNA" not in gene and "cds" in filename))):
             vals = filter_seq_file(os.path.join(ncbi_dir, filename), genomeId, gene, rename)
             if vals:
                 return vals
@@ -139,3 +172,83 @@ def extract_genes(geneFile: str, downloaded_genome_ids: list, outputDir: str, in
                         if os.path.getsize(seq_dir + line[0] + "__" + genomeId + ".fasta") != 0:
                             gene_counter[line[0]] += 1
     return gene_counter
+
+import pyhmmer.plan7
+import pyhmmer.easel
+import csv
+import io
+import urllib.request
+import collections
+
+def write_sequence(out: TextIOWrapper, seqs: TextIOWrapper, result: list, txid: str):
+    seq = ""
+    add = False
+    for l in seqs.readlines():
+        if add:
+            if l[0] != ">":
+                seq += l.strip()
+            break
+        if result.query in l:
+            add = True
+            seq += f"> {txid}\n"
+    
+    out.write(seq + "\n")
+
+# From pyhmmer docs https://pyhmmer.readthedocs.io/en/stable/examples/fetchmgs.html
+def run_hmmscan(downloaded_genome_ids: list, output_dir: str):
+    url = "https://github.com/motu-tool/fetchMGs/raw/master/lib/MG_BitScoreCutoffs.allhits.txt"
+
+    cutoffs = {}
+    with urllib.request.urlopen(url) as f:
+        for line in csv.reader(io.TextIOWrapper(f), dialect="excel-tab"):
+            if not line[0].startswith("#"):
+                cutoffs[line[0]] = float(line[1])
+
+    baseurl = "https://github.com/motu-tool/fetchMGs/raw/master/lib/{}.hmm"
+
+    hmms = []
+    for cog in cutoffs:
+        with urllib.request.urlopen(baseurl.format(cog)) as f:
+            hmm = next(pyhmmer.plan7.HMMFile(f))
+            cutoff = cutoffs[hmm.name.decode()]
+            hmm.cutoffs.trusted = (cutoff, cutoff)
+            hmms.append(hmm)
+
+    ncbi_dir = os.path.join(output_dir, "output/ncbi/")
+
+    for id in downloaded_genome_ids:
+        with pyhmmer.easel.SequenceFile(os.path.join(ncbi_dir, id + "_protein.faa"), digital=True) as seqs_file:
+            proteins = list(seqs_file)
+
+        Result = collections.namedtuple("Result", ["query", "cog", "bitscore"])
+        
+        results = []
+        for top_hits in pyhmmer.hmmsearch(hmms, proteins, bit_cutoffs="trusted"):
+            for hit in top_hits:
+                cog = hit.best_domain.alignment.hmm_name.decode()
+                results.append(Result(hit.name.decode(), cog, hit.score))
+
+        best_results = {}
+        keep_query = set()
+        for result in results:
+            if result.query in best_results:
+                previous_bitscore = best_results[result.query].bitscore
+                if result.bitscore > previous_bitscore:
+                    best_results[result.query] = result
+                    keep_query.add(result.query)
+                elif result.bitscore == previous_bitscore:
+                    if best_results[result.query].cog != hit.cog:
+                        keep_query.remove(result.query)
+            else:
+                best_results[result.query] = result
+                keep_query.add(result.query)
+
+        filtered_results = [best_results[k] for k in sorted(best_results) if k in keep_query]
+
+        for result in filtered_results:
+            with open(os.path.join(output_dir, "output/sequences/", result.cog + "__" + id), "w") as f:
+                with open(os.path.join(output_dir, "output/ncbi/", id + "_protein.faa")) as g:
+                    write_sequence(f, g, result, get_txid(id, output_dir))
+
+        for result in filtered_results[:10]:
+            print(result.query, "{:.1f}".format(result.bitscore), result.cog, sep="\t")

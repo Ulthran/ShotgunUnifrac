@@ -8,7 +8,7 @@ from collections import Counter
 from typing import Tuple
 
 from .downloadGenes import add_outgroup, prepare_run_assembly, download_genomes
-from .filterGenes import extract_genes
+from .filterGenes import extract_genes, run_hmmscan
 from .mergeGenes import merge_genes
 
 def _download_genes(args, logF):
@@ -28,7 +28,8 @@ def _download_genes(args, logF):
 def _filter_genes(args, logF, downloaded_genome_ids = []):
     gene_counter = Counter()
     if os.path.isfile(args.taxon_list):
-        gene_counter = extract_genes(args.filter_genes.name, downloaded_genome_ids, args.output_dir)
+        #gene_counter = extract_genes(args.filter_genes.name, downloaded_genome_ids, args.output_dir)
+        run_hmmscan(downloaded_genome_ids, args.output_dir)
     else:
         gene_counter = extract_genes(args.filter_genes.name, downloaded_genome_ids, args.output_dir, args.taxon_list)
 
@@ -42,14 +43,13 @@ def _filter_genes(args, logF, downloaded_genome_ids = []):
 def _merge_genes(args, gene_counter):
     merge_genes(gene_counter, args.output_dir)
 
-def _write_config(gene_counter, cfg_fp, no):
+def _write_config(cogs, cfg_fp, no):
     print("Writing " + cfg_fp + " for this run")
     with open(cfg_fp, "w") as config:
         config.write("# Config file for tree building pipeline\n")
         config.write("# Genes to build trees from\n")
         config.write("GENES: [")
-        for gene, count in gene_counter.most_common():
-            if gene[0] != "#" and count > 3:
+        for gene in cogs:
                 config.write("\"" + gene.strip() + "\", ")
         config.write("]\n")
         if no:
@@ -95,8 +95,8 @@ def main(argv=None):
     if args.merge_genes and not args.filter_genes:
         p.error("Must include --filter_genes arg along with --merge_genes")
     
-    if args.write_config and not args.filter_genes:
-        p.error("Must include --filter_genes arg along with --write_config")
+    #if args.write_config and not args.filter_genes:
+    #    p.error("Must include --filter_genes arg along with --write_config")
     
     None if os.path.isdir(os.path.join(args.output_dir, "data/")) else os.mkdir(os.path.join(args.output_dir, "data"))
     None if os.path.isdir(os.path.join(args.output_dir, "output/")) else os.mkdir(os.path.join(args.output_dir, "output/"))
@@ -131,7 +131,15 @@ def main(argv=None):
     if args.write_config:
         cfg_fp = os.path.join(args.output_dir, "output/config.yml")
         logF.write("Writing config to " + cfg_fp)
-        _write_config(gene_counter, cfg_fp, args.no_outgroup)
+
+        seq_dir = os.path.join(args.output_dir, "output/sequences/")
+        cogs = set()
+
+        for f in os.listdir(os.fsencode(seq_dir)):
+            fn = os.fsdecode(f)
+            cogs.add(fn.split("__")[0])
+
+        _write_config(cogs, cfg_fp, args.no_outgroup)
 
     logF.close()
 

@@ -31,7 +31,7 @@ def add_outgroup(taxon_list: TextIOWrapper) -> None:
         if txid.strip() == outgroup:
             outgroupExists = True
     if not outgroupExists:
-        taxon_list.write(outgroup)
+        taxon_list.write(f"\n{outgroup}")
         
 
 # Creates a file of the best genome accessions for a given list of species-level taxon ids
@@ -128,24 +128,24 @@ def download_genomes(outputDir: str, logF: TextIOWrapper) -> Tuple[list, list]:
 
         for line in run_assembly_reader:
             genomeId = line[ftpIndex].split("/")[-1]
-            for ext in ["_cds_from_genomic.fna.gz", "_rna_from_genomic.fna.gz"]:
-                if not os.path.isfile(ncbi_dir + genomeId + ext[:-6] + "fasta"):
-                    url = line[ftpIndex] + "/" + genomeId + ext
-                    try:
-                        wget.download(url, out=ncbi_dir)
-                    except URLError as e:
-                        print(str(e) + ": " + url)
-                        break
-                    with gzip.open(ncbi_dir + genomeId + ext, "rb") as f_in:
-                        with open(ncbi_dir + genomeId + ext[:-6] + "fasta", "wb") as f_out:
-                            shutil.copyfileobj(f_in, f_out)
-                    try:
-                        os.remove(ncbi_dir + genomeId + ext)
-                    except OSError as e:
-                        print(e)
-                else:
-                    logF.write("Found " + ncbi_dir + genomeId + ext[:-6] + "fasta, skipping download\n")
-            if os.path.exists(ncbi_dir + genomeId + "_cds_from_genomic.fasta") and os.path.exists(ncbi_dir + genomeId + "_rna_from_genomic.fasta"):
+            if not os.path.isfile(ncbi_dir + genomeId + "_protein.faa"):
+                url = line[ftpIndex] + "/" + genomeId + "_protein.faa.gz"
+                try:
+                    wget.download(url, out=ncbi_dir)
+                except URLError as e:
+                    print(str(e) + ": " + url)
+                    break
+                with gzip.open(ncbi_dir + genomeId + "_protein.faa.gz", "rb") as f_in:
+                    with open(ncbi_dir + genomeId + "_protein.faa", "wb") as f_out:
+                        shutil.copyfileobj(f_in, f_out)
+                try:
+                    os.remove(ncbi_dir + genomeId + "_protein.faa.gz")
+                except OSError as e:
+                    print(e)
+            else:
+                logF.write("Found " + ncbi_dir + genomeId + "_protein.faa, skipping download\n")
+
+            if os.path.exists(ncbi_dir + genomeId + "_protein.faa"):
                 downloaded_genome_ids.append(genomeId)
             else:
                 failed_genome_ids.append(genomeId)

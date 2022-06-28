@@ -18,6 +18,7 @@ setuptools.setup(
     install_requires=[
         'tqdm',
         'wget',
+        'pyhmmer'
     ],
     classifiers=[
         'Intended Audience :: Science/Research',

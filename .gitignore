@@ -16,7 +16,5 @@ logs/
 /workflow/data/
 
 # Python lib
-/workflow/scripts/build/
-/workflow/scripts/data/
-/workflow/scripts/output/
-/workflow/scripts/src/*.egg-info/
+build/
+*.egg-info/
