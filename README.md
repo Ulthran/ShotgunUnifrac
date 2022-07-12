@@ -1,5 +1,9 @@
 # ShotgunUnifrac
 
+<!--Begin status badges-->
+[![CI](https://github.com/Ulthran/ShotgunUnifrac/actions/workflows/main.yml/badge.svg)](https://github.com/Ulthran/ShotgunUnifrac/actions/workflows/main.yml)
+<!--End status badges-->
+
 A dual use program for downloading and extracting genes from NCBI and for creating phylogenetic trees for many marker genes and merging the results into one
 
 ## Install
