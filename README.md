@@ -2,6 +2,7 @@
 
 <!--Begin status badges-->
 [![CI](https://github.com/Ulthran/ShotgunUnifrac/actions/workflows/main.yml/badge.svg)](https://github.com/Ulthran/ShotgunUnifrac/actions/workflows/main.yml)
+[![Documentation Status](https://readthedocs.org/projects/shotgununifrac/badge/?version=latest)](https://shotgununifrac.readthedocs.io/en/latest/?badge=latest)
 <!--End status badges-->
 
 A dual use program for downloading and extracting genes from NCBI and for creating phylogenetic trees for many marker genes and merging the results into one
