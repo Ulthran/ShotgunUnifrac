@@ -75,15 +75,15 @@ This should create the following directories and files from root
 
 - ``config.yml`` is provided to the snakemake pipeline to specify what it should look for and where.
 
-- ``nucleotide`` is a directory containing all gathered nucleotide-encoded genomes (saved as .fna)
+- ``nucleotide`` is a directory containing all gathered nucleotide-encoded genomes (saved as .fna).
 
-- ``protein`` is a directory containing all gathered protein-encoded genomes (saved as .faa)
+- ``protein`` is a directory containing all gathered protein-encoded genomes (saved as .faa).
 
-- ``outgroup`` is a directory containing the nucleotide and protein files for the outgroup (if there is an outgroup)
+- ``outgroup`` is a directory containing the nucleotide and protein files for the outgroup (if there is an outgroup).
 
-- ``filtered-sequences`` is a directory containing each SCCG from each genome (protein-encoded) in their own files
+- ``filtered-sequences`` is a directory containing each SCCG from each genome (protein-encoded) in their own files.
 
-- ``merged-sequences`` is a directory containing each SCCG from each genome this time in per-SCCG files
+- ``merged-sequences`` is a directory containing each SCCG from each genome this time in per-SCCG files.
 
 Tree building
 ------------------------
@@ -91,15 +91,16 @@ Tree building
 To build the per-SCCG phylogenies and then merge them together we use the snakemake pipeline. Everything should be properly set up from running CorGE so we can just go ahead and run the pipeline.
 
 .. code-block:: shell
+
     snakemake all -c --use-conda --conda-prefix .snakemake/
 
 This should create the following directories and files from root
 
-- ``RAxML_outgroupRootedTree.final`` is the final consensus tree
+- ``RAxML_outgroupRootedTree.final`` is the final consensus tree.
 
-- ``aligned-sequences`` is a directory containing alignments for the merged-sequences
+- ``aligned-sequences`` is a directory containing alignments for the merged-sequences.
 
-- ``trees`` is a directory containing phylogenies built from each SCCG alignment as well as some intermediates in the merging process
+- ``trees`` is a directory containing phylogenies built from each SCCG alignment as well as some intermediates in the merging process.
 
 .. tip::
 
@@ -113,9 +114,10 @@ The output is ``RAxML_outgroupRootedTree.final`` which can be viewed using any n
 tl;dr
 *****
 
-Follow instructions to install `anaconda <https://docs.anaconda.com/anaconda/install/>`_ / `miniconda <https://docs.conda.io/en/latest/miniconda.html>`_ and `snakemake <https://snakemake.readthedocs.io/en/stable/getting_started/installation.html>`_ then,
+Follow instructions to install `anaconda <https://docs.anaconda.com/anaconda/install/>`_ / `miniconda <https://docs.conda.io/en/latest/miniconda.html>`_ and `snakemake <https://snakemake.readthedocs.io/en/stable/getting_started/installation.html>`_ then
 
 .. code-block:: shell
+    
     git clone git@github.com:Ulthran/ShotgunUnifrac.git
     cd ShotgunUnifrac
     echo $'7\n9\n2173' > EX_TXIDS.txt
