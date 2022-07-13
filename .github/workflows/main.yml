@@ -50,6 +50,8 @@ jobs:
           python -m pip install -U pytest-cov
           python -m pip install snakemake
           conda install -c conda-forge mamba
+          cd CorGE
+          python -m pip install .
 
       - name: Run Tests
         run: |
