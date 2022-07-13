@@ -6,11 +6,14 @@
 Welcome to ShotgunUnifrac's documentation!
 ==========================================
 
+ShotgunUnifrac is a snakemake pipeline for generating a phylogeny per core gene over a selection of genomes and then combining them together to create a consensus phylogeny. The pipeline is written in snakemake and includes a python library for data curation and prep. View the :ref:`quickstart` page to see a worked example of installing and using the pipeline.
+
 .. toctree::
+   :hidden:
    :maxdepth: 2
    :caption: Contents:
 
-
+   quickstart.rst
 
 Indices and tables
 ==================
