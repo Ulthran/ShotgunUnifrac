@@ -10,8 +10,6 @@ Quickstart Guide
 The pipeline is summarized by this DAG, which includes the steps in both the data curation library and the snakemake tree building
 
 .. image:: images/dag.png
-    :width: 1131px
-   :height: 923px
    :align: center
 
 The first three rows are handled by the python library and from there things are handed off to snakemake.
@@ -19,19 +17,18 @@ The first three rows are handled by the python library and from there things are
 Installation
 ************
 
-On a Linux machine, download a copy of Sunbeam from our GitHub repository, and
-install. We do not currently support non-Linux environments.
+The first steps are to clone this repo and then install `conda<https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html>`_ and `snakemake<https://snakemake.readthedocs.io/en/stable/getting_started/installation.html>`_. We can then install the Core Genes Extraction (CorGE) library and run tests to make sure everything is properly installed.
 
 .. code-block:: shell
 
-   git clone -b stable git@github.com:sunbeam-labs/sunbeam.git sunbeam3-stable
-   cd sunbeam3-stable
-   ./install.sh
-   tests/run_tests.bash -e sunbeam3
+   git clone git@github.com:Ulthran/ShotgunUnifrac.git
+   
+   cd ShotgunUnifrac/CorGE
+   pip install .
 
-This installs Sunbeam and all its dependencies, including the `Conda
-<https://conda.io/miniconda.html>`_ environment manager, if required. It then
-runs some tests to make sure everything was installed correctly.
+   cd ../
+   pytest CorGE/tests/
+   pytest .tests/
 
 .. tip::
 
@@ -40,8 +37,7 @@ runs some tests to make sure everything was installed correctly.
    command will add it to your path: ``echo 'export
    PATH=$PATH:$HOME/miniconda3/bin' > ~/.bashrc``
 
-If you see "Tests failed", check out our :ref:`troubleshooting` section or file an issue
-on our `GitHub <https://github.com/sunbeam-labs/sunbeam/issues>`_ page.
+If you see "Tests failed", file an issue on `GitHub<https://github.com/Ulthran/ShotgunUnifrac/issues>`_.
 
 Setup
 *****
