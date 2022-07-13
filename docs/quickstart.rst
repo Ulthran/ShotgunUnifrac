@@ -93,10 +93,6 @@ To build the per-SCCG phylogenies and then merge them together we use the snakem
 .. code-block:: shell
     snakemake all -c --use-conda --conda-prefix .snakemake/
 
-.. tip::
-
-    ``--use-conda`` causes snakemake to use per-rule defined conda environments while it runs the pipeline. ``--conda-prefix .snakemake/`` tells conda where to put/look for these environments.
-
 This should create the following directories and files from root
 
 - ``RAxML_outgroupRootedTree.final`` is the final consensus tree
@@ -104,6 +100,10 @@ This should create the following directories and files from root
 - ``aligned-sequences`` is a directory containing alignments for the merged-sequences
 
 - ``trees`` is a directory containing phylogenies built from each SCCG alignment as well as some intermediates in the merging process
+
+.. tip::
+
+    ``--use-conda`` causes snakemake to use per-rule defined conda environments while it runs the pipeline. ``--conda-prefix .snakemake/`` tells conda where to put/look for these environments.
 
 Viewing results
 ***************
