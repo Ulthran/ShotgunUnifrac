@@ -56,8 +56,8 @@ jobs:
           cd CorGE
           pip install .
           cd ..
+          pytest CorGE/tests/ --cov CorGE/
           pytest .tests/ # Test snakemake
-          pytest CorGE/tests/ --cov CorGE/src/CorGE/
       
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
