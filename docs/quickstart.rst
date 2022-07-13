@@ -42,82 +42,89 @@ If you see "Tests failed", file an issue on `GitHub <https://github.com/Ulthran/
 Setup
 *****
 
-Let's say your sequencing reads live in a folder called
-``/sequencing/project/reads``, with one or two files per sample (for single- and
-paired-end sequencing, respectively). These files *must* be in gzipped FASTQ
-format.
-
-Let's create a new Sunbeam project (we'll call it ``my_project``):
+We'll start by creating some dummy inputs to work with using Escherichia coli, Buchnera aphidicola, Cellulomonas gilvus, Dictyoglomus thermophilum, and Methanobrevibacter smithii (a randomly selected group of gut bacteria plus Methanobrevibacter smithii as an outgroup for tree rooting).
 
 .. code-block:: shell
 
-   source activate sunbeam3
-   sunbeam init my_project --data_fp /sequencing/project/reads
+    echo $'7\n9\n2173' > EX_TXIDS.txt
+    echo $'GCF_000218545.1\nGCF_000020965.1' > EX_ACCS.txt
 
-Sunbeam will create a new folder called ``my_project`` and put two files
-there:
+This creates two dummy input files
 
-- ``sunbeam_config.yml`` contains all the configuration parameters for each step
-  of the Sunbeam pipeline.
+- ``EX_TXIDS.txt`` contains species-level taxon ids which CorGE will fetch genes and proteins for from NCBI.
 
-- ``samples.csv`` is a comma-separated list of samples that Sunbeam found the
-  given data folder, along with absolute paths to their FASTQ files.
+- ``EX_ACCS.txt`` contains genome accessions which CorGE will fetch from NCBI.
 
-Right now we have everything we need to do basic quality-control and contig assembly. However, let's go ahead and set up contaminant filtering and some basic taxonomy databases to make things interesting.
+.. tip::
 
-Contaminant filtering
+    You can curate genomes/proteins from NCBI using taxon ids and genome accessions but you can also (in the same command) gather local genomes/proteins as well using the ``--local`` flag.
+
+Data curation
 ---------------------
 
-Sunbeam can align your reads to an arbitrary number of contaminant sequences or
-host genomes and remove reads that map above a given threshold.
+To gather the genes and proteins we need for tree building using the files we just created we use ``CorGE collect_genomes``. Then to filter single copy core genes (SCCGs) from each file and merge nucleotide/amino acid sequences by SCCG we use ``CorGE extract_genes``.
 
-To use this, make a folder containing all the target sequences in FASTA
-format. The filenames should end in "fasta" to be recognized by Sunbeam. In your ``sunbeam_config.yml`` file, edit the ``host_fp:`` line in the ``qc``
-section to point to this folder.
+.. code-block:: shell
 
-Taxonomic classification
+    CorGE collect_genomes --ncbi_species EX_TXIDS.txt --ncbi_accessions EX_ACCS.txt ./
+    CorGE extract_genes ./
+
+This should create the following directories and files from root
+
+- ``assembly_summary.txt`` is downloaded from NCBI to find the best genome accessions for each taxon id.
+
+- ``config.yml`` is provided to the snakemake pipeline to specify what it should look for and where.
+
+- ``nucleotide`` is a directory containing all gathered nucleotide-encoded genomes (saved as .fna)
+
+- ``protein`` is a directory containing all gathered protein-encoded genomes (saved as .faa)
+
+- ``outgroup`` is a directory containing the nucleotide and protein files for the outgroup (if there is an outgroup)
+
+- ``filtered-sequences`` is a directory containing each SCCG from each genome (protein-encoded) in their own files
+
+- ``merged-sequences`` is a directory containing each SCCG from each genome this time in per-SCCG files
+
+Tree building
 ------------------------
 
-Sunbeam can use Kraken to assign putative taxonomic identities to your
-reads. While creating a Kraken database is beyond the scope of this guide,
-pre-built ones are available at the `Kraken homepage
-<http://ccb.jhu.edu/software/kraken/>`_. Download or build one, then add the
-path to the database under ``classify:kraken_db_fp:``.
+To build the per-SCCG phylogenies and then merge them together we use the snakemake pipeline. Everything should be properly set up from running CorGE so we can just go ahead and run the pipeline.
 
-Contig annotation
------------------
+.. code-block:: shell
+    snakemake all -c --use-conda --conda-prefix .snakemake/
 
-Sunbeam can automatically BLAST your contigs against any number of
-nucleotide or protein databases and summarize the top hits. Download or create
-your BLAST databases, then add the paths to your config file, following the
-instructions on here: :ref:`blastdbs`. For some general advice on database
-building, check out the `Sunbeam databases repository
-<https://github.com/zhaoc1/sunbeam_databases>`_ and for specific links please
-see the usage section: :ref:`dbs`.
+.. tip::
 
-Reference mapping
------------------
+    ``--use-conda`` causes snakemake to use per-rule defined conda environments while it runs the pipeline. ``--conda-prefix .snakemake/`` tells conda where to put/look for these environments.
 
-If you'd like to map the reads against a set of reference genomes of interest,
-follow the same method as for the host/contaminant sequences above. Make a
-folder containing FASTA files for each reference genome, then add the path to
-that folder in ``mapping:genomes_fp:``.
+This should create the following directories and files from root
 
-Running
-*******
+- ``RAxML_outgroupRootedTree.final`` is the final consensus tree
 
-After you've finished editing your config file, you're ready to run Sunbeam:
+- ``aligned-sequences`` is a directory containing alignments for the merged-sequences
 
-.. code-block:: bash
-
-   sunbeam run --configfile my_project/sunbeam_config.yml
-
-By default, this will do a lot, including trimming and quality-controlling your
-reads, removing contaminant, host, and low-complexity sequences, assigning
-read-level taxonomy, assembling the reads in each sample into contigs, and then
-BLASTing those contigs against your databases. Each of these steps can also be run independently by adding arguments after the ``sunbeam run`` command. See :ref:`running` for more info. 
+- ``trees`` is a directory containing phylogenies built from each SCCG alignment as well as some intermediates in the merging process
 
 Viewing results
 ***************
 
-The output is stored by default under ``my_project/sunbeam_output``. For more information on the output files and all of Sunbeam's different parts, see our full :ref:`usage`!
+The output is ``RAxML_outgroupRootedTree.final`` which can be viewed using any newick-format tree viewer (like `ETE Toolkit <http://etetoolkit.org/treeview/>`_).
+
+tl;dr
+*****
+
+Follow instructions to install `anaconda <https://docs.anaconda.com/anaconda/install/>`_ / `miniconda <https://docs.conda.io/en/latest/miniconda.html>`_ and `snakemake <https://snakemake.readthedocs.io/en/stable/getting_started/installation.html>`_ then,
+
+.. code-block:: shell
+    git clone git@github.com:Ulthran/ShotgunUnifrac.git
+    cd ShotgunUnifrac
+    echo $'7\n9\n2173' > EX_TXIDS.txt
+    echo $'GCF_000218545.1\nGCF_000020965.1' > EX_ACCS.txt
+    cd CorGE
+    pip install .
+    cd ..
+    CorGE collect_genomes --ncbi_species EX_TXIDS.txt --ncbi_accessions EX_ACCS.txt ./
+    CorGE extract_genes ./
+    snakemake all -c --use-conda --conda-prefix .snakemake/
+
+You should now have an output called `RAxML_outgroupRootedTree.final`.
