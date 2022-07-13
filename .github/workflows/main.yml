@@ -55,7 +55,7 @@ jobs:
 
       - name: Run Tests
         run: |
-          pytest --cov=./ --cov=CorGE/
+          pytest --cov=workflow/Snakefile --cov=CorGE/src
       
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
