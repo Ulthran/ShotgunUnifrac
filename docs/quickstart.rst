@@ -17,7 +17,7 @@ The first three rows are handled by the python library and from there things are
 Installation
 ************
 
-The first steps are to clone this repo and then install `conda<https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html>`_ and `snakemake<https://snakemake.readthedocs.io/en/stable/getting_started/installation.html>`_. We can then install the Core Genes Extraction (CorGE) library and run tests to make sure everything is properly installed.
+The first steps are to clone this repo and then install `conda <https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html>`_ and `snakemake <https://snakemake.readthedocs.io/en/stable/getting_started/installation.html>`_. We can then install the Core Genes Extraction (CorGE) library and run tests to make sure everything is properly installed.
 
 .. code-block:: shell
 
@@ -37,7 +37,7 @@ The first steps are to clone this repo and then install `conda<https://docs.cond
    command will add it to your path: ``echo 'export
    PATH=$PATH:$HOME/miniconda3/bin' > ~/.bashrc``
 
-If you see "Tests failed", file an issue on `GitHub<https://github.com/Ulthran/ShotgunUnifrac/issues>`_.
+If you see "Tests failed", file an issue on `GitHub <https://github.com/Ulthran/ShotgunUnifrac/issues>`_.
 
 Setup
 *****
