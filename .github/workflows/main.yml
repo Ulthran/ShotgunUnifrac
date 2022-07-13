@@ -53,8 +53,7 @@ jobs:
 
       - name: Run Tests
         run: |
-          pytest .tests/
-          pytest --cov .tests/ app
+          pytest --cov .tests/
       
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
@@ -76,8 +75,7 @@ jobs:
       
       - name: Run Tests
         run: |
-          pytest CorGE/tests/
-          pytest --cov CorGE/tests/ app
+          pytest --cov CorGE/tests/
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
