@@ -127,4 +127,4 @@ Follow instructions to install `anaconda <https://docs.anaconda.com/anaconda/ins
     CorGE extract_genes ./
     snakemake all -c --use-conda --conda-prefix .snakemake/
 
-You should now have an output called `RAxML_outgroupRootedTree.final`.
+You should now have an output called ``RAxML_outgroupRootedTree.final``.
