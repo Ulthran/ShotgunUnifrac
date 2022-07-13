@@ -54,7 +54,7 @@ jobs:
       - name: Run Tests
         run: |
           cd CorGE
-          python -m pip install .
+          pip install .
           cd ..
           pytest .tests/ # Test snakemake
           pytest CorGE/tests/ --cov CorGE/src/CorGE/
