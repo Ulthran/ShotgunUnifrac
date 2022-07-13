@@ -7,6 +7,15 @@ Quickstart Guide
 .. contents::
    :depth: 2
 
+The pipeline is summarized by this DAG, which includes the steps in both the data curation library and the snakemake tree building
+
+.. image:: images/dag.png
+    :width: 1131px
+   :height: 923px
+   :align: center
+
+The first three rows are handled by the python library and from there things are handed off to snakemake.
+
 Installation
 ************
 
