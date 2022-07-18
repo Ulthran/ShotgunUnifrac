@@ -53,4 +53,4 @@ The default `--type` behavior is 'prot' so that can be left off or switched to '
 
 This should output a file called `RAxML_rootedTree.final` which contains the final tree
 
-A worked example is given in the [wiki](https://github.com/Ulthran/ShotgunUnifrac/wiki)
+A worked example is given in the [docs](https://shotgununifrac.readthedocs.io/en/latest/quickstart.html).
