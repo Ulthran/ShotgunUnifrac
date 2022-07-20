@@ -59,7 +59,7 @@ jobs:
       - name: Run Tests
         run: |
           cd CorGE
-          pip install .
+          pip install -e .
           pytest --cov .
           cp .coverage ../
           cd ..
