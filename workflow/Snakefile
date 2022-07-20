@@ -82,8 +82,9 @@ rule infer_weights:
         "envs/iqtree_env.yaml"
     params:
         ref=config["GENES"][0],
+        alg='-m MFP' if config["TYPE"] == 'prot' else '-m HKY+F',
     shell:
-        "iqtree -s aligned-sequences/{params.ref}.fasta -pre trees/iqtree -m MFP -g trees/final.unrooted"
+        "iqtree -s aligned-sequences/{params.ref}.fasta -pre trees/iqtree {params.alg} -g trees/final.unrooted"
 
 
 rule outgroup_root_tree:
