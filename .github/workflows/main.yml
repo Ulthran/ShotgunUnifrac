@@ -55,10 +55,10 @@ jobs:
         run: |
           cd CorGE
           pip install .
+          pytest --cov src/CorGE/collect.py --cov src/CorGE/extract.py
+          cp .coverage ../
           cd ..
-          pytest --cov CorGE
-          #pytest CorGE/tests/ --cov CorGE/
-          #pytest .tests/ # Test snakemake
+          pytest .tests/ # Test snakemake
       
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
