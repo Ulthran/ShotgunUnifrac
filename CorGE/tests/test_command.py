@@ -59,7 +59,8 @@ class CommandTests(unittest.TestCase):
     def test_extract_prot_genes(self):
         main([
             "extract_genes",
-            self.collected_genomes_fp
+            self.collected_genomes_fp,
+            "--output", self.temp_dir,
         ])
 
         self.assertEqual(len(os.listdir(self.filtered_seqs_fp)), 488)
@@ -73,7 +74,8 @@ class CommandTests(unittest.TestCase):
         main([
             "extract_genes",
             self.collected_genomes_fp,
-            "--type nucl"
+            "--output", self.temp_dir,
+            "--type", "nucl"
         ])
 
         self.assertEqual(len(os.listdir(self.filtered_nucl_seqs_fp)), 488)
