@@ -4,7 +4,7 @@ import subprocess
 import tempfile
 import unittest
 
-from command import main
+from CorGE.command import main
 
 class CommandTests(unittest.TestCase):
     def setUp(self):
