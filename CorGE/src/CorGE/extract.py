@@ -25,7 +25,7 @@ def check_assembly_summary():
         with open(os.path.join(INPUT_FP, "assembly_summary.txt"), "a") as f: # Append 2173 default outgroup
             f.write("GCF_000016525.1\tPRJNA224116\tSAMN02604313\t\trepresentative genome\t420247\t2173\tMethanobrevibacter smithii ATCC 35061\tstrain=ATCC 35061; PS; DSMZ 861\t\tlatest\tComplete Genome\tMajor\tFull\t2007/06/04\tASM1652v1\tWashington University Center for Genome Sciences\tGCA_000016525.1\tidentical\thttps://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/016/525/GCF_000016525.1_ASM1652v1\t\tassembly from type material\tna")
 
-def txid_for(acc: str) -> str:
+def val_for(acc: str, header: str) -> str:
     check_assembly_summary()
     
     with open(os.path.join(INPUT_FP, "assembly_summary.txt")) as f:
@@ -34,7 +34,7 @@ def txid_for(acc: str) -> str:
         headers = next(reader) # This row has the headers
         headers[0] = headers[0][2:]# Remove the "# " from the beginning of the first element
 
-        idIndex = headers.index("species_taxid")
+        idIndex = headers.index(header)
         accIndex = headers.index("assembly_accession")
 
         for line in reader:
@@ -45,6 +45,15 @@ def txid_for(acc: str) -> str:
                 None # Incomplete assembly_summary entry
 
     return acc
+
+def txid_for(acc: str) -> str:
+    return val_for(acc, "species_taxid")
+
+def strain_for(acc: str) -> str:
+    return val_for(acc, "infraspecific_name")
+
+def species_for(acc: str) -> str:
+    return val_for(acc, "organism_name")
 
 def write_sequence(out: TextIOWrapper, seqs: TextIOWrapper, query: str, acc: str = None):
     seq = ""
@@ -172,7 +181,7 @@ def filter_nucl_sequences():
                 with open(os.path.join(outgroup_input_fp, f"{acc}.fna")) as g:
                     write_sequence(f, g, query)
 
-def merge_sequences():
+def merge_sequences(nt: str):
     all_filtered_seqs = os.listdir(FILTERED_SEQUENCES_FP)
     
     for seq in all_filtered_seqs:
@@ -180,7 +189,17 @@ def merge_sequences():
         acc = seq.split("__")[1].split(".f")[0]
         with open(os.path.join(FILTERED_SEQUENCES_FP, seq)) as f:
             with open(os.path.join(MERGED_SEQUENCES_FP, f"{cog}.fasta"), "a") as g:
-                g.write(f"> {txid_for(acc)}\n")
+                match nt:
+                    case "acc":
+                        g.write(f"> {acc}\n")
+                    case "txid":
+                        g.write(f"> {txid_for(acc)}\n")
+                    case "strain":
+                        g.write(f"> {strain_for(acc)}\n")
+                    case "species":
+                        g.write(f"> {species_for(acc)}\n")
+                    case _:
+                        sys.exit("Invalid name type supplied")
                 g.write(f.readlines()[1])
 
 
@@ -209,7 +228,7 @@ def write_config(t: str):
     with open(os.path.join(OUTPUT_FP, "config.yml"), "w") as f:
         f.write(cfg)
 
-def extract_genes(genomes: str, output: str, output_type: str):
+def extract_genes(genomes: str, output: str, output_type: str, name_type: str):
     if not os.path.isdir(genomes):
         sys.exit("Invalid path to collected genomes")
     if not os.path.isdir(output):
@@ -246,5 +265,5 @@ def extract_genes(genomes: str, output: str, output_type: str):
     filter_sequences()
     if str(output_type) == 'nucl':
         filter_nucl_sequences()
-    merge_sequences()
+    merge_sequences(name_type)
     write_config(output_type)
