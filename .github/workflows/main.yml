@@ -55,7 +55,7 @@ jobs:
         run: |
           cd CorGE
           pip install .
-          pytest --cov src/CorGE/collect.py --cov src/CorGE/extract.py
+          pytest --cov src/CorGE/
           cp .coverage ../
           cd ..
           pytest .tests/ # Test snakemake
