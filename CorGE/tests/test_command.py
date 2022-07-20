@@ -5,8 +5,7 @@ import unittest
 
 from enum import Enum
 
-from CorGE.collect import collect_genomes
-from CorGE.extract import extract_genes
+from CorGE.command import main
 
 class CommandTests(unittest.TestCase):
     def setUp(self):
@@ -40,17 +39,14 @@ class CommandTests(unittest.TestCase):
         shutil.rmtree(self.temp_dir)
     
     def test_collect_genomes(self):
-        # Doesn't seem to work with pytest-cov
-        #main([
-        #    "collect_genomes",
-        #    self.temp_dir,
-        #    "--ncbi_species", self.ncbi_species_fp,
-        #    "--ncbi_accessions", self.ncbi_accessions_fp,
-        #    "--local", self.local_db_fp,
-        #    # --outgroup left as default "2173"
-        #])
-
-        collect_genomes(self.temp_dir, self.ncbi_species_f, self.ncbi_accessions_f, self.local_db_fp, "2173")
+        main([
+            "collect_genomes",
+            self.temp_dir,
+            "--ncbi_species", self.ncbi_species_fp,
+            "--ncbi_accessions", self.ncbi_accessions_fp,
+            "--local", self.local_db_fp,
+            # --outgroup left as default "2173"
+        ])
 
         self.assertEqual(os.listdir(self.outgroup_fp).sort(), ['GCF_000016525.1.faa', 'GCF_000016525.1.fna'].sort())
         self.assertEqual(os.listdir(self.nucl_fp).sort(), ['GCF_000012885.1.fna', 'GCF_000007725.1.fna', 'GCF_000020965.1.fna',\
@@ -60,25 +56,32 @@ class CommandTests(unittest.TestCase):
             'GCF_001735525.1.faa', 'GCF_007197645.1.faa', 'GCF_001375595.1.faa', 'GCF_000218545.1.faa', 'GCF_000010525.1\n.faa',\
             'GCF_000378225.1.faa', 'GCF_900111765.1.faa', 'GCF_023159115.1.faa'].sort())
 
-#    def test_extract_prot_genes(self):
-#        extract_genes(self.collected_genomes_fp, self.temp_dir, "prot")
-#
-#        self.assertEqual(len(os.listdir(self.filtered_seqs_fp)), 488)
-#        self.assertEqual(len(os.listdir(self.merged_seqs_fp)), 41)
-#
-#        with open(os.path.join(self.filtered_seqs_fp, "COG0012__GCF_000007725.1.faa")) as f:
-#            self.assertEqual(next(f).strip(), ">WP_011091313.1 redox-regulated ATPase YchF [Buchnera aphidicola]")
-#            self.assertEqual(next(f).strip(), "MGFKCGFVGLPNVGKSTLFNYLTKLNIPADNYPFCTIKSNVGIVPVLDNRLNKIAQVVCSNKIIPATIELVDIAGLVKGAYKGEGLGNQFLDHIRDTNVIMHIVRCFENRYVTHIYGSVDPVRDVQIINLELILSDIEVCKNRMCKLEINKLSHNKQVNKELLILKKCVYHLEKSKSLRSLNLTEEEIFVINYLRLITLKPVVYIFNISIDQSRNLYKREIFDIIKNEHNAKTVNVCLDLMQSSKNDVSAYDHLSLKYKQLFNKMLKNVIWAGFNALNLITFFTAGKKEVHAWTTTNNLFIFQSVKCIHTDLSKGFIRAQVISYDDFIKYKGEKRSKELGKIRIEGKRYVICDGDIIHVLYNV")
+    def test_extract_prot_genes(self):
+        main([
+            "extract_genes",
+            self.collected_genomes_fp
+        ])
 
-#    def test_extract_nucl_genes(self):
-#        extract_genes(self.collected_genomes_fp, self.temp_dir, "nucl")
-#
-#        self.assertEqual(len(os.listdir(self.filtered_nucl_seqs_fp)), 488)
-#        self.assertEqual(len(os.listdir(self.merged_seqs_fp)), 41)
-#
-#        with open(os.path.join(self.filtered_nucl_seqs_fp, "COG0012__GCF_000007725.1.fna")) as f:
-#            self.assertEqual(next(f).strip(), ">lcl|NC_004545.1_cds_WP_011091313.1_169 [gene=ychF] [locus_tag=BBP_RS00905] [db_xref=GeneID:56470722] [protein=redox-regulated ATPase YchF] [protein_id=WP_011091313.1] [location=203069..204160] [gbkey=CDS]")
-#            self.assertEqual(next(f).strip(), "ATGGGTTTTAAATGTGGTTTTGTTGGTTTACCTAATGTAGGAAAGTCTACTCTTTTTAATTATTTAACTAAATTAAATATTCCTGCAGATAATTATCCGTTTTGTACTATTAAGTCTAATGTTGGCATAGTTCCTGTTTTGGATAATCGCCTTAATAAAATAGCTCAAGTAGTTTGTTCTAATAAAATTATTCCAGCAACTATAGAGTTAGTAGATATTGCTGGATTAGTAAAAGGCGCTTATAAAGGTGAAGGATTAGGTAATCAATTTTTAGATCATATTAGAGACACAAATGTAATTATGCATATAGTGCGTTGTTTCGAGAATAGATATGTTACCCATATCTATGGTTCAGTAGATCCAGTGCGGGATGTACAAATTATAAATCTTGAGTTAATACTATCAGATATAGAAGTATGTAAAAATAGAATGTGCAAGCTTGAAATAAACAAGTTATCTCATAATAAACAAGTTAACAAGGAGTTATTAATATTAAAAAAATGCGTGTACCATTTAGAAAAAAGTAAAAGTTTGCGATCATTAAATTTAACTGAAGAAGAAATTTTTGTAATTAATTATTTAAGATTAATTACATTAAAACCTGTAGTGTATATTTTTAATATAAGTATAGATCAATCTAGAAATTTATATAAACGGGAAATTTTTGATATAATTAAAAATGAACATAATGCTAAAACAGTAAATGTTTGTTTAGATTTAATGCAAAGTAGCAAAAATGACGTTAGTGCATACGATCATCTTTCTTTAAAATATAAACAATTATTTAATAAAATGTTAAAAAATGTAATTTGGGCAGGTTTTAATGCTTTAAATTTAATTACTTTTTTTACTGCTGGCAAAAAAGAAGTTCATGCATGGACTACAACTAATAATTTGTTCATTTTTCAGTCTGTAAAATGTATTCATACAGATCTTAGTAAGGGATTCATTCGAGCTCAAGTGATTTCTTATGATGATTTTATTAAATATAAAGGAGAAAAGCGATCTAAAGAGTTAGGGAAAATTAGAATAGAAGGAAAAAGATATGTTATTTGTGATGGAGATATAATTCATGTTTTGTATAATGTATAG")
+        self.assertEqual(len(os.listdir(self.filtered_seqs_fp)), 488)
+        self.assertEqual(len(os.listdir(self.merged_seqs_fp)), 41)
+
+        with open(os.path.join(self.filtered_seqs_fp, "COG0012__GCF_000007725.1.faa")) as f:
+            self.assertEqual(next(f).strip(), ">WP_011091313.1 redox-regulated ATPase YchF [Buchnera aphidicola]")
+            self.assertEqual(next(f).strip(), "MGFKCGFVGLPNVGKSTLFNYLTKLNIPADNYPFCTIKSNVGIVPVLDNRLNKIAQVVCSNKIIPATIELVDIAGLVKGAYKGEGLGNQFLDHIRDTNVIMHIVRCFENRYVTHIYGSVDPVRDVQIINLELILSDIEVCKNRMCKLEINKLSHNKQVNKELLILKKCVYHLEKSKSLRSLNLTEEEIFVINYLRLITLKPVVYIFNISIDQSRNLYKREIFDIIKNEHNAKTVNVCLDLMQSSKNDVSAYDHLSLKYKQLFNKMLKNVIWAGFNALNLITFFTAGKKEVHAWTTTNNLFIFQSVKCIHTDLSKGFIRAQVISYDDFIKYKGEKRSKELGKIRIEGKRYVICDGDIIHVLYNV")
+
+    def test_extract_nucl_genes(self):
+        main([
+            "extract_genes",
+            self.collected_genomes_fp,
+            "--type nucl"
+        ])
+
+        self.assertEqual(len(os.listdir(self.filtered_nucl_seqs_fp)), 488)
+        self.assertEqual(len(os.listdir(self.merged_seqs_fp)), 41)
+
+        with open(os.path.join(self.filtered_nucl_seqs_fp, "COG0012__GCF_000007725.1.fna")) as f:
+            self.assertEqual(next(f).strip(), ">lcl|NC_004545.1_cds_WP_011091313.1_169 [gene=ychF] [locus_tag=BBP_RS00905] [db_xref=GeneID:56470722] [protein=redox-regulated ATPase YchF] [protein_id=WP_011091313.1] [location=203069..204160] [gbkey=CDS]")
+            self.assertEqual(next(f).strip(), "ATGGGTTTTAAATGTGGTTTTGTTGGTTTACCTAATGTAGGAAAGTCTACTCTTTTTAATTATTTAACTAAATTAAATATTCCTGCAGATAATTATCCGTTTTGTACTATTAAGTCTAATGTTGGCATAGTTCCTGTTTTGGATAATCGCCTTAATAAAATAGCTCAAGTAGTTTGTTCTAATAAAATTATTCCAGCAACTATAGAGTTAGTAGATATTGCTGGATTAGTAAAAGGCGCTTATAAAGGTGAAGGATTAGGTAATCAATTTTTAGATCATATTAGAGACACAAATGTAATTATGCATATAGTGCGTTGTTTCGAGAATAGATATGTTACCCATATCTATGGTTCAGTAGATCCAGTGCGGGATGTACAAATTATAAATCTTGAGTTAATACTATCAGATATAGAAGTATGTAAAAATAGAATGTGCAAGCTTGAAATAAACAAGTTATCTCATAATAAACAAGTTAACAAGGAGTTATTAATATTAAAAAAATGCGTGTACCATTTAGAAAAAAGTAAAAGTTTGCGATCATTAAATTTAACTGAAGAAGAAATTTTTGTAATTAATTATTTAAGATTAATTACATTAAAACCTGTAGTGTATATTTTTAATATAAGTATAGATCAATCTAGAAATTTATATAAACGGGAAATTTTTGATATAATTAAAAATGAACATAATGCTAAAACAGTAAATGTTTGTTTAGATTTAATGCAAAGTAGCAAAAATGACGTTAGTGCATACGATCATCTTTCTTTAAAATATAAACAATTATTTAATAAAATGTTAAAAAATGTAATTTGGGCAGGTTTTAATGCTTTAAATTTAATTACTTTTTTTACTGCTGGCAAAAAAGAAGTTCATGCATGGACTACAACTAATAATTTGTTCATTTTTCAGTCTGTAAAATGTATTCATACAGATCTTAGTAAGGGATTCATTCGAGCTCAAGTGATTTCTTATGATGATTTTATTAAATATAAAGGAGAAAAGCGATCTAAAGAGTTAGGGAAAATTAGAATAGAAGGAAAAAGATATGTTATTTGTGATGGAGATATAATTCATGTTTTGTATAATGTATAG")
 
 
 if __name__ == "__main__":
