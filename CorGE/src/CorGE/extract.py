@@ -189,17 +189,16 @@ def merge_sequences(nt: str):
         acc = seq.split("__")[1].split(".f")[0]
         with open(os.path.join(FILTERED_SEQUENCES_FP, seq)) as f:
             with open(os.path.join(MERGED_SEQUENCES_FP, f"{cog}.fasta"), "a") as g:
-                match nt:
-                    case "acc":
-                        g.write(f"> {acc}\n")
-                    case "txid":
-                        g.write(f"> {txid_for(acc)}\n")
-                    case "strain":
-                        g.write(f"> {strain_for(acc)}\n")
-                    case "species":
-                        g.write(f"> {species_for(acc)}\n")
-                    case _:
-                        sys.exit("Invalid name type supplied")
+                if nt == "acc":
+                    g.write(f"> {acc}\n")
+                elif nt == "txid":
+                    g.write(f"> {txid_for(acc)}\n")
+                elif nt == "strain":
+                    g.write(f"> {strain_for(acc)}\n")
+                elif nt == "species":
+                    g.write(f"> {species_for(acc)}\n")
+                else:
+                    sys.exit("Invalid name type supplied")
                 g.write(f.readlines()[1])
 
 
