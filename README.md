@@ -2,6 +2,7 @@
 
 <!--Begin status badges-->
 [![CI](https://github.com/Ulthran/ShotgunUnifrac/actions/workflows/main.yml/badge.svg)](https://github.com/Ulthran/ShotgunUnifrac/actions/workflows/main.yml)
+[![codecov](https://codecov.io/gh/Ulthran/ShotgunUnifrac/branch/master/graph/badge.svg?token=N9KSWRS4XG)](https://codecov.io/gh/Ulthran/ShotgunUnifrac)
 [![Documentation Status](https://readthedocs.org/projects/shotgununifrac/badge/?version=latest)](https://shotgununifrac.readthedocs.io/en/latest/?badge=latest)
 <!--End status badges-->
 
