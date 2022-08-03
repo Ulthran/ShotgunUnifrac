@@ -3,4 +3,4 @@
 GENES: ["COG0012", "COG0016", "COG0018", ]
 OUTGROUP: 2173
 TYPE: prot
-ALG: genetree
+ALG: supermat
