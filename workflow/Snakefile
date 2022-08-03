@@ -90,7 +90,6 @@ rule create_supermatrix:
 
 rule supermat_root_tree:
     input:
-        tree = "trees/RAxML_bestTree.supermatrix",
         alignment = "supermatrices/supermatrix.fasta",
     output:
         "RAxML_supermatrixRootedTree.final",
