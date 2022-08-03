@@ -140,16 +140,16 @@ def collect_ncbi_species(ids: TextIOWrapper, dryrun: bool):
         print(", ".join(accs))
 
 def collect_ncbi_accessions(accs: TextIOWrapper, dryrun: bool):
-    accs = []
+    acclist = []
     for acc in accs.readlines():
         if dryrun:
-            accs.append(acc)
+            acclist.append(acc)
         else:
             fetch_genome(acc)
 
     if dryrun:
-        print(f"Accessions based on input accessions to be collected: {len(accs)}")
-        print(", ".join(accs))
+        print(f"Accessions based on input accessions to be collected: {len(acclist)}")
+        print(", ".join(acclist))
 
 def collect_local(dir: str, dryrun: bool):
     nucl_list = list()
