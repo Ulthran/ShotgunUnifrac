@@ -4,4 +4,5 @@ GENES: ["COG0012", "COG0016", "COG0018", "COG0048", "COG0049", "COG0052", "COG00
 # Outgroup to use for rooting, false if outgroup rooting shouldn't be used
 OUTGROUP: 2173
 # File type contained in merged-sequences (prot or nucl)
-TYPE: nucl
+TYPE: prot
+ALG: supermat

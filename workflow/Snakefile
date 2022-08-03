@@ -5,7 +5,7 @@ container: "docker://ctbushman/shotguntree:latest"
 
 
 TARGET = (
-    "RAxML_outgroupRootedTree.final"
+    ("RAxML_supermatrixRootedTree.final" if config["ALG"] == "supermat" else "RAxML_outgroupRootedTree.final")
     if config["OUTGROUP"]
     else "RAxML_midpointRootedTree.final"
 )
@@ -14,16 +14,6 @@ TARGET = (
 rule all:
     input:
         TARGET,
-
-
-rule all_gene_files:
-    input:
-        expand("sequences/{gene}.fasta", gene=config["GENES"]),
-
-
-rule all_filtered_files:
-    input:
-        expand("aligned-sequences/{gene}.fasta", gene=config["GENES"]),
 
 
 rule align_fasta:
@@ -85,6 +75,36 @@ rule infer_weights:
         alg='-m MFP' if config["TYPE"] == 'prot' else '-m HKY+F',
     shell:
         "iqtree -s aligned-sequences/{params.ref}.fasta -pre trees/iqtree {params.alg} -g trees/final.unrooted"
+
+
+rule create_supermatrix:
+    input:
+        expand("aligned-sequences/{gene}.fasta", gene=config["GENES"]),
+    output:
+        "supermatrices/supermatrix.fasta",
+    log:
+        "logs/create_supermatrix/supermatrix.log",
+    script:
+        "scripts/create_supermatrix.py"
+
+
+rule supermat_root_tree:
+    input:
+        tree = "trees/RAxML_bestTree.supermatrix",
+        alignment = "supermatrices/supermatrix.fasta",
+    output:
+        "RAxML_supermatrixRootedTree.final",
+    log:
+        "logs/create_trees/RAxML_supermatrixRootedTree.final.log",
+    conda:
+        "envs/raxml_env.yaml"
+    params:
+        alg='PROTCATLG' if config["TYPE"] == 'prot' else 'GTRCAT',
+        outgroup=config["OUTGROUP"],
+    shell:
+        "cd trees/ && "
+        "raxmlHPC -s ../{input} -o {params.outgroup} -m {params.alg} -n supermatrix -p 392781 && "
+        "mv RAxML_result.supermatrix {output}"
 
 
 rule outgroup_root_tree:

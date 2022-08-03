@@ -223,6 +223,7 @@ def write_config(t: str):
     
     cfg += f"# File type contained in merged-sequences (prot or nucl)\nTYPE: {t}\n"
     
+    cfg += f"# Method to build tree (supermat or genetree)\nALG: supermat\n"
 
     with open(os.path.join(OUTPUT_FP, "config.yml"), "w") as f:
         f.write(cfg)
