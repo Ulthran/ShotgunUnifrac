@@ -104,8 +104,7 @@ rule supermat_root_tree:
         alg="PROTCATLG" if config["TYPE"] == "prot" else "GTRCAT",
         outgroup=config["OUTGROUP"],
     shell:
-        "cd trees/ && "
-        "raxmlHPC -s ../{input} -o {params.outgroup} -m {params.alg} -n supermatrix -p 392781 && "
+        "raxmlHPC -s {input} -o {params.outgroup} -m {params.alg} -n supermatrix -p 392781 && "
         "mv RAxML_result.supermatrix {output}"
 
 
