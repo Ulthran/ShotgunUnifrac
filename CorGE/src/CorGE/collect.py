@@ -96,15 +96,62 @@ def fetch_genome(acc: str or None):
     else:
         logging.log(1, "Failed to find accession")
 
-def collect_ncbi_species(ids: TextIOWrapper):
+def collect_all(dryrun: bool):
+    check_assembly_summary()
+    
+    accs = []
+    ids = []
+    with open(os.path.join(OUTPUT_FP, "assembly_summary.txt")) as f:
+        reader = csv.reader(f, dialect=csv.excel_tab)
+        next(reader) # First row is a comment
+        headers = next(reader) # This row has the headers
+        headers[0] = headers[0][2:]# Remove the "# " from the beginning of the first element
+
+        idIndex = headers.index("species_taxid")
+        accIndex = headers.index("assembly_accession")
+        refSeqIndex = headers.index("refseq_category")
+
+        for line in reader:
+            try:
+                if int(line[idIndex]) not in ids and line[refSeqIndex] != "na":
+                    ids.append(int(line[idIndex]))
+                    accs.append(line[accIndex])
+            except IndexError:
+                None # Incomplete assembly_summary entry
+    
+    if dryrun:
+        print(f"Accessions for all RefSeq species to be collected: {len(accs)}")
+        #print(", ".join(accs))
+    else:
+        for acc in accs:
+            fetch_genome(acc)
+
+def collect_ncbi_species(ids: TextIOWrapper, dryrun: bool):
+    accs = []
     for id in ids.readlines():
-        fetch_genome(accession_for(id))
+        if dryrun:
+            accs.append(accession_for(id))
+        else:
+            fetch_genome(accession_for(id))
 
-def collect_ncbi_accessions(accs: TextIOWrapper):
+    if dryrun:
+        accs = list(filter(None, accs))
+        print(f"Accessions based on input taxon ids to be collected: {len(accs)}")
+        print(", ".join(accs))
+
+def collect_ncbi_accessions(accs: TextIOWrapper, dryrun: bool):
+    accs = []
     for acc in accs.readlines():
-        fetch_genome(acc)
+        if dryrun:
+            accs.append(acc)
+        else:
+            fetch_genome(acc)
 
-def collect_local(dir: str):
+    if dryrun:
+        print(f"Accessions based on input accessions to be collected: {len(accs)}")
+        print(", ".join(accs))
+
+def collect_local(dir: str, dryrun: bool):
     nucl_list = list()
     prot_list = list()
     for fp in os.listdir(dir):
@@ -113,27 +160,39 @@ def collect_local(dir: str):
         if ".faa" in fp:
             prot_list.append(fp)
 
+    fps = list()
     for n in nucl_list:
         if n.replace(".fna", ".faa") in prot_list:
-            shutil.copyfile(os.path.join(dir, n), os.path.join(NUCL_OUTPUT_FP, n))
-            shutil.copyfile(os.path.join(dir, n.replace(".fna", ".faa")), os.path.join(PROT_OUTPUT_FP, n.replace(".fna", ".faa")))
+            if dryrun:
+                fps.append(n.replace(".fna", ""))
+            else:
+                shutil.copyfile(os.path.join(dir, n), os.path.join(NUCL_OUTPUT_FP, n))
+                shutil.copyfile(os.path.join(dir, n.replace(".fna", ".faa")), os.path.join(PROT_OUTPUT_FP, n.replace(".fna", ".faa")))
 
-def collect_outgroup(id: str):
-    if len(os.listdir(OUTGROUP_OUTPUT_FP)):
-        warn("Overwriting existing outgroup files")
-        shutil.rmtree(OUTGROUP_OUTPUT_FP)
-        os.mkdir(OUTGROUP_OUTPUT_FP)
-    if id.isdigit():
-        id = accession_for(id)
-        fetch_genome(id)
-    
-    try:
-        os.rename(os.path.join(NUCL_OUTPUT_FP, f"{id}.fna"), os.path.join(OUTGROUP_OUTPUT_FP, f"{id}.fna"))
-        os.rename(os.path.join(PROT_OUTPUT_FP, f"{id}.faa"), os.path.join(OUTGROUP_OUTPUT_FP, f"{id}.faa"))
-    except OSError:
-        sys.exit(f"Couldn't find genome files corresponding to outgroup {id}")
+    if dryrun:
+        print(f"Local genomes to be collected: {len(fps)}")
+        print(", ".join(fps))
 
-def collect_genomes(output: str, ncbi_species: TextIOWrapper or None, ncbi_accessions: TextIOWrapper or None, local: str, outgroup: str):
+def collect_outgroup(id: str, dryrun: bool):
+    if dryrun:
+        print("Outgroup genome to be collected:")
+        print(accession_for(id))
+    else:
+        if len(os.listdir(OUTGROUP_OUTPUT_FP)):
+            warn("Overwriting existing outgroup files")
+            shutil.rmtree(OUTGROUP_OUTPUT_FP)
+            os.mkdir(OUTGROUP_OUTPUT_FP)
+        if id.isdigit():
+            id = accession_for(id)
+            fetch_genome(id)
+        
+        try:
+            os.rename(os.path.join(NUCL_OUTPUT_FP, f"{id}.fna"), os.path.join(OUTGROUP_OUTPUT_FP, f"{id}.fna"))
+            os.rename(os.path.join(PROT_OUTPUT_FP, f"{id}.faa"), os.path.join(OUTGROUP_OUTPUT_FP, f"{id}.faa"))
+        except OSError:
+            sys.exit(f"Couldn't find genome files corresponding to outgroup {id}")
+
+def collect_genomes(output: str, all: bool, ncbi_species: TextIOWrapper or None, ncbi_accessions: TextIOWrapper or None, local: str, outgroup: str, dryrun: bool):
     if not os.path.isdir(output):
         try:
             os.makedirs(output)
@@ -149,11 +208,13 @@ def collect_genomes(output: str, ncbi_species: TextIOWrapper or None, ncbi_acces
     None if os.path.isdir(PROT_OUTPUT_FP) else os.mkdir(PROT_OUTPUT_FP)
     None if os.path.isdir(OUTGROUP_OUTPUT_FP) else os.mkdir(OUTGROUP_OUTPUT_FP)
 
+    if all:
+        collect_all(dryrun)
     if ncbi_species:
-        collect_ncbi_species(ncbi_species)
+        collect_ncbi_species(ncbi_species, dryrun)
     if ncbi_accessions:
-        collect_ncbi_accessions(ncbi_accessions)
+        collect_ncbi_accessions(ncbi_accessions, dryrun)
     if local != "":
-        collect_local(local)
+        collect_local(local, dryrun)
     if outgroup != "None":
-        collect_outgroup(outgroup)
+        collect_outgroup(outgroup, dryrun)

@@ -24,7 +24,9 @@ class NameType(Enum):
 
 def _collect_genomes(args: argparse.Namespace):
     logging.debug(args)
-    collect_genomes(args.output_dir, args.ncbi_species, args.ncbi_accessions, args.local, args.outgroup)
+    if args.all and (args.ncbi_species or args.ncbi_accessions or args.local):
+        sys.exit("ERR: Can't use --all with --ncbi_species, --ncbi_accessions, or --local")
+    collect_genomes(args.output_dir, args.all, args.ncbi_species, args.ncbi_accessions, args.local, args.outgroup, args.n)
 
 def _extract_genes(args: argparse.Namespace):
     logging.debug(args)
@@ -50,6 +52,9 @@ def main(argv=None):
     collect_genomes_subparser.add_argument("output_dir",
         type=dir_path,
         help="Directory to collect genomes in")
+    collect_genomes_subparser.add_argument("--all",
+        action="store_true",
+        help="Collect one representative genome from each species listed in NCBI's RefSeq database. Don't use this with --ncbi_species, --ncbi_accessions, or --local")
     collect_genomes_subparser.add_argument("--ncbi_species",
         type=argparse.FileType("r"),
         help="File listing species level taxon ids to be collected from NCBI")
@@ -64,6 +69,9 @@ def main(argv=None):
         type=str,
         default="2173",
         help="Specify the outgroup for tree rooting. Integers will be parsed as species level taxon ids and retrieved from NCBI. Otherwise will search for a matching nucleotide-encoded file in ouput_dir or local (Default: 2173, enter None to not use outgroup rooting)")
+    collect_genomes_subparser.add_argument("-n",
+        action="store_true",
+        help="Dry run, show what would be gathered but don't do it")
     collect_genomes_subparser.set_defaults(func=_collect_genomes)
 
     extract_genes_subparser.add_argument("genomes",
