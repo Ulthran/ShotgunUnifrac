@@ -20,13 +20,13 @@ rule all:
         TARGET,
 
 
-#TODO: Find a better way to install okfasta
+# TODO: Find a better way to install okfasta
 rule prep_okfasta_env:
     input:
         "okfasta/setup.py",
     output:
         "okfasta/build/lib/okfastalib/__init__.py",
-        "merged-sequences/{gene}.fasta", # Should already exist
+        "merged-sequences/{gene}.fasta",  # Should already exist
     conda:
         "envs/okfasta_env.yaml"
     shell:
@@ -35,7 +35,7 @@ rule prep_okfasta_env:
 
 rule align_fasta:
     input:
-        "merged-sequences/{gene}.fasta",
+        expand("merged-sequences/{gene}.fasta", gene=config["GENES"]),
     output:
         "aligned-sequences/{gene}.fasta",
     log:
@@ -56,8 +56,7 @@ rule reduce_alignments_stats:
     conda:
         "envs/okfasta_env.yaml"
     shell:
-        #"pip install okfasta/ && "
-        "msa-ok colstats --input {input} --output {output}"
+        "msa-ok colstats --input {input} --output {output}" #"pip install okfasta/ && "
 
 
 rule reduce_alignments:
