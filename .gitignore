@@ -12,6 +12,7 @@ logs/
 /merged-sequences/
 
 /aligned-sequences/
+/supermatrices/
 /trees/
 
 assembly_summary.txt
