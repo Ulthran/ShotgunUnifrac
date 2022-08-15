@@ -14,8 +14,8 @@ A dual use program for downloading and extracting genes from NCBI and for creati
 
 To install the `CorGE` library for downloading, extracting, and merging genes,
 
-    cd ShotgunUnifrac/CorGE
-    pip install .
+    cd ShotgunUnifrac/
+    pip install CorGE/
 
 ## Prereqs
 
@@ -42,16 +42,16 @@ N.B. The linting and formatting steps are optional, you should run them on any c
 
 To download and collect genomes for tree building,
 
-    CorGE collect_genomes ./ --ncbi_species LIST_OF_TXIDS.txt --ncbi_accessions LIST_OF_ACCS.txt --local /path/to/local/db --outgroup 2173
+    CorGE collect_genomes ./ --ncbi_species LIST_OF_TXIDS.txt --ncbi_accessions LIST_OF_ACCS.txt --local /path/to/local/db
 
 And then to filter out genes of interest and curate everything for tree building,
 
-    CorGE extract_genes /path/to/previous/output --output . --type prot
+    CorGE extract_genes ./
 
 The default `--type` behavior is 'prot' so that can be left off or switched to 'nucl' if you want to build trees based on nucleotide sequences. Finally to generate the tree, make sure you're in the directory with all the output from the previous step and run,
 
     snakemake -c --use-conda --conda-prefix .snakemake/
 
-This should output a file called `RAxML_rootedTree.final` which contains the final tree
+This should output a file called `RAxML_supermatrixRootedTree.final` which contains the final tree
 
 A worked example is given in the [docs](https://shotgununifrac.readthedocs.io/en/latest/quickstart.html).
