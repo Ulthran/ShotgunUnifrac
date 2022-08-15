@@ -24,9 +24,7 @@ positional arguments:
 CorGE collect_genomes
 ---------------------
 
-usage: CorGE collect_genomes [-h] [--all] [--ncbi_species NCBI_SPECIES] [--ncbi_accessions NCBI_ACCESSIONS]
-                             [--local LOCAL] [--outgroup OUTGROUP] [-n]
-                             output_dir
+usage: CorGE collect_genomes [-h] [--all] [--ncbi_species NCBI_SPECIES] [--ncbi_accessions NCBI_ACCESSIONS] [--local LOCAL] [--outgroup OUTGROUP] [-n] output_dir
 
 positional arguments:
   output_dir            Directory to collect genomes in
