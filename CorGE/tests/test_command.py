@@ -1,8 +1,9 @@
 import os
 import shutil
-import subprocess
 import tempfile
 import unittest
+
+from enum import Enum
 
 from CorGE.command import main
 
@@ -13,7 +14,9 @@ class CommandTests(unittest.TestCase):
         # collect_genomes input
         self.data_dir = os.path.join('/'.join(__file__.split('/')[:-1]), "test-data")
         self.ncbi_species_fp = os.path.join(self.data_dir, "TEST_TXIDS")
+        self.ncbi_species_f = open(self.ncbi_species_fp)
         self.ncbi_accessions_fp = os.path.join(self.data_dir, "TEST_ACCS")
+        self.ncbi_accessions_f = open(self.ncbi_accessions_fp)
         self.local_db_fp = os.path.join(self.data_dir, "TEST_LOCAL/")
 
         # collect_genomes outputs
@@ -30,6 +33,9 @@ class CommandTests(unittest.TestCase):
         self.merged_seqs_fp = os.path.join(self.temp_dir, "merged-sequences")
     
     def tearDown(self):
+        self.ncbi_species_f.close()
+        self.ncbi_accessions_f.close()
+
         shutil.rmtree(self.temp_dir)
     
     def test_collect_genomes(self):
@@ -69,10 +75,8 @@ class CommandTests(unittest.TestCase):
             "extract_genes",
             self.collected_genomes_fp,
             "--output", self.temp_dir,
-            "--type", "nucl",
+            "--type", "nucl"
         ])
-        
-        self.maxDiff = None # See full output for failed assertions
 
         self.assertEqual(len(os.listdir(self.filtered_nucl_seqs_fp)), 488)
         self.assertEqual(len(os.listdir(self.merged_seqs_fp)), 41)

@@ -4,16 +4,20 @@
 __pycache__/
 logs/
 
-/ncbi/
-/sequences/
-/merged-sequences/
-/aligned-sequences/
+/nucleotide/
+/protein/
+/outgroup/
 /filtered-sequences/
+/filtered-nucl-sequences/
+/merged-sequences/
+
+/aligned-sequences/
+/supermatrices/
 /trees/
 
-/RAxML_rootedTree.final
-
-/workflow/data/
+assembly_summary.txt
+/RAxML_outgroupRootedTree.final
+/RAxML_midpointRootedTree.final
 
 # Python lib
 build/

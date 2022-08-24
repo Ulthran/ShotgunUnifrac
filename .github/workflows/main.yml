@@ -28,8 +28,8 @@ jobs:
 
           VALIDATE_SNAKEMAKE_SNAKEFMT: true
   
-  test-snakemake:
-    name: Test Tree Building
+  test-all:
+    name: Test CorGE & Tree Building
     runs-on: ubuntu-latest
     
     steps:
@@ -47,30 +47,23 @@ jobs:
       - name: Install Dependencies
         run: |
           python -m pip install -U pytest
+          python -m pip install -U pytest-cov
           python -m pip install snakemake
           conda install -c conda-forge mamba
 
       - name: Run Tests
         run: |
-          pytest .tests/
-  
-  test-corge:
-    name: Test CorGE
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v2
-      
-      - name: Install Dependencies
-        run: |
           cd CorGE
-          python -m pip install .
-          python -m pip install -U pytest
+          pip install -e .
+          pytest --cov .
+          cp .coverage ../
+          cd ..
+          pytest .tests/ # Test snakemake
       
-      - name: Run Tests
-        run: |
-          pytest CorGE/tests/
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+
+      
           
           
 
