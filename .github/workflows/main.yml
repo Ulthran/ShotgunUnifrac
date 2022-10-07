@@ -58,7 +58,8 @@ jobs:
           pytest --cov .
           cp .coverage ../
           cd ..
-          pytest .tests/ # Test snakemake
+          conda list
+          pytest .tests/ # Test snakemake pipeline
       
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
