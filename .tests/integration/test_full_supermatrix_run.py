@@ -24,8 +24,6 @@ def test_full_run():
 
         # Run the test job.
         sp.check_output([
-            "python",
-            "-m",
             "snakemake", 
             "all",
             "-c",
