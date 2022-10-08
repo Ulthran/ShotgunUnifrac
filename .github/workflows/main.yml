@@ -46,6 +46,7 @@ jobs:
       
       - name: Install Dependencies
         run: |
+          conda install python=3.10
           python -m pip install -U pytest
           python -m pip install -U pytest-cov
           python -m pip install snakemake
