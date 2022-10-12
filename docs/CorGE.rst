@@ -13,43 +13,45 @@ Options
 CorGE
 -----
 
-usage: CorGE [-h] {collect_genomes,extract_genes} ...
+.. code-block:: shell
 
-positional arguments:
-  {collect_genomes,extract_genes}
-                        Subcommands
-    collect_genomes     Collect nucleotide- and protein-encoded genomes of interest
-    extract_genes       Extract SCCGs from all collected genomes and curate data for tree building
+    CorGE [-h] {collect_genomes,extract_genes} ...
+
+.. code-block:: shell
+
+    -h/--help: Display help.
 
 CorGE collect_genomes
 ---------------------
 
-usage: CorGE collect_genomes [-h] [--all] [--ncbi_species NCBI_SPECIES] [--ncbi_accessions NCBI_ACCESSIONS] [--local LOCAL] [--outgroup OUTGROUP] [-n] output_dir
+Collect nucleotide- and protein-encoded genomes of interest.
 
-positional arguments:
-  output_dir            Directory to collect genomes in
+.. code-block:: shell
 
-options:
-  -h, --help            show this help message and exit
-  --all                 Collect one representative genome from each species listed in NCBI's RefSeq database.
-                        Don't use this with --ncbi_species, --ncbi_accessions, or --local
-  --ncbi_species NCBI_SPECIES
-                        File listing species level taxon ids to be collected from NCBI
-  --ncbi_accessions NCBI_ACCESSIONS
-                        File listing genome accessions to be collected from NCBI
-  --local LOCAL         Directory containing nucleotide- and protein-encoded pairs of genome files. Any
-                        unpaired files will be ignored
-  --outgroup OUTGROUP   Specify the outgroup for tree rooting. Integers will be parsed as species level taxon
-                        ids and retrieved from NCBI. Otherwise will search for a matching nucleotide-encoded
-                        file in ouput_dir or local (Default: 2173, enter None to not use outgroup rooting)
-  -n                    Dry run, show what would be gathered but don't do it
+    CorGE collect_genomes [-h] [--all] [--ncbi_species NCBI_SPECIES] [--ncbi_accessions NCBI_ACCESSIONS] [--local LOCAL] [--outgroup OUTGROUP] [-n] output_dir
+
+.. code-block:: shell
+
+    -h/--help: Show this help message and exit
+    --all: Collect one representative genome from each species listed in NCBI's RefSeq database. Don't use this with --ncbi_species, --ncbi_accessions, or --local.
+    --ncbi_species: File listing species level taxon ids to be collected from NCBI.
+    --ncbi_accessions: File listing genome accessions to be collected from NCBI.
+    --local: Directory containing nucleotide- and protein-encoded pairs of genome files. Any unpaired files will be ignored.
+    --outgroup: Specify the outgroup for tree rooting. Integers will be parsed as species level taxon ids and retrieved from NCBI. Otherwise will search for a matching nucleotide-encoded file in ouput_dir or local (Default: 2173, enter None to not use outgroup rooting).
+    -n: Dry run, show what would be gathered but don't do it.
+    output_dir: Directory to collect genomes in.
 
 CorGE extract_genes
 -------------------
 
-usage: CorGE extract_genes [-h] [-o OUTPUT] [-t {prot,nucl}] [-n {acc,txid,strain,species}] genomes
+Extract SCCGs from all collected genomes and curate data for tree building.
 
-positional arguments:
+.. code-block:: shell
+
+    CorGE extract_genes [-h] [-o OUTPUT] [-t {prot,nucl}] [-n {acc,txid,strain,species}] genomes
+
+.. code-block:: shell
+
   genomes               Directory with collected genomes (curated with collect_genomes)
 
 options:

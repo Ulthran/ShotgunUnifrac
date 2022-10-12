@@ -15,10 +15,3 @@ ShotgunUnifrac is a snakemake pipeline for generating a phylogeny per core gene 
 
    quickstart.rst
    CorGE.rst
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
