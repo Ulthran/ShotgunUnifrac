@@ -32,7 +32,7 @@ Collect nucleotide- and protein-encoded genomes of interest.
 
 .. code-block:: shell
 
-    -h/--help: Show this help message and exit
+    -h/--help: Display help.
     --all: Collect one representative genome from each species listed in NCBI's RefSeq database. Don't use this with --ncbi_species, --ncbi_accessions, or --local.
     --ncbi_species: File listing species level taxon ids to be collected from NCBI.
     --ncbi_accessions: File listing genome accessions to be collected from NCBI.
@@ -52,16 +52,11 @@ Extract SCCGs from all collected genomes and curate data for tree building.
 
 .. code-block:: shell
 
-  genomes               Directory with collected genomes (curated with collect_genomes)
-
-options:
-  -h, --help            show this help message and exit
-  -o OUTPUT, --output OUTPUT
-                        Directory to write output to (Default: ./)
-  -t {prot,nucl}, --type {prot,nucl}
-                        Output in merged-sequences can be nucleotide- or protein-encoded (Default: prot)
-  -n {acc,txid,strain,species}, --name {acc,txid,strain,species}
-                        Names to show on final tree (Default: txid)
+    -h/--help: Display help.
+    -o/--output: Directory to write output to (Default: ./).
+    -t/--type: Output in merged-sequences can be nucleotide- or protein-encoded (Default: prot).
+    -n/--name: Names to show on final tree (Default: txid).
+    genomes: Directory with collected genomes (curated with collect_genomes).
 
 collect_genomes
 ***************
