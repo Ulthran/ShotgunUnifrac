@@ -49,9 +49,8 @@ jobs:
           conda install python=3.10
           python -m pip install -U pytest
           python -m pip install -U pytest-cov
-          python -m pip install snakemake
-          
-        #conda install -c conda-forge mamba
+          conda install snakemake
+          conda install -c conda-forge mamba
 
       - name: Run Tests
         run: |
