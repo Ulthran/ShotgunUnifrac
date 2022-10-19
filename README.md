@@ -3,7 +3,7 @@
 <!--Begin status badges-->
 [![CI](https://github.com/Ulthran/ShotgunUnifrac/actions/workflows/main.yml/badge.svg)](https://github.com/Ulthran/ShotgunUnifrac/actions/workflows/main.yml)
 [![codecov](https://codecov.io/gh/Ulthran/ShotgunUnifrac/branch/master/graph/badge.svg?token=N9KSWRS4XG)](https://codecov.io/gh/Ulthran/ShotgunUnifrac)
-[![Documentation Status](https://readthedocs.org/projects/shotgununifrac/badge/?version=stable)](https://shotgununifrac.readthedocs.io/en/latest/?badge=stable)
+[![Documentation Status](https://readthedocs.org/projects/shotgununifrac/badge/?version=stable)](https://shotgununifrac.readthedocs.io/en/stable/?badge=stable)
 <!--End status badges-->
 
 A dual use program for downloading and extracting genes from NCBI and for creating phylogenetic trees for many marker genes and merging the results into one
