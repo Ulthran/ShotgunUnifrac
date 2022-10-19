@@ -14,7 +14,7 @@ The first steps are to clone this repo and then install `conda <https://docs.con
 
 .. code-block:: shell
 
-   git clone git@github.com:Ulthran/ShotgunUnifrac.git
+   git clone https://github.com/Ulthran/ShotgunUnifrac/.git
    
    cd ShotgunUnifrac/CorGE
    pip install .
