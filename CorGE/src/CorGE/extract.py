@@ -32,7 +32,7 @@ def val_for(acc: str, header: str) -> str:
         reader = csv.reader(f, dialect=csv.excel_tab)
         next(reader) # First row is a comment
         headers = next(reader) # This row has the headers
-        headers[0] = headers[0][2:]# Remove the "# " from the beginning of the first element
+        headers[0] = headers[0][2:] # Remove the "# " from the beginning of the first element
 
         idIndex = headers.index(header)
         accIndex = headers.index("assembly_accession")
