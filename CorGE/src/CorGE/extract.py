@@ -202,7 +202,7 @@ def merge_sequences(nt: str):
                 g.write(f.readlines()[1])
 
 
-def write_config(t: str):
+def write_config(out: str, t: str):
     outgroup_input_fp = os.path.join(INPUT_FP, "outgroup")
 
     all_merged_seqs = os.listdir(MERGED_SEQUENCES_FP)
@@ -224,6 +224,8 @@ def write_config(t: str):
     cfg += f"# File type contained in merged-sequences (prot or nucl)\nTYPE: {t}\n"
     
     cfg += f"# Method to build tree (supermat or genetree)\nALG: supermat\n"
+
+    cfg += f"# Directory to look for output data in\nDATA: {out}"
 
     with open(os.path.join(OUTPUT_FP, "config.yml"), "w") as f:
         f.write(cfg)
@@ -266,4 +268,4 @@ def extract_genes(genomes: str, output: str, output_type: str, name_type: str):
     if str(output_type) == 'nucl':
         filter_nucl_sequences()
     merge_sequences(name_type)
-    write_config(output_type)
+    write_config(output, output_type)

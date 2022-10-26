@@ -7,3 +7,5 @@ OUTGROUP: 2173
 TYPE: prot
 # Method to build tree (supermat or genetree)
 ALG: supermat
+# Directory to look for output data in
+DATA: data/
