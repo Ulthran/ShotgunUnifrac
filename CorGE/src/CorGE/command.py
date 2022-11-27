@@ -1,5 +1,6 @@
 import argparse
 import logging
+import os
 import sys
 from enum import Enum
 from pathlib import Path
@@ -23,13 +24,13 @@ class NameType(Enum):
         return self.value
 
 def _collect_genomes(args: argparse.Namespace):
-    logging.debug(args)
+    logging.info(args)
     if args.all and (args.ncbi_species or args.ncbi_accessions or args.local):
         sys.exit("ERR: Can't use --all with --ncbi_species, --ncbi_accessions, or --local")
     collect_genomes(args.output_dir, args.all, args.ncbi_species, args.ncbi_accessions, args.local, args.outgroup, args.n)
 
 def _extract_genes(args: argparse.Namespace):
-    logging.debug(args)
+    logging.info(args)
     extract_genes(args.genomes, args.output, str(args.type), str(args.name))
 
 def dir_path(dir: str):
@@ -100,6 +101,6 @@ def main(argv=None):
         main_parser.print_usage()
         sys.exit(1)
 
-    logging.basicConfig()
+    logging.basicConfig(level=os.environ.get("LOGLEVEL", "INFO"))
     args.func(args)
 
