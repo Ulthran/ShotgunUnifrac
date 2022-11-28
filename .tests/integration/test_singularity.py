@@ -16,22 +16,33 @@ def test_full_run():
         os.makedirs(tmpdir)
         tmpdir = str(tmpdir)
 
-        shutil.copyfile(".tests/integration/full_supermatrix_run/data/config.yml", os.path.join(tmpdir, "config.yml"))
-        shutil.copytree(".tests/integration/full_supermatrix_run/data/merged-sequences/", os.path.join(tmpdir, "merged-sequences/"))
+        shutil.copyfile(
+            ".tests/integration/full_supermatrix_run/data/config.yml",
+            os.path.join(tmpdir, "config.yml"),
+        )
+        shutil.copytree(
+            ".tests/integration/full_supermatrix_run/data/merged-sequences/",
+            os.path.join(tmpdir, "merged-sequences/"),
+        )
 
         os.system("conda config --set channel_priority strict")
 
         # Run the test job.
-        output = sp.run([
-            "snakemake", 
-            "all",
-            "-c",
-            "--use-conda",
-            "--use-singularity",
-            "--conda-prefix", ".snakemake/",
-            "--directory", tmpdir,
-            "-n",
-        ], capture_output=True)
+        output = sp.run(
+            [
+                "snakemake",
+                "all",
+                "-c",
+                "--use-conda",
+                "--use-singularity",
+                "--conda-prefix",
+                ".snakemake/",
+                "--directory",
+                tmpdir,
+                "-n",
+            ],
+            capture_output=True,
+        )
 
         # Check output
         print(output)

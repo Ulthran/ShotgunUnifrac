@@ -25,13 +25,16 @@ rule all:
 
 rule align_fasta:
     input:
-        expand(os.path.join(config["DATA"], "merged-sequences/{gene}.fasta"), gene=config["GENES"]),
+        expand(
+            os.path.join(config["DATA"], "merged-sequences/{gene}.fasta"),
+            gene=config["GENES"],
+        ),
     output:
         "aligned-sequences/{gene}.fasta",
     log:
         "logs/align_fasta/{gene}.log",
     params:
-        data=config["DATA"]
+        data=config["DATA"],
     conda:
         "envs/muscle_env.yaml"
     shell:
@@ -159,7 +162,8 @@ rule midpoint_root_tree:
     input:
         "trees/iqtree.treefile",
     output:
-        config["DATA"], "RAxML_midpointRootedTree.final",
+        config["DATA"],
+        "RAxML_midpointRootedTree.final",
     log:
         "logs/root_tree/RAxML_rootedTree.final.log",
     params:

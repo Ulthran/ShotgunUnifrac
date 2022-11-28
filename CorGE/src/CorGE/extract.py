@@ -17,22 +17,33 @@ OUTPUT_FP = ""
 FILTERED_SEQUENCES_FP = ""
 MERGED_SEQUENCES_FP = ""
 
+
 def check_assembly_summary():
     if not os.path.exists(os.path.join(INPUT_FP, "assembly_summary.txt")):
         logging.log(1, "assembly_summary.txt not found, fetching...")
-        wget.download("https://ftp.ncbi.nlm.nih.gov/genomes/refseq/bacteria/assembly_summary.txt", out=INPUT_FP)
+        wget.download(
+            "https://ftp.ncbi.nlm.nih.gov/genomes/refseq/bacteria/assembly_summary.txt",
+            out=INPUT_FP,
+        )
 
-        with open(os.path.join(INPUT_FP, "assembly_summary.txt"), "a") as f: # Append 2173 default outgroup
-            f.write("GCF_000016525.1\tPRJNA224116\tSAMN02604313\t\trepresentative genome\t420247\t2173\tMethanobrevibacter smithii ATCC 35061\tstrain=ATCC 35061; PS; DSMZ 861\t\tlatest\tComplete Genome\tMajor\tFull\t2007/06/04\tASM1652v1\tWashington University Center for Genome Sciences\tGCA_000016525.1\tidentical\thttps://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/016/525/GCF_000016525.1_ASM1652v1\t\tassembly from type material\tna")
+        with open(
+            os.path.join(INPUT_FP, "assembly_summary.txt"), "a"
+        ) as f:  # Append 2173 default outgroup
+            f.write(
+                "GCF_000016525.1\tPRJNA224116\tSAMN02604313\t\trepresentative genome\t420247\t2173\tMethanobrevibacter smithii ATCC 35061\tstrain=ATCC 35061; PS; DSMZ 861\t\tlatest\tComplete Genome\tMajor\tFull\t2007/06/04\tASM1652v1\tWashington University Center for Genome Sciences\tGCA_000016525.1\tidentical\thttps://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/016/525/GCF_000016525.1_ASM1652v1\t\tassembly from type material\tna"
+            )
+
 
 def val_for(acc: str, header: str) -> str:
     check_assembly_summary()
-    
+
     with open(os.path.join(INPUT_FP, "assembly_summary.txt")) as f:
         reader = csv.reader(f, dialect=csv.excel_tab)
-        next(reader) # First row is a comment
-        headers = next(reader) # This row has the headers
-        headers[0] = headers[0][2:] # Remove the "# " from the beginning of the first element
+        next(reader)  # First row is a comment
+        headers = next(reader)  # This row has the headers
+        headers[0] = headers[0][
+            2:
+        ]  # Remove the "# " from the beginning of the first element
 
         idIndex = headers.index(header)
         accIndex = headers.index("assembly_accession")
@@ -42,20 +53,26 @@ def val_for(acc: str, header: str) -> str:
                 if line[accIndex] == acc:
                     return line[idIndex]
             except IndexError:
-                None # Incomplete assembly_summary entry
+                None  # Incomplete assembly_summary entry
 
     return acc
+
 
 def txid_for(acc: str) -> str:
     return val_for(acc, "species_taxid")
 
+
 def strain_for(acc: str) -> str:
     return val_for(acc, "infraspecific_name")
+
 
 def species_for(acc: str) -> str:
     return val_for(acc, "organism_name")
 
-def write_sequence(out: TextIOWrapper, seqs: TextIOWrapper, query: str, acc: str = None):
+
+def write_sequence(
+    out: TextIOWrapper, seqs: TextIOWrapper, query: str, acc: str = None
+):
     seq = ""
     add = False
     for l in seqs.readlines():
@@ -64,14 +81,15 @@ def write_sequence(out: TextIOWrapper, seqs: TextIOWrapper, query: str, acc: str
                 seq += l.strip()
             else:
                 break
-        if query in l and l[0] == '>':
+        if query in l and l[0] == ">":
             add = True
             if acc:
                 seq += f"> {acc}\n"
             else:
                 seq += f"{l.strip()}\n"
-    
+
     out.write(seq + "\n")
+
 
 # From pyhmmer docs https://pyhmmer.readthedocs.io/en/stable/examples/fetchmgs.html
 def run_hmmscan(proteins: list) -> list:
@@ -94,7 +112,7 @@ def run_hmmscan(proteins: list) -> list:
             hmms.append(hmm)
 
     Result = collections.namedtuple("Result", ["query", "cog", "bitscore"])
-    
+
     results = []
     for top_hits in pyhmmer.hmmsearch(hmms, proteins, bit_cutoffs="trusted"):
         for hit in top_hits:
@@ -118,10 +136,11 @@ def run_hmmscan(proteins: list) -> list:
 
     return [best_results[k] for k in sorted(best_results) if k in keep_query]
 
+
 def filter_sequences():
     prot_input_fp = os.path.join(INPUT_FP, "protein")
     outgroup_input_fp = os.path.join(INPUT_FP, "outgroup")
-    
+
     prot_list = os.listdir(prot_input_fp)
     prot_fp_list = [os.path.join(prot_input_fp, prot) for prot in prot_list]
     outgroup = os.listdir(outgroup_input_fp)
@@ -135,18 +154,23 @@ def filter_sequences():
             pbar.update(1)
             with pyhmmer.easel.SequenceFile(prot_fp, digital=True) as seqs_file:
                 proteins = list(seqs_file)
-            
+
             results = run_hmmscan(proteins)
 
-            acc = prot_fp.split('/')[-1].split('.faa')[0]
+            acc = prot_fp.split("/")[-1].split(".faa")[0]
 
             for result in results:
-                with open(os.path.join(FILTERED_SEQUENCES_FP, f"{result.cog}__{acc}.faa"), "w") as f:
+                with open(
+                    os.path.join(FILTERED_SEQUENCES_FP, f"{result.cog}__{acc}.faa"), "w"
+                ) as f:
                     with open(prot_fp) as g:
                         write_sequence(f, g, result.query)
 
             for result in results[:10]:
-                print(result.query, "{:.1f}".format(result.bitscore), result.cog, sep="\t")
+                print(
+                    result.query, "{:.1f}".format(result.bitscore), result.cog, sep="\t"
+                )
+
 
 def filter_nucl_sequences():
     global FILTERED_SEQUENCES_FP, OUTPUT_FP
@@ -155,7 +179,9 @@ def filter_nucl_sequences():
     try:
         os.mkdir(FILTERED_SEQUENCES_FP)
     except FileExistsError:
-        warn("filtered-nucl-sequences output directory already exist and will be overwritten")
+        warn(
+            "filtered-nucl-sequences output directory already exist and will be overwritten"
+        )
         shutil.rmtree(FILTERED_SEQUENCES_FP)
         os.mkdir(FILTERED_SEQUENCES_FP)
     except OSError:
@@ -168,11 +194,11 @@ def filter_nucl_sequences():
     for fp in os.listdir(filtered_prot_sequences_fp):
         cog = fp.split("__")[0]
         acc = fp.split("__")[1].split(".faa")[0]
-        
+
         query = ""
         with open(os.path.join(filtered_prot_sequences_fp, fp)) as f:
-            query = f.readline().strip()[1:].split(' ')[0]
-        
+            query = f.readline().strip()[1:].split(" ")[0]
+
         with open(os.path.join(FILTERED_SEQUENCES_FP, f"{cog}__{acc}.fna"), "w") as f:
             if acc != outgroup_acc:
                 with open(os.path.join(nucl_input_fp, f"{acc}.fna")) as g:
@@ -181,9 +207,10 @@ def filter_nucl_sequences():
                 with open(os.path.join(outgroup_input_fp, f"{acc}.fna")) as g:
                     write_sequence(f, g, query)
 
+
 def merge_sequences(nt: str):
     all_filtered_seqs = os.listdir(FILTERED_SEQUENCES_FP)
-    
+
     for seq in all_filtered_seqs:
         cog = seq.split("__")[0]
         acc = seq.split("__")[1].split(".f")[0]
@@ -208,21 +235,23 @@ def write_config(out: str, t: str):
     all_merged_seqs = os.listdir(MERGED_SEQUENCES_FP)
 
     cogs = [fp.split(".fasta")[0] for fp in all_merged_seqs]
-    
+
     cfg = "# Config file for tree building pipeline\n# Genes to build trees from\nGENES: ["
     for cog in cogs:
-        cfg += f"\"{cog.strip()}\", "
+        cfg += f'"{cog.strip()}", '
     cfg += "]\n"
 
-    cfg += "# Outgroup to use for rooting, false if outgroup rooting shouldn't be used\n"
+    cfg += (
+        "# Outgroup to use for rooting, false if outgroup rooting shouldn't be used\n"
+    )
     if len(os.listdir(outgroup_input_fp)) == 2:
-        
-        cfg += f"OUTGROUP: {txid_for(os.listdir(outgroup_input_fp)[0].split('.f')[0])}\n" #TODO: change this to specify outgroup name
+
+        cfg += f"OUTGROUP: {txid_for(os.listdir(outgroup_input_fp)[0].split('.f')[0])}\n"  # TODO: change this to specify outgroup name
     else:
         cfg += "OUTGROUP: false\n"
-    
+
     cfg += f"# File type contained in merged-sequences (prot or nucl)\nTYPE: {t}\n"
-    
+
     cfg += f"# Method to build tree (supermat or genetree)\nALG: supermat\n"
 
     cfg += f"# Directory to look for output data in\nDATA: {out}"
@@ -230,15 +259,20 @@ def write_config(out: str, t: str):
     with open(os.path.join(OUTPUT_FP, "config.yml"), "w") as f:
         f.write(cfg)
 
+
 def extract_genes(genomes: str, output: str, output_type: str, name_type: str):
     if not os.path.isdir(genomes):
         sys.exit("Invalid path to collected genomes")
     if not os.path.isdir(output):
         sys.exit("Invalid output path")
-    if [fn.split('.fna')[0] for fn in os.listdir(os.path.join(genomes, "nucleotide"))].sort() != \
-        [fn.split('.faa')[0] for fn in os.listdir(os.path.join(genomes, "protein"))].sort():
-            sys.exit(f"Contents of {os.path.join(genomes, 'nucleotide')} and {os.path.join(genomes, 'protein')} are not perfectly paired")
-
+    if [
+        fn.split(".fna")[0] for fn in os.listdir(os.path.join(genomes, "nucleotide"))
+    ].sort() != [
+        fn.split(".faa")[0] for fn in os.listdir(os.path.join(genomes, "protein"))
+    ].sort():
+        sys.exit(
+            f"Contents of {os.path.join(genomes, 'nucleotide')} and {os.path.join(genomes, 'protein')} are not perfectly paired"
+        )
 
     global INPUT_FP, OUTPUT_FP, FILTERED_SEQUENCES_FP, MERGED_SEQUENCES_FP
     INPUT_FP = genomes
@@ -249,7 +283,9 @@ def extract_genes(genomes: str, output: str, output_type: str, name_type: str):
     try:
         os.mkdir(FILTERED_SEQUENCES_FP)
     except FileExistsError:
-        warn("filtered-sequences output directory already exist and will be overwritten")
+        warn(
+            "filtered-sequences output directory already exist and will be overwritten"
+        )
         shutil.rmtree(FILTERED_SEQUENCES_FP)
         os.mkdir(FILTERED_SEQUENCES_FP)
     except OSError:
@@ -265,8 +301,7 @@ def extract_genes(genomes: str, output: str, output_type: str, name_type: str):
         sys.exit("Problem creating output directories")
 
     filter_sequences()
-    if str(output_type) == 'nucl':
+    if str(output_type) == "nucl":
         filter_nucl_sequences()
     merge_sequences(name_type)
     write_config(output, output_type)
-    
