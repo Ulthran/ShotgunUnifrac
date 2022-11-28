@@ -28,6 +28,7 @@ def test_full_run():
             "all",
             "-c",
             "--use-conda",
+            "--use-singularity",
             "--conda-prefix", ".snakemake/",
             "--directory", tmpdir,
         ])
