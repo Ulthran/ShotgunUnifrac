@@ -269,3 +269,4 @@ def extract_genes(genomes: str, output: str, output_type: str, name_type: str):
         filter_nucl_sequences()
     merge_sequences(name_type)
     write_config(output, output_type)
+    

@@ -192,29 +192,25 @@ def collect_outgroup(id: str, dryrun: bool):
         except OSError:
             sys.exit(f"Couldn't find genome files corresponding to outgroup {id}")
 
-def collect_genomes(output: str, all: bool, ncbi_species: TextIOWrapper or None, ncbi_accessions: TextIOWrapper or None, local: str, outgroup: str, dryrun: bool):
-    if not os.path.isdir(output):
-        try:
-            os.makedirs(output)
-        except OSError:
-            sys.exit("Could not create outputs in specified directory")
-    
-    global OUTPUT_FP, NUCL_OUTPUT_FP, PROT_OUTPUT_FP, OUTGROUP_OUTPUT_FP
-    OUTPUT_FP = output
-    NUCL_OUTPUT_FP = os.path.join(output, "nucleotide")
-    PROT_OUTPUT_FP = os.path.join(output, "protein")
-    OUTGROUP_OUTPUT_FP = os.path.join(output, "outgroup")
-    None if os.path.isdir(NUCL_OUTPUT_FP) else os.mkdir(NUCL_OUTPUT_FP)
-    None if os.path.isdir(PROT_OUTPUT_FP) else os.mkdir(PROT_OUTPUT_FP)
-    None if os.path.isdir(OUTGROUP_OUTPUT_FP) else os.mkdir(OUTGROUP_OUTPUT_FP)
+from .GenomeCollection import GenomeCollection
 
-    if all:
-        collect_all(dryrun)
-    if ncbi_species:
-        collect_ncbi_species(ncbi_species, dryrun)
-    if ncbi_accessions:
-        collect_ncbi_accessions(ncbi_accessions, dryrun)
-    if local != "":
-        collect_local(local, dryrun)
-    if outgroup != "None":
-        collect_outgroup(outgroup, dryrun)
+def collect_genomes(args: dict):
+    try:
+        args['ncbi_species'] = [line.rstrip() for line in args['ncbi_species'].readlines()]
+    except AttributeError as e:
+        None
+    try:
+        args['ncbi_accessions'] = [line.rstrip() for line in args['ncbi_accessions'].readlines()]
+    except AttributeError as e:
+        None
+
+    gc_args = {k: v for k, v in args.items() if v and k in ['output_fp', 'ncbi_species', 'ncbi_accessions', 'local_fp', 'outgroup']}
+
+    gc = GenomeCollection(**gc_args)
+
+    if args['all']:
+        gc.all_species()
+    if args['n']:
+        gc.dryrun()
+    else:
+        gc.collect()

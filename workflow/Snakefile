@@ -4,7 +4,7 @@ import os
 configfile: "config.yml"
 
 
-container: "docker://ctbushman/shotguntree:latest"
+container: "docker://ctbushman/shotguntree"
 
 
 TARGET = (

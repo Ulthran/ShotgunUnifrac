@@ -1,4 +1,8 @@
+import gzip
+import logging
 import os
+import shutil
+import wget
 
 class Genome():
     def __init__(self, name: str) -> None:
@@ -7,97 +11,85 @@ class Genome():
     def get_name(self) -> str:
         """Returns the genome's name"""
         return self.name
-
-    def get_accession_or_fp(self) -> str:
-        """Returns the genome's accession or filepath (for local genomes)"""
-        raise NotImplementedError
-
-    def url_for(self) -> str:
-        """Returns the NCBI URL for the genome (without filename)"""
-        raise NotImplementedError("")
     
-    def download(self, output_fp: str, nucleotide: bool = True, protein: bool = True):
+    def download(self, output_fp: str):
         """Check that the file doesn't already exist then retrieves it
         Puts all files in output_fp/genomes/"""
-        raise NotImplementedError("")
-    
-    def get_protein_fp(self) -> str:
-        """Returns the filepath to the protein-encoded genome or None if not downloaded"""
-        raise NotImplementedError("")
-    
-    def get_nucleotide_fp(self):
-        """Returns the filepath to the nucleotide-encoded genome or None if not downloaded"""
-        raise NotImplementedError("")
-
-class SpeciesGenome(Genome):
-    def __init__(self, name: str) -> None:
-        super().__init__(name)
-
-    def get_accession_or_fp(self) -> str:
-        """Returns the genome's accession or filepath (for local genomes)"""
         raise NotImplementedError
 
-    def url_for(self) -> str:
-        """Returns the NCBI URL for the genome (without filename)"""
-        raise NotImplementedError("")
-    
-    def download(self, output_fp: str, nucleotide: bool = True, protein: bool = True):
-        """Check that the file hasn't already been downloaded then retrieves it"""
-        raise NotImplementedError("")
-    
-    def get_protein_fp(self) -> str:
-        """Returns the filepath to the protein-encoded genome or None if not downloaded"""
-        raise NotImplementedError("")
-    
-    def get_nucleotide_fp(self):
-        """Returns the filepath to the nucleotide-encoded genome or None if not downloaded"""
-        raise NotImplementedError("")
+    def is_downloaded(self, genomes_fp: str, prot: bool, nucl: bool) -> bool:
+        if prot and nucl:
+            if os.path.exists(os.path.join(genomes_fp, self.name + '.faa')) and os.path.exists(os.path.join(genomes_fp, 'genomes/', self.name + '.fna')):
+                return True
+        elif prot:
+            if os.path.exists(os.path.join(genomes_fp, self.name + '.faa')):
+                return True
+        elif nucl:
+            if os.path.exists(os.path.join(genomes_fp, self.name + '.fna')):
+                return True
+        else:
+            return False
 
 class AccessionGenome(Genome):
-    def __init__(self, name: str) -> None:
+    def __init__(self, name: str, tx_id: str, url: str) -> None:
         super().__init__(name)
+        self.tx_id = tx_id
+        self.partial_url = url
 
-    def get_accession_or_fp(self) -> str:
-        """Returns the genome's accession or filepath (for local genomes)"""
-        raise NotImplementedError
+    def download(self, output_fp: str):
+        """Check that the file doesn't already exist then retrieves it
+        Puts all files in output_fp/genomes/"""
+        genomes_fp = os.path.join(output_fp, "genomes/")
+        if not self.is_downloaded(genomes_fp, True, False):
+            logging.info(f"Downloading protein-encoded genome for {self.name}")
+            self.__download(genomes_fp, "_protein", ".faa")
+        else:
+            logging.warning(f"Found {self.name} protein-encoded genome, skipping...")
+        if not self.is_downloaded(genomes_fp, False, True):
+            logging.info(f"Downloading nucleotide-encoded genome for {self.name}")
+            self.__download(genomes_fp, "_cds_from_genomic", ".fna")
+        else:   
+            logging.warning(f"Found {self.name} nucleotide-encoded genome, skipping...")
+        
+    def __download(self, genomes_fp: str, name_str: str, ext: str):
+        filename = f"{self.partial_url.split('/')[-1]}{name_str}{ext}.gz"
+        url = f"{self.partial_url}/{filename}"
 
-    def url_for(self) -> str:
-        """Returns the NCBI URL for the genome (without filename)"""
-        raise NotImplementedError("")
-    
-    def download(self, output_fp: str, nucleotide: bool = True, protein: bool = True):
-        """Check that the file hasn't already been downloaded then retrieves it"""
-        raise NotImplementedError("")
-    
-    def get_protein_fp(self) -> str:
-        """Returns the filepath to the protein-encoded genome or None if not downloaded"""
-        raise NotImplementedError("")
-    
-    def get_nucleotide_fp(self):
-        """Returns the filepath to the nucleotide-encoded genome or None if not downloaded"""
-        raise NotImplementedError("")
+        try:
+            wget.download(url, out=genomes_fp)
+        except Exception as e:
+            logging.error(str(e))
+        
+        with gzip.open(os.path.join(genomes_fp, filename), "rb") as f_in:
+            with open(os.path.join(genomes_fp, f"{self.name}{ext}"), "wb") as f_out:
+                shutil.copyfileobj(f_in, f_out)
+
+        try:
+            os.remove(os.path.join(genomes_fp, filename))
+        except OSError as e:
+            logging.error(str(e))
 
 class LocalGenome(Genome):
     def __init__(self, name: str, fp: str) -> None:
         super().__init__(name)
+        self.fp = fp
 
-    def get_accession_or_fp(self) -> str:
-        """Returns the genome's accession or filepath (for local genomes)"""
-        raise NotImplementedError
+    def download(self, output_fp: str):
+        """Check that the file doesn't already exist then retrieves it
+        Puts all files in output_fp/genomes/"""
+        genomes_fp = os.path.join(output_fp, "genomes/")
+        if not self.is_downloaded(genomes_fp, True, False):
+            logging.info(f"Downloading protein-encoded genome for {self.name}")
+            self.__move(genomes_fp, ".faa")
+        else:
+            logging.warning(f"Found {self.name} protein-encoded genome, skipping...")
+        if not self.is_downloaded(genomes_fp, False, True):
+            logging.info(f"Downloading nucleotide-encoded genome for {self.name}")
+            self.__move(genomes_fp, ".fna")
+        else:   
+            logging.warning(f"Found {self.name} nucleotide-encoded genome, skipping...")
 
-    def url_for(self) -> str:
-        """Returns the NCBI URL for the genome (without filename)"""
-        raise NotImplementedError("")
-    
-    def download(self, output_fp: str, nucleotide: bool = True, protein: bool = True):
-        """Check that the file hasn't already been downloaded then retrieves it"""
-        raise NotImplementedError("")
-    
-    def get_protein_fp(self) -> str:
-        """Returns the filepath to the protein-encoded genome or None if not downloaded"""
-        raise NotImplementedError("")
-    
-    def get_nucleotide_fp(self):
-        """Returns the filepath to the nucleotide-encoded genome or None if not downloaded"""
-        raise NotImplementedError("")
+    def __move(self, genomes_fp: str, ext: str):
+        shutil.copyfile(os.path.join(self.fp, f"{self.name}{ext}"), os.path.join(genomes_fp, f"{self.name}{ext}"))
 
+    
