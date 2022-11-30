@@ -246,9 +246,7 @@ def collect_genomes(args: dict):
     gc_args = {
         k: v
         for k, v in args.items()
-        if v
-        and k
-        in ["output_fp", "ncbi_species", "ncbi_accessions", "local_fp"]
+        if v and k in ["output_fp", "ncbi_species", "ncbi_accessions", "local_fp"]
     }
 
     gc = GenomeCollection(**gc_args)

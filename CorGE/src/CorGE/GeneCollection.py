@@ -8,6 +8,7 @@ import tqdm
 import urllib.request
 from io import TextIOWrapper
 
+
 class GeneCollection:
     def __init__(
         self,
@@ -16,13 +17,13 @@ class GeneCollection:
         file_type: str = "prot",
         name_type: str = "tx_id",
         outgroup: str = "2173",
-        ) -> None:
+    ) -> None:
         self.genomes_fp = genomes_fp
-        if self.genomes_fp[-1] != '/':
-            self.genomes_fp += '/'
+        if self.genomes_fp[-1] != "/":
+            self.genomes_fp += "/"
         self.output_fp = output_fp
-        if self.output_fp[-1] != '/':
-            self.output_fp += '/'
+        if self.output_fp[-1] != "/":
+            self.output_fp += "/"
         self.file_type = file_type
         self.name_type = name_type
         self.outgroup = outgroup
@@ -43,15 +44,13 @@ class GeneCollection:
                 os.makedirs(self.filtered_nucl_fp)
 
         self.config_fp = os.path.join(self.output_fp, "config.yml")
-        self.assembly_summary_fp = os.path.join('/'.join(self.genomes_fp.split('/')[:-2]), 'assembly_summary.txt')
+        self.assembly_summary_fp = os.path.join(
+            "/".join(self.genomes_fp.split("/")[:-2]), "assembly_summary.txt"
+        )
 
     def filter_prot(self):
         """Filters SCCGs from protein files"""
-        prot_fps = [
-            fp
-            for fp in os.listdir(self.genomes_fp)
-            if fp[-4:] == ".faa"
-        ]
+        prot_fps = [fp for fp in os.listdir(self.genomes_fp) if fp[-4:] == ".faa"]
         prot_fps = self.__no_repeat_filter(prot_fps, self.filtered_fp)
         prot_fps = [os.path.join(self.genomes_fp, fp) for fp in prot_fps]
         logging.debug(f"Filtering: {prot_fps}")
@@ -94,13 +93,17 @@ class GeneCollection:
             for fp in os.listdir(self.filtered_fp):
                 cog = fp.split("__")[0]
                 acc = fp.split("__")[1].split(".faa")[0]
-                matching_nucl_fp = [fp for fp in nucl_fps if fp.split('/')[-1][:-4] == acc][0]
+                matching_nucl_fp = [
+                    fp for fp in nucl_fps if fp.split("/")[-1][:-4] == acc
+                ][0]
 
                 query = ""
                 with open(os.path.join(self.filtered_fp, fp)) as f:
                     query = f.readline().strip()[1:].split(" ")[0]
 
-                with open(os.path.join(self.filtered_nucl_fp, f"{cog}__{acc}.fna"), "w") as f:
+                with open(
+                    os.path.join(self.filtered_nucl_fp, f"{cog}__{acc}.fna"), "w"
+                ) as f:
                     with open(matching_nucl_fp) as g:
                         self.__write_sequence(f, g, query)
 
@@ -112,17 +115,31 @@ class GeneCollection:
                 try:
                     os.remove(os.path.join(self.merged_fp, fp))
                 except FileNotFoundError as e:
-                    logging.debug(f"While removing {os.path.join(self.merged_fp, fp)}: {e}")
+                    logging.debug(
+                        f"While removing {os.path.join(self.merged_fp, fp)}: {e}"
+                    )
 
         all_filtered_seqs = list()
         if self.file_type == "prot":
-            all_filtered_seqs = [os.path.join(self.filtered_fp, fp) for fp in os.listdir(self.filtered_fp) if fp[0] != '.']
+            all_filtered_seqs = [
+                os.path.join(self.filtered_fp, fp)
+                for fp in os.listdir(self.filtered_fp)
+                if fp[0] != "."
+            ]
         else:
-            all_filtered_seqs = [os.path.join(self.filtered_nucl_fp, fp) for fp in os.listdir(self.filtered_nucl_fp) if fp[0] != '.']
-        
-        names = self.__get_names_map(all_filtered_seqs, self.name_type, self.assembly_summary_fp)
+            all_filtered_seqs = [
+                os.path.join(self.filtered_nucl_fp, fp)
+                for fp in os.listdir(self.filtered_nucl_fp)
+                if fp[0] != "."
+            ]
+
+        names = self.__get_names_map(
+            all_filtered_seqs, self.name_type, self.assembly_summary_fp
+        )
         if self.outgroup not in names.values():
-            logging.error(f"Didn't find outgroup {self.outgroup} in names map, make sure to use an outgroup name that matches the name you will see on the tree")
+            logging.error(
+                f"Didn't find outgroup {self.outgroup} in names map, make sure to use an outgroup name that matches the name you will see on the tree"
+            )
             if self.outgroup in names.keys():
                 logging.info(f"Did you mean {names[self.outgroup]}?")
 
@@ -146,9 +163,7 @@ class GeneCollection:
             cfg += f'"{cog.strip()}", '
         cfg += "]\n"
 
-        cfg += (
-            "# Outgroup to use for rooting, false if outgroup rooting shouldn't be used\n"
-        )
+        cfg += "# Outgroup to use for rooting, false if outgroup rooting shouldn't be used\n"
         cfg += f"OUTGROUP: {self.outgroup}\n"
 
         cfg += f"# File type contained in merged-sequences (prot or nucl)\nTYPE: {self.file_type}\n"
@@ -210,12 +225,22 @@ class GeneCollection:
     def __no_repeat_filter(prot_fps: list, filtered_fp: str) -> list:
         filtered_prot_fps = []
         for fp in prot_fps:
-            existing_filtered_files = [filtered_fp for filtered_fp in os.listdir(filtered_fp) if fp in filtered_fp]
+            existing_filtered_files = [
+                filtered_fp
+                for filtered_fp in os.listdir(filtered_fp)
+                if fp in filtered_fp
+            ]
             l = len(existing_filtered_files)
             if os.path.exists(os.path.join(filtered_fp, f".done_{fp[:-4]}")):
-                logging.info(f"Skipping protein filter step for {fp[:-4]} because all files already exist...")
-            elif l > 0 and not os.path.exists(os.path.join(filtered_fp, f".done_fp[:-4]")):
-                logging.warning(f"Found partial protein filter files for {fp[:-4]}, overwriting...")
+                logging.info(
+                    f"Skipping protein filter step for {fp[:-4]} because all files already exist..."
+                )
+            elif l > 0 and not os.path.exists(
+                os.path.join(filtered_fp, f".done_fp[:-4]")
+            ):
+                logging.warning(
+                    f"Found partial protein filter files for {fp[:-4]}, overwriting..."
+                )
                 filtered_prot_fps.append(fp)
             else:
                 filtered_prot_fps.append(fp)
@@ -245,17 +270,24 @@ class GeneCollection:
 
     @staticmethod
     def __get_names_map(fps: list, nt: str, assembly_summary_fp: str) -> dict:
-        accs = {fp.split('/')[-1].split('__')[1].split('.f')[0]: fp.split('/')[-1].split('__')[1].split('.f')[0] for fp in fps}
-        header = ''
-        if nt == 'acc':
+        accs = {
+            fp.split("/")[-1]
+            .split("__")[1]
+            .split(".f")[0]: fp.split("/")[-1]
+            .split("__")[1]
+            .split(".f")[0]
+            for fp in fps
+        }
+        header = ""
+        if nt == "acc":
             logging.debug(f"Names map: {accs}")
             return accs
-        elif nt == 'tx_id':
-            header = 'species_taxid'
-        elif nt == 'strain':
-            header = 'infraspecific_name'
-        elif nt == 'species':
-            header = 'organism_name'
+        elif nt == "tx_id":
+            header = "species_taxid"
+        elif nt == "strain":
+            header = "infraspecific_name"
+        elif nt == "species":
+            header = "organism_name"
         accs_list = list(accs.keys())
         ids = {}
 
@@ -281,6 +313,5 @@ class GeneCollection:
         for name in [name for name in accs.keys() if name not in ids.keys()]:
             ids[name] = name
 
-        
         logging.debug(f"Names map: {ids}")
         return ids

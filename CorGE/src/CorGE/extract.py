@@ -213,20 +213,20 @@ def write_config(out: str, t: str):
     with open(os.path.join(OUTPUT_FP, "config.yml"), "w") as f:
         f.write(cfg)
 
+
 from .GeneCollection import GeneCollection
+
 
 def extract_genes(args: dict):
     if args["file_type"]:
         args["file_type"] = str(args["file_type"])
     if args["name_type"]:
         args["name_type"] = str(args["name_type"])
-    
+
     gc_args = {
         k: v
         for k, v in args.items()
-        if v
-        and k
-        in ["genomes_fp", "output_fp", "file_type", "name_type", "outgroup"]
+        if v and k in ["genomes_fp", "output_fp", "file_type", "name_type", "outgroup"]
     }
 
     gc = GeneCollection(**gc_args)

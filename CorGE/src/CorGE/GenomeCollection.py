@@ -15,8 +15,8 @@ class GenomeCollection:
     ) -> None:
 
         self.output_fp = output_fp
-        if self.output_fp[-1] != '/':
-            self.output_fp += '/'
+        if self.output_fp[-1] != "/":
+            self.output_fp += "/"
         if not os.path.exists(self.output_fp):
             logging.info("Making output directory.")
             os.makedirs(self.output_fp)

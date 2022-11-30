@@ -63,7 +63,9 @@ def main(argv=None):
     )
 
     collect_genomes_subparser.add_argument(
-        "--output_fp", type=dir_path, help="Directory to collect genomes in (Default: ./output/)"
+        "--output_fp",
+        type=dir_path,
+        help="Directory to collect genomes in (Default: ./output/)",
     )
     collect_genomes_subparser.add_argument(
         "--all",

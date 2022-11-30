@@ -1,7 +1,11 @@
 import os
 
 
-configfile: "config.yml"
+if not config:
+    raise SystemExit(
+        "No config file specified. Use CorGE to generate a "
+        "config file, and specify with --configfile"
+    )
 
 
 container: "docker://ctbushman/shotguntree:latest"
