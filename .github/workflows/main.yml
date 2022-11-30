@@ -32,6 +32,7 @@ jobs:
           python --version
           pip install pytest
           pip install pytest-cov
+          echo "AHAHAHAHAAAA"
           conda install snakemake
           conda install -c conda-forge mamba
 
@@ -44,6 +45,12 @@ jobs:
           cd ..
           conda list
           pytest .tests/ # Test snakemake pipeline
+
+      - name: Pytest coverage comment
+        uses: MishaKav/pytest-coverage-comment@main
+        with:
+          pytest-coverage-path: ./pytest-coverage.txt
+          junitxml-path: ./pytest.xml
       
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
