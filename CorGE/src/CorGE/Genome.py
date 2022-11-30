@@ -37,7 +37,7 @@ class Genome:
 
 
 class AccessionGenome(Genome):
-    def __init__(self, name: str, tx_id: str, url: str) -> None:
+    def __init__(self, name: str, tx_id: str = None, url: str = None) -> None:
         super().__init__(name)
         self.tx_id = tx_id
         self.partial_url = url
@@ -77,7 +77,7 @@ class AccessionGenome(Genome):
 
 
 class LocalGenome(Genome):
-    def __init__(self, name: str, fp: str) -> None:
+    def __init__(self, name: str, fp: str = None) -> None:
         super().__init__(name)
         self.fp = fp
 

@@ -91,52 +91,6 @@ def write_sequence(
     out.write(seq + "\n")
 
 
-# From pyhmmer docs https://pyhmmer.readthedocs.io/en/stable/examples/fetchmgs.html
-def run_hmmscan(proteins: list) -> list:
-    url = "https://github.com/motu-tool/fetchMGs/raw/master/lib/MG_BitScoreCutoffs.allhits.txt"
-
-    cutoffs = {}
-    with urllib.request.urlopen(url) as f:
-        for line in csv.reader(TextIOWrapper(f), dialect="excel-tab"):
-            if not line[0].startswith("#"):
-                cutoffs[line[0]] = float(line[1])
-
-    baseurl = "https://github.com/motu-tool/fetchMGs/raw/master/lib/{}.hmm"
-
-    hmms = []
-    for cog in cutoffs:
-        with urllib.request.urlopen(baseurl.format(cog)) as f:
-            hmm = next(pyhmmer.plan7.HMMFile(f))
-            cutoff = cutoffs[hmm.name.decode()]
-            hmm.cutoffs.trusted = (cutoff, cutoff)
-            hmms.append(hmm)
-
-    Result = collections.namedtuple("Result", ["query", "cog", "bitscore"])
-
-    results = []
-    for top_hits in pyhmmer.hmmsearch(hmms, proteins, bit_cutoffs="trusted"):
-        for hit in top_hits:
-            cog = hit.best_domain.alignment.hmm_name.decode()
-            results.append(Result(hit.name.decode(), cog, hit.score))
-
-    best_results = {}
-    keep_query = set()
-    for result in results:
-        if result.query in best_results:
-            previous_bitscore = best_results[result.query].bitscore
-            if result.bitscore > previous_bitscore:
-                best_results[result.query] = result
-                keep_query.add(result.query)
-            elif result.bitscore == previous_bitscore:
-                if best_results[result.query].cog != hit.cog:
-                    keep_query.remove(result.query)
-        else:
-            best_results[result.query] = result
-            keep_query.add(result.query)
-
-    return [best_results[k] for k in sorted(best_results) if k in keep_query]
-
-
 def filter_sequences():
     prot_input_fp = os.path.join(INPUT_FP, "protein")
     outgroup_input_fp = os.path.join(INPUT_FP, "outgroup")
@@ -259,49 +213,25 @@ def write_config(out: str, t: str):
     with open(os.path.join(OUTPUT_FP, "config.yml"), "w") as f:
         f.write(cfg)
 
+from .GeneCollection import GeneCollection
 
-def extract_genes(genomes: str, output: str, output_type: str, name_type: str):
-    if not os.path.isdir(genomes):
-        sys.exit("Invalid path to collected genomes")
-    if not os.path.isdir(output):
-        sys.exit("Invalid output path")
-    if [
-        fn.split(".fna")[0] for fn in os.listdir(os.path.join(genomes, "nucleotide"))
-    ].sort() != [
-        fn.split(".faa")[0] for fn in os.listdir(os.path.join(genomes, "protein"))
-    ].sort():
-        sys.exit(
-            f"Contents of {os.path.join(genomes, 'nucleotide')} and {os.path.join(genomes, 'protein')} are not perfectly paired"
-        )
+def extract_genes(args: dict):
+    if args["file_type"]:
+        args["file_type"] = str(args["file_type"])
+    if args["name_type"]:
+        args["name_type"] = str(args["name_type"])
+    
+    gc_args = {
+        k: v
+        for k, v in args.items()
+        if v
+        and k
+        in ["genomes_fp", "output_fp", "file_type", "name_type", "outgroup"]
+    }
 
-    global INPUT_FP, OUTPUT_FP, FILTERED_SEQUENCES_FP, MERGED_SEQUENCES_FP
-    INPUT_FP = genomes
-    OUTPUT_FP = output
-    FILTERED_SEQUENCES_FP = os.path.join(output, "filtered-sequences")
-    MERGED_SEQUENCES_FP = os.path.join(output, "merged-sequences")
+    gc = GeneCollection(**gc_args)
 
-    try:
-        os.mkdir(FILTERED_SEQUENCES_FP)
-    except FileExistsError:
-        warn(
-            "filtered-sequences output directory already exist and will be overwritten"
-        )
-        shutil.rmtree(FILTERED_SEQUENCES_FP)
-        os.mkdir(FILTERED_SEQUENCES_FP)
-    except OSError:
-        sys.exit("Problem creating output directories")
-
-    try:
-        os.mkdir(MERGED_SEQUENCES_FP)
-    except FileExistsError:
-        warn("merged-sequences output directory already exist and will be overwritten")
-        shutil.rmtree(MERGED_SEQUENCES_FP)
-        os.mkdir(MERGED_SEQUENCES_FP)
-    except OSError:
-        sys.exit("Problem creating output directories")
-
-    filter_sequences()
-    if str(output_type) == "nucl":
-        filter_nucl_sequences()
-    merge_sequences(name_type)
-    write_config(output, output_type)
+    gc.filter_prot()
+    gc.filter_nucl()
+    gc.merge()
+    gc.write_config()

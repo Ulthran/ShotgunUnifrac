@@ -12,10 +12,11 @@ class GenomeCollection:
         ncbi_species: list = list(),
         ncbi_accessions: list = list(),
         local_fp: str = "",
-        outgroup: str = "2173",
     ) -> None:
 
         self.output_fp = output_fp
+        if self.output_fp[-1] != '/':
+            self.output_fp += '/'
         if not os.path.exists(self.output_fp):
             logging.info("Making output directory.")
             os.makedirs(self.output_fp)
@@ -41,43 +42,9 @@ class GenomeCollection:
             self.genomes.append(LocalGenome(l, self.local_fp))
 
         self.genomes_fp = os.path.join(self.output_fp, "genomes/")
-        self.filtered_fp = os.path.join(self.output_fp, "filtered-sequences/")
-        self.merged_fp = os.path.join(self.output_fp, "merged-sequences/")
         if not os.path.exists(self.genomes_fp):
             logging.info("Making genomes directory.")
             os.makedirs(self.genomes_fp)
-        if not os.path.exists(self.filtered_fp):
-            logging.info("Making filtered sequences directory.")
-            os.makedirs(self.filtered_fp)
-        if not os.path.exists(self.merged_fp):
-            logging.info("Making merged sequences directory.")
-            os.makedirs(self.merged_fp)
-
-        self.outgroup = outgroup
-        if self.outgroup.isdigit():
-            logging.info("Interpreting outgroup as species-level taxon id.")
-            self.genomes.append(
-                AccessionGenome(
-                    *self.__accessions_for_species(
-                        [self.outgroup], self.assembly_summary_fp
-                    )[0]
-                )
-            )
-        elif os.path.exists(
-            os.path.join(self.local_fp, f"{self.outgroup}.faa")
-        ) and os.path.exists(os.path.join(self.local_fp, f"{self.outgroup}.fna")):
-            logging.info(f"Interpreting outgroup as name in {self.local_fp}.")
-            self.genomes.append(LocalGenome(self.outgroup, self.local_fp))
-        elif self.outgroup:
-            logging.info("Interpreting outgroup as an NCBI accession.")
-            logging.info(os.path.join(self.local_fp, f"{self.outgroup}.faa"))
-            self.genomes.append(
-                AccessionGenome(
-                    *self.__species_for_accessions(
-                        [self.outgroup], self.assembly_summary_fp
-                    )[0]
-                )
-            )
 
     def dryrun(self):
         """Prints all the accessions and filepaths to be collected"""
@@ -130,25 +97,6 @@ class GenomeCollection:
         """Downloads or copies all Genome objects in genomes to output_fp"""
         for g in self.genomes:
             g.download(self.output_fp)
-        self.__update_collection()
-
-    def filter_prot(self):
-        """Filters SCCGs from protein files"""
-        prot_fps = [
-            os.path.join(self.genomes_fp, fp)
-            for fp in os.listdir(self.genomes_fp)
-            if fp[-4:] == ".faa"
-        ]
-        logging.info(prot_fps)
-
-    def filter_nucl(self):
-        """Filters SCCGs from nucleotide files"""
-
-    def merge(self):
-        """Merges filtered sequences into per-SCCG files"""
-
-    def write_config(self):
-        """Writes a config file for the snakemake pipeline"""
 
     ### Private Methods
 
@@ -164,11 +112,6 @@ class GenomeCollection:
             f.write(
                 "GCF_000016525.1\tPRJNA224116\tSAMN02604313\t\trepresentative genome\t420247\t2173\tMethanobrevibacter smithii ATCC 35061\tstrain=ATCC 35061; PS; DSMZ 861\t\tlatest\tComplete Genome\tMajor\tFull\t2007/06/04\tASM1652v1\tWashington University Center for Genome Sciences\tGCA_000016525.1\tidentical\thttps://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/016/525/GCF_000016525.1_ASM1652v1\t\tassembly from type material\tna"
             )
-
-    def __update_collection(self):
-        """Updates genomes list to match the current output_fp/genomes/ dir
-        This allows for easy continuation curating an existing data set"""
-        self.genomes = self.__list_valid_genomes(self.genomes_fp)
 
     @staticmethod
     def __accessions_for_species(species: list, assembly_summary: str) -> list:

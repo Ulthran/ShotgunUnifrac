@@ -63,7 +63,7 @@ def main(argv=None):
     )
 
     collect_genomes_subparser.add_argument(
-        "--output_fp", type=dir_path, help="Directory to collect genomes in"
+        "--output_fp", type=dir_path, help="Directory to collect genomes in (Default: ./output/)"
     )
     collect_genomes_subparser.add_argument(
         "--all",
@@ -84,7 +84,6 @@ def main(argv=None):
     collect_genomes_subparser.add_argument(
         "--local_fp",
         type=dir_path,
-        default="",
         help="Directory containing nucleotide- and protein-encoded pairs of genome files. Any unpaired files will be ignored",
     )
     collect_genomes_subparser.add_argument(
@@ -107,32 +106,34 @@ def main(argv=None):
     collect_genomes_subparser.set_defaults(func=_collect_genomes)
 
     extract_genes_subparser.add_argument(
-        "genomes",
+        "--genomes",
         type=dir_path,
-        help="Directory with collected genomes (curated with collect_genomes)",
+        help="Directory with collected genomes (curated with collect_genomes) (Default: ./genomes/)",
     )
     extract_genes_subparser.add_argument(
         "-o",
         "--output",
         type=dir_path,
-        default="./",
         help="Directory to write output to (Default: ./)",
     )
     extract_genes_subparser.add_argument(
         "-t",
-        "--type",
+        "--file_type",
         type=FileType,
         choices=list(FileType),
-        default="prot",
         help="Output in merged-sequences can be nucleotide- or protein-encoded (Default: prot)",
     )
     extract_genes_subparser.add_argument(
         "-n",
-        "--name",
+        "--name_type",
         type=NameType,
         choices=list(NameType),
-        default="txid",
         help="Names to show on final tree (Default: txid)",
+    )
+    extract_genes_subparser.add_argument(
+        "--outgroup",
+        type=str,
+        help="Outgroup to use for tree rooting, name must correspond with files in the genomes dir (Default: 2173)",
     )
     extract_genes_subparser.add_argument(
         "--log_level",
