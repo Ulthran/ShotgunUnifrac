@@ -45,6 +45,7 @@ class CommandTests(unittest.TestCase):
         main(
             [
                 "collect_genomes",
+                "--output_fp",
                 self.temp_dir,
                 "--ncbi_species",
                 self.ncbi_species_fp,
