@@ -31,10 +31,10 @@ jobs:
       
       - name: Install Dependencies
         run: |
-          pip install pytest
-          pip install pytest-cov
           conda install -c conda-forge mamba
           mamba install -c conda-forge -c bioconda snakemake
+          pip install pytest
+          pip install pytest-cov
 
       - name: Run Tests
         run: |

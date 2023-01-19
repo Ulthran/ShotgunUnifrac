@@ -3,11 +3,11 @@
 .snakemake/
 __pycache__/
 logs/
+**/assembly_summary.txt
 
 .vscode/
 
 /output/
-
 /aligned-sequences/
 /supermatrices/
 /trees/
