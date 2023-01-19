@@ -1,5 +1,5 @@
 import pytest
-from CorGE.Genome import Genome, AccessionGenome, LocalGenome
+from src.CorGE import Genome
 
 @pytest.fixture
 def genome():

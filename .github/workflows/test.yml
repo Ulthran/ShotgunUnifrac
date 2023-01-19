@@ -24,7 +24,7 @@ jobs:
       - name: setup-conda
         # You may pin to the exact commit or the version.
         # uses: s-weigand/setup-conda@945fd9e7c92f1efb12634ba552ee0b2ec140a5fd
-        uses: s-weigand/setup-conda@v1.1.0
+        uses: s-weigand/setup-conda@v1.1.1
         with:
           # Additional channels like 'conda-forge' which can be used to install packages
           conda-channels: 'bioconda' # optional, default is 
