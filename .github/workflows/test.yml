@@ -30,7 +30,7 @@ jobs:
       
       - name: Install Dependencies
         run: |
-          conda install -c conda-forge mamba
+          conda install -c conda-forge mamba=1.2.0
           mamba install -c conda-forge -c bioconda snakemake
           pip install pytest
           pip install pytest-cov
