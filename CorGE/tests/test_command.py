@@ -21,9 +21,7 @@ class CommandTests(unittest.TestCase):
         self.local_db_fp = os.path.join(self.data_dir, "TEST_LOCAL/")
 
         # collect_genomes outputs
-        self.nucl_fp = os.path.join(self.temp_dir, "nucleotide/")
-        self.prot_fp = os.path.join(self.temp_dir, "protein/")
-        self.outgroup_fp = os.path.join(self.temp_dir, "outgroup/")
+        self.genomes_fp = os.path.join(self.temp_dir, "output/genomes/")
 
         # extract_genes input
         self.collected_genomes_fp = os.path.join(self.data_dir, "collected-genomes")
@@ -58,11 +56,7 @@ class CommandTests(unittest.TestCase):
         )
 
         self.assertEqual(
-            os.listdir(self.outgroup_fp).sort(),
-            ["GCF_000016525.1.faa", "GCF_000016525.1.fna"].sort(),
-        )
-        self.assertEqual(
-            os.listdir(self.nucl_fp).sort(),
+            os.listdir(self.genomes_fp).sort(),
             [
                 "GCF_000012885.1.fna",
                 "GCF_000007725.1.fna",
@@ -71,15 +65,11 @@ class CommandTests(unittest.TestCase):
                 "GCF_007197645.1.fna",
                 "GCF_001375595.1.fna",
                 "GCF_000218545.1.fna",
-                "GCF_000010525.1\n.fna",
+                "GCF_000010525.1.fna",
                 "GCF_000378225.1.fna",
                 "GCF_900111765.1.fna",
                 "GCF_023159115.1.fna",
-            ].sort(),
-        )
-        self.assertEqual(
-            os.listdir(self.prot_fp).sort(),
-            [
+                "GCF_000016525.1.fna",
                 "GCF_000012885.1.faa",
                 "GCF_000007725.1.faa",
                 "GCF_000020965.1.faa",
@@ -87,10 +77,11 @@ class CommandTests(unittest.TestCase):
                 "GCF_007197645.1.faa",
                 "GCF_001375595.1.faa",
                 "GCF_000218545.1.faa",
-                "GCF_000010525.1\n.faa",
+                "GCF_000010525.1.faa",
                 "GCF_000378225.1.faa",
                 "GCF_900111765.1.faa",
                 "GCF_023159115.1.faa",
+                "GCF_000016525.1.faa",
             ].sort(),
         )
 

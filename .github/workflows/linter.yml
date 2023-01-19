@@ -1,8 +1,6 @@
 name: Super-Linter
 
 on:
-  push:
-    branches-ignore: [master, main]
   pull_request:
     branches: [master, main]
 
@@ -23,3 +21,5 @@ jobs:
 
           VALIDATE_SNAKEMAKE_SNAKEFMT: true
           VALIDATE_PYTHON_BLACK: true
+
+          FILTER_REGEX_INCLUDE: CorGE/src/.*|CorGE/tests/.*|workflow/.*|.tests/.*
