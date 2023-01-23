@@ -11,6 +11,7 @@ from CorGE.command import main
 class CommandTests(unittest.TestCase):
     def setUp(self):
         self.temp_dir = tempfile.mkdtemp()
+        self.output_dir = os.path.join(self.temp_dir, "output")
 
         # collect_genomes input
         self.data_dir = os.path.join("/".join(__file__.split("/")[:-1]), "test-data")
@@ -97,6 +98,10 @@ class CommandTests(unittest.TestCase):
                 self.temp_dir,
             ]
         )
+
+        import logging
+        logging.warning(os.listdir("."))
+        logging.warning(os.listdir("output"))
 
         self.assertEqual(len(os.listdir(self.filtered_seqs_fp)), 488)
         self.assertEqual(len(os.listdir(self.merged_seqs_fp)), 41)
