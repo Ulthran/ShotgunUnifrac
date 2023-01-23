@@ -22,9 +22,7 @@ class Genome:
         if prot and nucl:
             if os.path.exists(
                 os.path.join(genomes_fp, self.name + ".faa")
-            ) and os.path.exists(
-                os.path.join(genomes_fp, self.name + ".fna")
-            ):
+            ) and os.path.exists(os.path.join(genomes_fp, self.name + ".fna")):
                 return True
         elif prot:
             if os.path.exists(os.path.join(genomes_fp, self.name + ".faa")):
