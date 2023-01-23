@@ -21,7 +21,7 @@ class CommandTests(unittest.TestCase):
         self.local_db_fp = os.path.join(self.data_dir, "TEST_LOCAL/")
 
         # collect_genomes outputs
-        self.genomes_fp = os.path.join(self.temp_dir, "output/genomes/")
+        self.genomes_fp = os.path.join(self.temp_dir, "genomes/")
 
         # extract_genes input
         self.collected_genomes_fp = os.path.join(self.data_dir, "collected-genomes")
@@ -55,7 +55,6 @@ class CommandTests(unittest.TestCase):
             ]
         )
 
-        self.assertEqual("", os.listdir(self.temp_dir))
         self.assertEqual(
             os.listdir(self.genomes_fp).sort(),
             [
