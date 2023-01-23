@@ -1,6 +1,7 @@
 import os
 import pytest
 from src.CorGE.GenomeCollection import GenomeCollection
+from . import *
 
 
 @pytest.fixture
