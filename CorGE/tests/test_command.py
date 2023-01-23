@@ -89,6 +89,7 @@ class CommandTests(unittest.TestCase):
         main(
             [
                 "extract_genes",
+                "--genomes",
                 self.collected_genomes_fp,
                 "--output",
                 self.temp_dir,
@@ -114,6 +115,7 @@ class CommandTests(unittest.TestCase):
         main(
             [
                 "extract_genes",
+                "--genomes",
                 self.collected_genomes_fp,
                 "--output",
                 self.temp_dir,
