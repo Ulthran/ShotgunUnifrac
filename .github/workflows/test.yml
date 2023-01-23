@@ -25,14 +25,13 @@ jobs:
       #  # uses: s-weigand/setup-conda@945fd9e7c92f1efb12634ba552ee0b2ec140a5fd
       #  uses: s-weigand/setup-conda@v1.1.0
       
-      - name: Setup Miniconda
+      - name: Setup Miniforge
         run: |
-          wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
-          bash Miniconda3-latest-Linux-x86_64.sh -b
+          wget https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-x86_64.sh
+          bash Miniforge3-Linux-x86_64.sh -b
 
       - name: Install Dependencies
         run: |
-          conda install -c conda-forge mamba
           mamba install -c conda-forge -c bioconda snakemake
           pip install pytest
           pip install pytest-cov
