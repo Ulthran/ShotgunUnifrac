@@ -1,5 +1,5 @@
 import pytest
-from src.CorGE import Genome
+from src.CorGE.Genome import Genome
 
 
 @pytest.fixture
