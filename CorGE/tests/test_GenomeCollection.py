@@ -2,8 +2,6 @@ import os
 import pytest
 from src.CorGE.GenomeCollection import GenomeCollection
 
-OUTPUT_FP = os.path.join(os.getcwd(), "output/")
-
 
 @pytest.fixture
 def genome_collection():
@@ -25,6 +23,8 @@ def test_genome_collection(genome_collection):
     gc = genome_collection
     gc.dryrun()
     gc.collect()
+
+    assert os.listdir(GENOMES_FP) == [""]
 
 
 @pytest.fixture
