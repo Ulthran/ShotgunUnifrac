@@ -15,3 +15,6 @@ def test_genome(genome):
         g.download("/")
 
     assert g.is_downloaded("test-data/collected-genomes", True, True) == True
+    assert g.is_downloaded("test-data/collected-genomes", True, False) == True
+    assert g.is_downloaded("test-data/collected-genomes", False, True) == True
+    assert g.is_downloaded("test-data/collected-genomes", False, False) == False

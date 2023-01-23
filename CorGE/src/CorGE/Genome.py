@@ -23,7 +23,7 @@ class Genome:
             if os.path.exists(
                 os.path.join(genomes_fp, self.name + ".faa")
             ) and os.path.exists(
-                os.path.join(genomes_fp, "genomes/", self.name + ".fna")
+                os.path.join(genomes_fp, self.name + ".fna")
             ):
                 return True
         elif prot:
