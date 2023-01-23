@@ -29,12 +29,12 @@ class CommandTests(unittest.TestCase):
 
         # extract_genes output
         self.filtered_seqs_fp = os.path.join(
-            self.temp_dir, "output", "filtered-sequences"
+            self.temp_dir, "filtered-sequences"
         )
         self.filtered_nucl_seqs_fp = os.path.join(
-            self.temp_dir, "output", "filtered-nucl-sequences"
+            self.temp_dir, "filtered-nucl-sequences"
         )
-        self.merged_seqs_fp = os.path.join(self.temp_dir, "output", "merged-sequences")
+        self.merged_seqs_fp = os.path.join(self.temp_dir, "merged-sequences")
 
     def tearDown(self):
         self.ncbi_species_f.close()
@@ -100,6 +100,7 @@ class CommandTests(unittest.TestCase):
         )
 
         import logging
+
         logging.warning(os.listdir(self.temp_dir))
         logging.warning(os.listdir(self.output_dir))
 
