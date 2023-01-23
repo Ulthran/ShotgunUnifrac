@@ -24,9 +24,6 @@ jobs:
         # You may pin to the exact commit or the version.
         # uses: s-weigand/setup-conda@945fd9e7c92f1efb12634ba552ee0b2ec140a5fd
         uses: s-weigand/setup-conda@v1.1.1
-        with:
-          update-conda: true
-          conda-channels: 'bioconda' # optional, default is 
       
       - name: Install Dependencies
         run: |
