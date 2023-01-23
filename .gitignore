@@ -3,7 +3,6 @@
 .snakemake/
 __pycache__/
 logs/
-**/assembly_summary.txt
 
 .vscode/
 
