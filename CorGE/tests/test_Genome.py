@@ -1,10 +1,14 @@
 import pytest
-from src.CorGE.Genome import Genome
+from src.CorGE.Genome import Genome, AccessionGenome, LocalGenome
 
 
 @pytest.fixture
 def genome():
     yield Genome("GCF_000016525.1")
+
+@pytest.fixture
+def accession_genome(name, txid, url):
+    yield AccessionGenome(name, txid, url)
 
 
 def test_genome(genome):
@@ -18,3 +22,6 @@ def test_genome(genome):
     assert g.is_downloaded("test-data/collected-genomes", True, False) == True
     assert g.is_downloaded("test-data/collected-genomes", False, True) == True
     assert g.is_downloaded("test-data/collected-genomes", False, False) == False
+
+def test_accession_genome_txid(accession_genome):
+    g = accession_genome("GCF_000016525.1", "2173")
