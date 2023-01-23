@@ -35,7 +35,7 @@ jobs:
 
       - name: Install Dependencies
         run: |
-          conda install mamba
+          conda install -c conda-forge mamba
           mamba install -c conda-forge -c bioconda snakemake
           pip install pytest
           pip install pytest-cov
