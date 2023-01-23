@@ -19,8 +19,8 @@ def genome_collection_species():
     yield GenomeCollection(OUTPUT_FP, [2173])
 
 
-def test_genome_collection(genome_collection):
-    gc = genome_collection
+def test_genome_collection(genome_collection_species):
+    gc = genome_collection_species
     gc.dryrun()
     gc.collect()
 
@@ -32,8 +32,8 @@ def genome_collection_accessions():
     yield GenomeCollection(OUTPUT_FP, ["GCF_000007725.1"])
 
 
-def test_genome_collection(genome_collection):
-    gc = genome_collection
+def test_genome_collection(genome_collection_accessions):
+    gc = genome_collection_accessions
     gc.dryrun()
     gc.collect()
 
@@ -43,7 +43,7 @@ def genome_collection_local():
     yield GenomeCollection(OUTPUT_FP, "test-data/collected-genomes")
 
 
-def test_genome_collection(genome_collection):
-    gc = genome_collection
+def test_genome_collection(genome_collection_local):
+    gc = genome_collection_local
     gc.dryrun()
     gc.collect()
