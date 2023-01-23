@@ -27,8 +27,8 @@ jobs:
       
       - name: Setup Miniforge
         run: |
-          wget https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-x86_64.sh
-          bash Miniforge3-Linux-x86_64.sh -b
+          wget -O Mambaforge.sh  "https://github.com/conda-forge/miniforge/releases/latest/download/Mambaforge-$(uname)-$(uname -m).sh"
+          bash Mambaforge.sh -b -p "${HOME}/conda"
 
       - name: Install Dependencies
         run: |
