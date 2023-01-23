@@ -55,6 +55,7 @@ class CommandTests(unittest.TestCase):
             ]
         )
 
+        self.assertEqual("", os.listdir(self.temp_dir))
         self.assertEqual(
             os.listdir(self.genomes_fp).sort(),
             [
