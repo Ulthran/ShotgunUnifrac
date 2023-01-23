@@ -20,11 +20,16 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v2
 
-      - name: setup-conda
-        # You may pin to the exact commit or the version.
-        # uses: s-weigand/setup-conda@945fd9e7c92f1efb12634ba552ee0b2ec140a5fd
-        uses: s-weigand/setup-conda@v1.1.0
+      #- name: setup-conda
+      #  # You may pin to the exact commit or the version.
+      #  # uses: s-weigand/setup-conda@945fd9e7c92f1efb12634ba552ee0b2ec140a5fd
+      #  uses: s-weigand/setup-conda@v1.1.0
       
+      - name: Setup Miniconda
+        run: |
+          wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
+          bash Miniconda3-latest-Linux-x86_64.sh -b
+
       - name: Install Dependencies
         run: |
           conda install -c conda-forge mamba=0.15.3
