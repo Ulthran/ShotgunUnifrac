@@ -1,4 +1,3 @@
-import os
 import pytest
 from src.CorGE.Genome import Genome, AccessionGenome, LocalGenome
 
@@ -32,19 +31,20 @@ def test_genome(genome):
     with pytest.raises(NotImplementedError) as e_info:
         g.download("/")
 
+
 #    assert g.is_downloaded("test-data/collected-genomes", True, True) == True
 #    assert g.is_downloaded("test-data/collected-genomes", True, False) == True
 #    assert g.is_downloaded("test-data/collected-genomes", False, True) == True
 #    assert g.is_downloaded("test-data/collected-genomes", False, False) == False
 
 
-#def test_accession_genome(accession_genome):
+# def test_accession_genome(accession_genome):
 #    g = accession_genome
 #    g.download("./")
 #    assert os.listdir() == ""
 
 
-#def test_local_genome(local_genome):
+# def test_local_genome(local_genome):
 #    g = local_genome
 #    g.download("./")
 #    assert os.listdir() == ""

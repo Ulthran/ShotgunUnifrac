@@ -12,24 +12,24 @@ from io import TextIOWrapper
 class GeneCollection:
     def __init__(
         self,
-        genomes_fp: str = os.path.join(os.getcwd(), "output/", "genomes/"),
-        output_fp: str = os.path.join(os.getcwd(), "output/"),
+        genomes: str = os.path.join(os.getcwd(), "output/", "genomes/"),
+        output: str = os.path.join(os.getcwd(), "output/"),
         file_type: str = "prot",
         name_type: str = "tx_id",
         outgroup: str = "2173",
     ) -> None:
-        self.genomes_fp = genomes_fp
-        if self.genomes_fp[-1] != "/":
-            self.genomes_fp += "/"
-        self.output_fp = output_fp
-        if self.output_fp[-1] != "/":
-            self.output_fp += "/"
+        self.genomes = genomes
+        if self.genomes[-1] != "/":
+            self.genomes += "/"
+        self.output = output
+        if self.output[-1] != "/":
+            self.output += "/"
         self.file_type = file_type
         self.name_type = name_type
         self.outgroup = outgroup
 
-        self.filtered_fp = os.path.join(self.output_fp, "filtered-sequences/")
-        self.merged_fp = os.path.join(self.output_fp, "merged-sequences/")
+        self.filtered_fp = os.path.join(self.output, "filtered-sequences/")
+        self.merged_fp = os.path.join(self.output, "merged-sequences/")
         if not os.path.exists(self.filtered_fp):
             logging.info("Making filtered sequences directory.")
             os.makedirs(self.filtered_fp)
@@ -37,22 +37,22 @@ class GeneCollection:
             logging.info("Making merged sequences directory.")
             os.makedirs(self.merged_fp)
 
-        self.filtered_nucl_fp = os.path.join(self.output_fp, "filtered-nucl-sequences/")
+        self.filtered_nucl_fp = os.path.join(self.output, "filtered-nucl-sequences/")
         if self.file_type == "nucl":
             if not os.path.exists(self.filtered_nucl_fp):
                 logging.info("Making filtered nucleotide sequences directory.")
                 os.makedirs(self.filtered_nucl_fp)
 
-        self.config_fp = os.path.join(self.output_fp, "config.yml")
+        self.config_fp = os.path.join(self.output, "config.yml")
         self.assembly_summary_fp = os.path.join(
-            "/".join(self.genomes_fp.split("/")[:-2]), "assembly_summary.txt"
+            "/".join(self.genomes.split("/")[:-2]), "assembly_summary.txt"
         )
 
     def filter_prot(self):
         """Filters SCCGs from protein files"""
-        prot_fps = [fp for fp in os.listdir(self.genomes_fp) if fp[-4:] == ".faa"]
+        prot_fps = [fp for fp in os.listdir(self.genomes) if fp[-4:] == ".faa"]
         prot_fps = self.__no_repeat_filter(prot_fps, self.filtered_fp)
-        prot_fps = [os.path.join(self.genomes_fp, fp) for fp in prot_fps]
+        prot_fps = [os.path.join(self.genomes, fp) for fp in prot_fps]
         logging.debug(f"Filtering: {prot_fps}")
 
         logging.info("Filtering sequences...")
@@ -85,8 +85,8 @@ class GeneCollection:
         """Filters SCCGs from nucleotide files, only runs if file_type is nucl"""
         if self.file_type == "nucl":
             nucl_fps = [
-                os.path.join(self.genomes_fp, fp)
-                for fp in os.listdir(self.genomes_fp)
+                os.path.join(self.genomes, fp)
+                for fp in os.listdir(self.genomes)
                 if fp[-4:] == ".fna"
             ]
 
@@ -170,7 +170,7 @@ class GeneCollection:
 
         cfg += f"# Method to build tree (supermat or genetree)\nALG: supermat\n"
 
-        cfg += f"# Directory to look for output data in\nDATA: {self.output_fp}"
+        cfg += f"# Directory to look for output data in\nDATA: {self.output}"
 
         with open(self.config_fp, "w") as f:
             f.write(cfg)

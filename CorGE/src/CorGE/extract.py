@@ -226,7 +226,7 @@ def extract_genes(args: dict):
     gc_args = {
         k: v
         for k, v in args.items()
-        if v and k in ["genomes_fp", "output_fp", "file_type", "name_type", "outgroup"]
+        if v and k in ["genomes", "output", "file_type", "name_type", "outgroup"]
     }
 
     gc = GeneCollection(**gc_args)

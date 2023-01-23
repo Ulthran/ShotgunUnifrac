@@ -27,7 +27,9 @@ class CommandTests(unittest.TestCase):
         self.collected_genomes_fp = os.path.join(self.data_dir, "collected-genomes")
 
         # extract_genes output
-        self.filtered_seqs_fp = os.path.join(self.temp_dir, "output", "filtered-sequences")
+        self.filtered_seqs_fp = os.path.join(
+            self.temp_dir, "output", "filtered-sequences"
+        )
         self.filtered_nucl_seqs_fp = os.path.join(
             self.temp_dir, "output", "filtered-nucl-sequences"
         )
