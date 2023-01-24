@@ -110,13 +110,13 @@ def main(argv=None):
     extract_genes_subparser.add_argument(
         "--genomes",
         type=dir_path,
-        help="Directory with collected genomes (curated with collect_genomes) (Default: ./genomes/)",
+        help="Directory with collected genomes (curated with collect_genomes) (Default: ./output/genomes/)",
     )
     extract_genes_subparser.add_argument(
         "-o",
         "--output",
         type=dir_path,
-        help="Directory to write output to (Default: ./)",
+        help="Directory to write output to (Default: ./output/)",
     )
     extract_genes_subparser.add_argument(
         "-t",
@@ -154,3 +154,5 @@ def main(argv=None):
 
     logging.basicConfig()
     args.func(args)
+
+    return main_parser
