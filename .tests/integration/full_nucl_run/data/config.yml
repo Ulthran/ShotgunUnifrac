@@ -8,4 +8,3 @@ TYPE: nucl
 # Method to build tree (supermat or genetree)
 ALG: supermat
 # Directory to look for output data in
-DATA: full_nucl_run/data/

@@ -8,4 +8,3 @@ TYPE: prot
 # Method to build tree (supermat or genetree)
 ALG: supermat
 # Directory to look for output data in
-DATA: ../../.tests/integration/full_supermatrix_run/data/
