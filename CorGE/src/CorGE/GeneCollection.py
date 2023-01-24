@@ -108,7 +108,9 @@ class GeneCollection:
                         with open(matching_nucl_fp) as g:
                             self.__write_sequence(f, g, query)
                 except IndexError as e:
-                    logging.debug(f"File {fp} doesn't meet naming standards, skipping...")
+                    logging.debug(
+                        f"File {fp} doesn't meet naming standards, skipping..."
+                    )
 
     def merge(self):
         """Merges filtered sequences into per-SCCG files"""
