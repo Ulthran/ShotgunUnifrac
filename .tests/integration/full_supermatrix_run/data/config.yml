@@ -1,6 +1,11 @@
 # Config file for tree building pipeline
 # Genes to build trees from
 GENES: ["COG0012", "COG0016", "COG0018", ]
+# Outgroup to use for rooting, false if outgroup rooting shouldn't be used
 OUTGROUP: 2173
+# File type contained in merged-sequences (prot or nucl)
 TYPE: prot
+# Method to build tree (supermat or genetree)
 ALG: supermat
+# Directory to look for output data in
+DATA: .tests/integration/full_supermatrix_run/data/
