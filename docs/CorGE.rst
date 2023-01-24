@@ -5,6 +5,5 @@ CorGE Usage Guide
 =====================
 
 .. argparse::
-   :filename: ../CorGE/src/CorGE/command.py
-   :func: main
+   :ref: CorGE.src.CorGE.command.main
    :prog: CorGE
