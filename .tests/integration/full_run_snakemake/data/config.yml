@@ -8,4 +8,4 @@ TYPE: prot
 # Method to build tree (supermat or genetree)
 ALG: genetree
 # Directory to look for output data in
-DATA: .tests/integration/full_run_snakemake/data/
+DATA: ../.tests/integration/full_run_snakemake/data/
