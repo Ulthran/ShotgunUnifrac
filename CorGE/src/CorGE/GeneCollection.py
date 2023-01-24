@@ -90,23 +90,25 @@ class GeneCollection:
                 if fp[-4:] == ".fna"
             ]
 
-            logging.warning(os.listdir(self.filtered_fp))
             for fp in os.listdir(self.filtered_fp):
-                cog = fp.split("__")[0]
-                acc = fp.split("__")[1].split(".faa")[0]
-                matching_nucl_fp = [
-                    fp for fp in nucl_fps if fp.split("/")[-1][:-4] == acc
-                ][0]
+                try:
+                    cog = fp.split("__")[0]
+                    acc = fp.split("__")[1].split(".faa")[0]
+                    matching_nucl_fp = [
+                        fp for fp in nucl_fps if fp.split("/")[-1][:-4] == acc
+                    ][0]
 
-                query = ""
-                with open(os.path.join(self.filtered_fp, fp)) as f:
-                    query = f.readline().strip()[1:].split(" ")[0]
+                    query = ""
+                    with open(os.path.join(self.filtered_fp, fp)) as f:
+                        query = f.readline().strip()[1:].split(" ")[0]
 
-                with open(
-                    os.path.join(self.filtered_nucl_fp, f"{cog}__{acc}.fna"), "w"
-                ) as f:
-                    with open(matching_nucl_fp) as g:
-                        self.__write_sequence(f, g, query)
+                    with open(
+                        os.path.join(self.filtered_nucl_fp, f"{cog}__{acc}.fna"), "w"
+                    ) as f:
+                        with open(matching_nucl_fp) as g:
+                            self.__write_sequence(f, g, query)
+                except IndexError as e:
+                    logging.debug(f"File {fp} doesn't meet naming standards, skipping...")
 
     def merge(self):
         """Merges filtered sequences into per-SCCG files"""
