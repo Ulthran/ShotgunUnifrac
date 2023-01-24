@@ -41,6 +41,8 @@ def test_full_run():
                 "snakemake",
                 "all",
                 "-c",
+                "--conda-frontend",
+                "conda",
                 "--use-conda",
                 "--conda-prefix",
                 ".snakemake/",
