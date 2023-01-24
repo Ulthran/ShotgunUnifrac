@@ -28,7 +28,7 @@ def test_full_run():
             os.path.join(tmpdir, "merged-sequences/"),
         )
 
-        with open(os.path.join(tmpdir, "config.yml"), 'a') as f:
+        with open(os.path.join(tmpdir, "config.yml"), "a") as f:
             f.write(f"\nDATA: {tmpdir}")
 
         os.system("conda config --set channel_priority strict")
