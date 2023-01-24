@@ -90,6 +90,7 @@ class GeneCollection:
                 if fp[-4:] == ".fna"
             ]
 
+            logging.warning(os.listdir(self.filtered_fp))
             for fp in os.listdir(self.filtered_fp):
                 cog = fp.split("__")[0]
                 acc = fp.split("__")[1].split(".faa")[0]

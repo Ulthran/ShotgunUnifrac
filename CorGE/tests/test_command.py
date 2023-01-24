@@ -28,9 +28,7 @@ class CommandTests(unittest.TestCase):
         self.collected_genomes_fp = os.path.join(self.data_dir, "collected-genomes")
 
         # extract_genes output
-        self.filtered_seqs_fp = os.path.join(
-            self.temp_dir, "filtered-sequences"
-        )
+        self.filtered_seqs_fp = os.path.join(self.temp_dir, "filtered-sequences")
         self.filtered_nucl_seqs_fp = os.path.join(
             self.temp_dir, "filtered-nucl-sequences"
         )
@@ -102,7 +100,6 @@ class CommandTests(unittest.TestCase):
         import logging
 
         logging.warning(os.listdir(self.temp_dir))
-        logging.warning(os.listdir(self.output_dir))
 
         self.assertEqual(len(os.listdir(self.filtered_seqs_fp)), 488)
         self.assertEqual(len(os.listdir(self.merged_seqs_fp)), 41)
