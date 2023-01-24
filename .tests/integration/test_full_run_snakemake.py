@@ -41,6 +41,8 @@ def test_full_run():
                 "--use-conda",
                 "--conda-prefix",
                 ".snakemake/",
+                "--configfile",
+                os.path.join(tmpdir, "config.yml"),
                 "--directory",
                 tmpdir,
             ]

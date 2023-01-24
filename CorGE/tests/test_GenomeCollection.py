@@ -6,7 +6,7 @@ from . import *
 
 @pytest.fixture
 def genome_collection():
-    yield GenomeCollection()
+    yield GenomeCollection(OUTPUT_FP)
 
 
 def test_genome_collection(genome_collection):
@@ -14,18 +14,20 @@ def test_genome_collection(genome_collection):
     gc.dryrun()
     gc.collect()
 
+    assert os.listdir(GENOMES_FP) == []
+
 
 @pytest.fixture
 def genome_collection_species():
     yield GenomeCollection(OUTPUT_FP, [2173])
 
 
-def test_genome_collection(genome_collection_species):
+def test_genome_collection_species(genome_collection_species):
     gc = genome_collection_species
     gc.dryrun()
     gc.collect()
 
-    assert os.listdir(GENOMES_FP) == [""]
+    assert set(os.listdir(GENOMES_FP)) == set(["GCF_000016525.1.fna", "GCF_000016525.1.faa"])
 
 
 @pytest.fixture
@@ -33,10 +35,12 @@ def genome_collection_accessions():
     yield GenomeCollection(OUTPUT_FP, ["GCF_000007725.1"])
 
 
-def test_genome_collection(genome_collection_accessions):
+def test_genome_collection_accessions(genome_collection_accessions):
     gc = genome_collection_accessions
     gc.dryrun()
     gc.collect()
+
+    assert set(os.listdir(GENOMES_FP)) == set(["GCF_000007725.1.fna", "GCF_000007725.1.faa"])
 
 
 @pytest.fixture
@@ -44,7 +48,9 @@ def genome_collection_local():
     yield GenomeCollection(OUTPUT_FP, "test-data/collected-genomes")
 
 
-def test_genome_collection(genome_collection_local):
+def test_genome_collection_local(genome_collection_local):
     gc = genome_collection_local
     gc.dryrun()
     gc.collect()
+
+    assert set(os.listdir(GENOMES_FP)) == set(["GCF_000016525.1.fna", "GCF_000016525.1.faa"])
