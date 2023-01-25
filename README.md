@@ -1,7 +1,7 @@
 # ShotgunUnifrac
 
 <!--Begin status badges-->
-[![CI](https://github.com/Ulthran/ShotgunUnifrac/actions/workflows/main.yml/badge.svg)](https://github.com/Ulthran/ShotgunUnifrac/actions/workflows/main.yml)
+[![Tests](https://github.com/Ulthran/ShotgunUnifrac/actions/workflows/test.yml/badge.svg)](https://github.com/Ulthran/ShotgunUnifrac/actions/workflows/test.yml)
 [![codecov](https://codecov.io/gh/Ulthran/ShotgunUnifrac/branch/master/graph/badge.svg?token=N9KSWRS4XG)](https://codecov.io/gh/Ulthran/ShotgunUnifrac)
 [![Super-Linter](https://github.com/Ulthran/ShotgunUnifrac/actions/workflows/linter.yml/badge.svg)](https://github.com/Ulthran/ShotgunUnifrac/actions/workflows/linter.yml)
 [![Documentation Status](https://readthedocs.org/projects/shotgununifrac/badge/?version=stable)](https://shotgununifrac.readthedocs.io/en/stable/?badge=stable)
