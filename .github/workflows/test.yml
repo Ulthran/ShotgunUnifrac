@@ -1,0 +1,49 @@
+name: Tests
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+      - dev
+  schedule:
+    - cron: "0 13 * * 1"
+
+jobs:
+  test-all:
+    name: Test CorGE & Tree Building
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+
+      - name: setup-conda
+        uses: s-weigand/setup-conda@v1.1.0
+
+      - name: Install Dependencies
+        run: |
+          conda install -c conda-forge -c bioconda snakemake
+          pip install pytest
+          pip install pytest-cov
+
+      - name: Run Tests
+        run: |
+          cd CorGE
+          pip install -e .
+          pytest --cov .
+          cp .coverage ../
+          cd ..
+          conda list
+          pytest .tests/ # Test snakemake pipeline
+      
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+
+      
+          
+          
+
+

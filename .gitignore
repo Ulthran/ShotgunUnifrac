@@ -4,18 +4,13 @@
 __pycache__/
 logs/
 
-/nucleotide/
-/protein/
-/outgroup/
-/filtered-sequences/
-/filtered-nucl-sequences/
-/merged-sequences/
+.vscode/
 
+/output/
 /aligned-sequences/
 /supermatrices/
 /trees/
 
-assembly_summary.txt
 /RAxML_outgroupRootedTree.final
 /RAxML_midpointRootedTree.final
 

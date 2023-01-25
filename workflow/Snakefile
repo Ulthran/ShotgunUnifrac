@@ -1,4 +1,11 @@
-configfile: "config.yml"
+import os
+
+
+if not config:
+    raise SystemExit(
+        "No config file specified. Use CorGE to generate a "
+        "config file, and specify with --configfile"
+    )
 
 
 container: "docker://ctbushman/shotguntree:latest"
@@ -22,15 +29,20 @@ rule all:
 
 rule align_fasta:
     input:
-        expand("merged-sequences/{gene}.fasta", gene=config["GENES"]),
+        expand(
+            os.path.join(config["DATA"], "merged-sequences/{gene}.fasta"),
+            gene=config["GENES"],
+        ),
     output:
         "aligned-sequences/{gene}.fasta",
     log:
         "logs/align_fasta/{gene}.log",
+    params:
+        data=config["DATA"],
     conda:
         "envs/muscle_env.yaml"
     shell:
-        "muscle -in merged-sequences/{wildcards.gene}.fasta -out aligned-sequences/{wildcards.gene}.fasta"
+        "muscle -in {params.data}/merged-sequences/{wildcards.gene}.fasta -out aligned-sequences/{wildcards.gene}.fasta"
 
 
 rule reduce_alignments_stats:
@@ -154,6 +166,7 @@ rule midpoint_root_tree:
     input:
         "trees/iqtree.treefile",
     output:
+        config["DATA"],
         "RAxML_midpointRootedTree.final",
     log:
         "logs/root_tree/RAxML_rootedTree.final.log",

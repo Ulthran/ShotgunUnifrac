@@ -12,9 +12,11 @@ def enumerate1(xs):
     for n, x in enumerate(xs):
         yield (n + 1), x
 
+
 def range1(stop):
     for n in range(stop):
         yield (n + 1)
+
 
 class MSA:
     def __init__(self, descs, cols):
@@ -42,9 +44,13 @@ class MSA:
         return map(fcn, self.cols)
 
     column_stats_header = [
-            "column_position", "number_of_values", "gaps_proportion",
-            "entropy", "consensus_value", "consensus_proportion",
-        ]
+        "column_position",
+        "number_of_values",
+        "gaps_proportion",
+        "entropy",
+        "consensus_value",
+        "consensus_proportion",
+    ]
 
     column_stats_fmt = "{0}\t{1}\t{2:1.2f}\t{3:1.4f}\t{4}\t{5:1.2f}"
 
@@ -60,7 +66,7 @@ class MSA:
                     "gaps_proportion": 1.0,
                     "entropy": 0.0,
                     "consensus_value": "-",
-                    "consensus_proportion": 1.0
+                    "consensus_proportion": 1.0,
                 }
                 continue
             ctr = collections.Counter(col)
@@ -85,10 +91,11 @@ class MSA:
     def from_seqs(cls, seqs):
         descs, seqvals = list(zip(*seqs))
         cols = [
-            strcat(col_chars) for col_chars
-            in itertools.zip_longest(*seqvals, fillvalue="-")
+            strcat(col_chars)
+            for col_chars in itertools.zip_longest(*seqvals, fillvalue="-")
         ]
         return cls(descs, cols)
+
 
 def shannon(cts):
     cts = [c for c in cts if c > 0]
@@ -102,7 +109,8 @@ def shannon(cts):
 
 
 def strcat(xs):
-    return ''.join(xs)
+    return "".join(xs)
+
 
 def parse_fasta(f, trim_desc=False):
     f = iter(f)
@@ -122,6 +130,8 @@ def parse_fasta(f, trim_desc=False):
             line = line.replace(" ", "").replace("U", "T").replace(".", "-")
             seq.write(line)
     yield desc, seq.getvalue()
+
+
 with open(str(snakemake.input)) as f_in, open(str(snakemake.output), "w") as f_out:
     seqs = parse_fasta(f_in)
     msa = MSA.from_seqs(seqs)
