@@ -34,22 +34,18 @@ For the `CorGE` package,
 For the tree building Snakemake workflow,
 
     pytest .tests/
-    snakemake --lint
-    snakefmt workflow/Snakefile
-    
-N.B. The linting and formatting steps are optional, you should run them on any contributions you want to make to the codebase, if you want to run snakefmt it must be installed with `pip install snakefmt`
 
 ## Running
 
 To download and collect genomes for tree building,
 
-    CorGE collect_genomes ./ --ncbi_species LIST_OF_TXIDS.txt --ncbi_accessions LIST_OF_ACCS.txt --local /path/to/local/db
+    CorGE collect_genomes --ncbi_species LIST_OF_TXIDS.txt --ncbi_accessions LIST_OF_ACCS.txt --local /path/to/local/db
 
 And then to filter out genes of interest and curate everything for tree building,
 
-    CorGE extract_genes ./
+    CorGE extract_genes
 
-The default `--type` behavior is 'prot' so that can be left off or switched to 'nucl' if you want to build trees based on nucleotide sequences. Finally to generate the tree, make sure you're in the directory with all the output from the previous step and run,
+The default `--file_type` behavior is 'prot' so that can be left off or switched to 'nucl' if you want to build trees based on nucleotide sequences. Finally to generate the tree, make sure you're in the directory with all the output from the previous step and run,
 
     snakemake -c --use-conda --conda-prefix .snakemake/
 
