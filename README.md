@@ -51,4 +51,4 @@ The default `--file_type` behavior is 'prot' so that can be left off or switched
 
 This should output a file called `RAxML_supermatrixRootedTree.final` which contains the final tree
 
-A worked example is given in the [docs](https://shotgununifrac.readthedocs.io/en/latest/quickstart.html).
+A worked example is given in the [docs](https://shotgununifrac.readthedocs.io/en/stable/quickstart.html).
