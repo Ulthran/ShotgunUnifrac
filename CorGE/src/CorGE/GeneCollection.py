@@ -192,6 +192,8 @@ class GeneCollection:
                     cutoffs[line[0]] = float(line[1])
 
         baseurl = "https://github.com/motu-tool/fetchMGs/raw/master/lib/{}.hmm"
+        # https://github.com/merenlab/anvio/tree/master/anvio/data/hmm/Bacteria_71
+        # https://www.ebi.ac.uk/interpro/download/pfam/
 
         hmms = []
         for cog in cutoffs:
