@@ -9,6 +9,10 @@
       "automerge": true
     }
   ],
+  "labels": [
+    "renovate",
+    "dependencies"
+  ],
   "regexManagers": [
     {
       "description": "Upgrade conda dependencies",
