@@ -1,0 +1,24 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:base"
+  ],
+  "packageRules": [
+    {
+      "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
+      "automerge": true
+    }
+  ],
+  "regexManagers": [
+    {
+      "description": "Upgrade conda dependencies",
+      "fileMatch": [
+        "^(?:workflow/envs/)?\\w+\\.yaml$"
+      ],
+      "matchStrings": [
+        "# renovate datasource=conda\\sdepName=(?<depName>.*?)\\s+- [a-z0-9]+==\"?(?<currentValue>.*)\"?"
+      ],
+      "datasourceTemplate": "conda"
+    }
+  ]
+}
