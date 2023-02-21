@@ -3,4 +3,5 @@ channels:
   - conda-forge
 dependencies:
   - conda-forge::libgcc-ng>=9.4.0
+  # renovate datasource=conda depName=bioconda/iqtree
   - bioconda::iqtree=2.2.0_beta
