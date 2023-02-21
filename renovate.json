@@ -13,7 +13,7 @@
     {
       "description": "Upgrade conda dependencies",
       "fileMatch": [
-        "^(?:workflow/envs/)?\\w+\\.yaml$"
+        "workflow\/envs\/.*yaml"
       ],
       "matchStrings": [
         "# renovate datasource=conda\\sdepName=(?<depName>.*?)\\s+- [a-z0-9]+==\"?(?<currentValue>.*)\"?"
