@@ -40,7 +40,7 @@ rule align_fasta:
     params:
         data=config["DATA"],
     conda:
-        "envs/muscle_env.yaml"
+        "envs/muscle.yaml"
     shell:
         "muscle -in {params.data}/merged-sequences/{wildcards.gene}.fasta -out aligned-sequences/{wildcards.gene}.fasta"
 
@@ -76,7 +76,7 @@ rule create_trees:
     log:
         "logs/prot_create_trees/RAxML_bestTree.{gene}.log",
     conda:
-        "envs/raxml_env.yaml"
+        "envs/raxml.yaml"
     params:
         alg="PROTCATLG" if config["TYPE"] == "prot" else "GTRCAT",
     shell:
@@ -93,7 +93,7 @@ rule merge_trees:
     log:
         "logs/merge_trees/final.rooted.log",
     conda:
-        "envs/openjdk_env.yaml"
+        "envs/openjdk.yaml"
     shell:
         "cat {input} > trees/merged.in && "
         "java -jar Astral/astral.5.7.8.jar -i trees/merged.in -o trees/final.unrooted 2>logs/merge_trees/final.unrooted.out.log"
@@ -107,7 +107,7 @@ rule infer_weights:
     log:
         "logs/infer_weights/iqtree.treefile.log",
     conda:
-        "envs/iqtree_env.yaml"
+        "envs/iqtree.yaml"
     params:
         ref=config["GENES"][0],
         alg="-m MFP" if config["TYPE"] == "prot" else "-m HKY+F",
@@ -134,7 +134,7 @@ rule supermat_root_tree:
     log:
         "logs/create_trees/RAxML_supermatrixRootedTree.final.log",
     conda:
-        "envs/raxml_env.yaml"
+        "envs/raxml.yaml"
     params:
         alg="PROTCATLG" if config["TYPE"] == "prot" else "GTRCAT",
         outgroup=config["OUTGROUP"],
@@ -155,7 +155,7 @@ rule outgroup_root_tree:
         alg="PROTCATLG" if config["TYPE"] == "prot" else "GTRCAT",
         outgroup=config["OUTGROUP"],
     conda:
-        "envs/raxml_env.yaml"
+        "envs/raxml.yaml"
     shell:
         "cd trees/ && "
         "raxmlHPC -s ../aligned-sequences/{params.ref}.fasta -o {params.outgroup} -m {params.alg} -t iqtree.treefile -n final && "
@@ -174,7 +174,7 @@ rule midpoint_root_tree:
         ref=config["GENES"][0],
         alg="PROTCATLG" if config["TYPE"] == "prot" else "GTRCAT",
     conda:
-        "envs/raxml_env.yaml"
+        "envs/raxml.yaml"
     shell:
         "cd trees/ && "
         "raxmlHPC -f I -m {params.alg} -t iqtree.treefile -n final && "
