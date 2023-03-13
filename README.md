@@ -1,6 +1,7 @@
 # ShotgunUnifrac
 
 <!--Begin status badges-->
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/5f4754eb45e54419801b7ce3fe896dc9)](https://app.codacy.com/gh/Ulthran/ShotgunUnifrac?utm_source=github.com&utm_medium=referral&utm_content=Ulthran/ShotgunUnifrac&utm_campaign=Badge_Grade_Settings)
 [![Tests](https://github.com/Ulthran/ShotgunUnifrac/actions/workflows/test.yml/badge.svg)](https://github.com/Ulthran/ShotgunUnifrac/actions/workflows/test.yml)
 [![codecov](https://codecov.io/gh/Ulthran/ShotgunUnifrac/branch/master/graph/badge.svg?token=N9KSWRS4XG)](https://codecov.io/gh/Ulthran/ShotgunUnifrac)
 [![Super-Linter](https://github.com/Ulthran/ShotgunUnifrac/actions/workflows/linter.yml/badge.svg)](https://github.com/Ulthran/ShotgunUnifrac/actions/workflows/linter.yml)
