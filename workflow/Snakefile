@@ -83,7 +83,7 @@ rule create_trees:
         "envs/raxml_env.yaml"
     params:
         alg="PROTCATLG" if config["TYPE"] == "prot" else "GTRCAT",
-        out=config["DATA"]
+        out=config["DATA"],
     shell:
         "raxmlHPC -s ../{input} -m {params.alg} -n {wildcards.gene} -p 392781 -w {params.out} 2>&1 | tee {log}"
 
@@ -117,7 +117,7 @@ rule infer_weights:
     params:
         ref=config["GENES"][0],
         alg="-m MFP" if config["TYPE"] == "prot" else "-m HKY+F",
-        out=config["DATA"]
+        out=config["DATA"],
     shell:
         "iqtree -s {params.out}/aligned-sequences/{params.ref}.fasta -pre {params.out}/trees/iqtree {params.alg} -g {input} 2>&1 | tee {log}"
 
@@ -145,7 +145,7 @@ rule supermat_root_tree:
     params:
         alg="PROTCATLG" if config["TYPE"] == "prot" else "GTRCAT",
         outgroup=config["OUTGROUP"],
-        out=config["DATA"]
+        out=config["DATA"],
     shell:
         "raxmlHPC -s {input} -o {params.outgroup} -m {params.alg} -n supermatrix -p 392781 -w {params.out} 2>&1 | tee {log}"
 
@@ -161,7 +161,7 @@ rule outgroup_root_tree:
         ref=config["GENES"][0],
         alg="PROTCATLG" if config["TYPE"] == "prot" else "GTRCAT",
         outgroup=config["OUTGROUP"],
-        out=config["DATA"]
+        out=config["DATA"],
     conda:
         "envs/raxml_env.yaml"
     shell:
@@ -178,7 +178,7 @@ rule midpoint_root_tree:
     params:
         ref=config["GENES"][0],
         alg="PROTCATLG" if config["TYPE"] == "prot" else "GTRCAT",
-        out=config["DATA"]
+        out=config["DATA"],
     conda:
         "envs/raxml_env.yaml"
     shell:

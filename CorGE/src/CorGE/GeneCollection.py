@@ -6,7 +6,6 @@ import os
 import pyhmmer.plan7
 import pyhmmer.easel
 import tqdm
-import urllib.request
 import wget
 from io import TextIOWrapper
 
@@ -188,18 +187,18 @@ class GeneCollection:
     def __run_hmmscan(self, proteins: list) -> list:
         ### Example from pyhmmer docs
         ### Only uses ~40 SCCGs
-        #url = "https://github.com/motu-tool/fetchMGs/raw/master/lib/MG_BitScoreCutoffs.allhits.txt"
+        # url = "https://github.com/motu-tool/fetchMGs/raw/master/lib/MG_BitScoreCutoffs.allhits.txt"
 
-        #cutoffs = {}
-        #with urllib.request.urlopen(url) as f:
+        # cutoffs = {}
+        # with urllib.request.urlopen(url) as f:
         #    for line in csv.reader(TextIOWrapper(f), dialect="excel-tab"):
         #        if not line[0].startswith("#"):
         #            cutoffs[line[0]] = float(line[1])
 
-        #baseurl = "https://github.com/motu-tool/fetchMGs/raw/master/lib/{}.hmm"
+        # baseurl = "https://github.com/motu-tool/fetchMGs/raw/master/lib/{}.hmm"
 
-        #hmms = []
-        #for cog in cutoffs:
+        # hmms = []
+        # for cog in cutoffs:
         #    with urllib.request.urlopen(baseurl.format(cog)) as f:
         #        hmm = next(pyhmmer.plan7.HMMFile(f))
         #        cutoff = cutoffs[hmm.name.decode()]
@@ -214,9 +213,9 @@ class GeneCollection:
         if not os.path.exists(self.hmm_fp):
             self.hmm_fp = wget.download(baseurl, out=self.output)
         with gzip.open(self.hmm_fp) as f:
-                hmm_set = pyhmmer.plan7.HMMFile(f)
-                for i in range(71):
-                    hmms.append(next(hmm_set))
+            hmm_set = pyhmmer.plan7.HMMFile(f)
+            for i in range(71):
+                hmms.append(next(hmm_set))
 
         Result = collections.namedtuple("Result", ["query", "cog", "bitscore"])
 

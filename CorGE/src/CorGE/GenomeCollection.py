@@ -13,7 +13,6 @@ class GenomeCollection:
         ncbi_accessions: list = list(),
         local_fp: str = "",
     ) -> None:
-
         self.output_fp = output_fp
         if self.output_fp[-1] != "/":
             self.output_fp += "/"
