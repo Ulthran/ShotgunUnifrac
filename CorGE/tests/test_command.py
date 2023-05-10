@@ -101,11 +101,11 @@ class CommandTests(unittest.TestCase):
 
         logging.warning(os.listdir(self.temp_dir))
 
-        self.assertGreater(len(os.listdir(self.filtered_seqs_fp)), 475)
-        self.assertEqual(len(os.listdir(self.merged_seqs_fp)), 41)
+        self.assertGreater(len(os.listdir(self.filtered_seqs_fp)), 1000)
+        self.assertEqual(len(os.listdir(self.merged_seqs_fp)), 71)
 
         with open(
-            os.path.join(self.filtered_seqs_fp, "COG0012__GCF_000007725.1.faa")
+            os.path.join(self.filtered_seqs_fp, "Adenylsucc_synt__GCF_000007725.1.faa")
         ) as f:
             self.assertEqual(
                 next(f).strip(),
@@ -133,7 +133,7 @@ class CommandTests(unittest.TestCase):
         self.assertEqual(len(os.listdir(self.merged_seqs_fp)), 41)
 
         with open(
-            os.path.join(self.filtered_nucl_seqs_fp, "COG0012__GCF_000007725.1.fna")
+            os.path.join(self.filtered_nucl_seqs_fp, "Adenylsucc_synt__GCF_000007725.1.fna")
         ) as f:
             self.assertEqual(
                 next(f).strip(),

@@ -17,20 +17,20 @@ def test_gene_collection(gene_collection):
     gc.filter_prot()
     assert set(
         [
-            "COG0012__GCF_000016525.1.faa",
-            "COG0012__GCF_000007725.1.faa",
-            "COG0541__GCF_000016525.1.faa",
+            "Adenylsucc_synt__GCF_000016525.1.faa",
+            "ADK__GCF_000007725.1.faa",
+            "YajC__GCF_000016525.1.faa",
         ]
     ).issubset(set(os.listdir(FILTERED_FP)))
     gc.filter_nucl()
     assert set(
         [
-            "COG0012__GCF_000016525.1.fna",
-            "COG0012__GCF_000007725.1.fna",
-            "COG0541__GCF_000016525.1.fna",
+            "Adenylsucc_synt__GCF_000016525.1.fna",
+            "ADK__GCF_000007725.1.fna",
+            "YajC__GCF_000016525.1.fna",
         ]
     ).issubset(set(os.listdir(FILTERED_NUCL_FP)))
     gc.merge()
-    assert len(os.listdir(MERGED_FP)) == 41
+    assert len(os.listdir(MERGED_FP)) == 71
     gc.write_config()
     assert "config.yml" in os.listdir(OUTPUT_FP)
