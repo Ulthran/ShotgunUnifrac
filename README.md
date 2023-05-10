@@ -47,7 +47,7 @@ And then to filter out genes of interest and curate everything for tree building
 
 The default `--file_type` behavior is 'prot' so that can be left off or switched to 'nucl' if you want to build trees based on nucleotide sequences. Finally to generate the tree, make sure you're in the directory with all the output from the previous step and run,
 
-    snakemake -c --use-conda --conda-prefix .snakemake/
+    snakemake -c --use-conda --conda-prefix .snakemake/ --configfile /path/to/project/config.yml
 
 This should output a file called `RAxML_supermatrixRootedTree.final` which contains the final tree
 

@@ -155,4 +155,4 @@ def main(argv=None):
     logging.basicConfig()
     args.func(args)
 
-    return main_parser
+    #return main_parser

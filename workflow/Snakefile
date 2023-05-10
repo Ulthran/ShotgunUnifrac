@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 
 
 if not config:
@@ -11,14 +12,17 @@ if not config:
 container: "docker://ctbushman/shotguntree:latest"
 
 
+DATA_FP = Path(config["DATA"])
+
+
 TARGET = (
     (
-        "RAxML_supermatrixRootedTree.final"
+        DATA_FP / "RAxML_bestTree.supermatrix"
         if config["ALG"] == "supermat"
-        else "RAxML_outgroupRootedTree.final"
+        else DATA_FP / "RAxML_bestTree.outgroup"
     )
     if config["OUTGROUP"]
-    else "RAxML_midpointRootedTree.final"
+    else DATA_FP / "RAxML_bestTree.midpoint"
 )
 
 
@@ -30,152 +34,152 @@ rule all:
 rule align_fasta:
     input:
         expand(
-            os.path.join(config["DATA"], "merged-sequences/{gene}.fasta"),
+            DATA_FP / "merged-sequences" / "{gene}.fasta",
             gene=config["GENES"],
         ),
     output:
-        "aligned-sequences/{gene}.fasta",
+        DATA_FP / "aligned-sequences" / "{gene}.fasta",
     log:
-        "logs/align_fasta/{gene}.log",
+        DATA_FP / "logs" / "align_fasta" / "{gene}.log",
     params:
         data=config["DATA"],
     conda:
         "envs/muscle_env.yaml"
     shell:
-        "muscle -in {params.data}/merged-sequences/{wildcards.gene}.fasta -out aligned-sequences/{wildcards.gene}.fasta"
+        "muscle -in {params.data}/merged-sequences/{wildcards.gene}.fasta -out {params.data}/aligned-sequences/{wildcards.gene}.fasta 2>&1 | tee {log}"
 
 
 rule reduce_alignments_stats:
     input:
-        "aligned-sequences/{gene}.fasta",
+        DATA_FP / "aligned-sequences" / "{gene}.fasta",
     output:
-        "aligned-sequences/{gene}.stats",
+        DATA_FP / "aligned-sequences" / "{gene}.stats",
     log:
-        "logs/reduce_alignments/{gene}-stats.log",
+        DATA_FP / "logs" / "reduce_alignments" / "{gene}-stats.log",
     script:
         "scripts/reduce_alignments_stats.py"
 
 
 rule reduce_alignments:
     input:
-        seqs="aligned-sequences/{gene}.fasta",
-        stats="aligned-sequences/{gene}.stats",
+        seqs=DATA_FP / "aligned-sequences" / "{gene}.fasta",
+        stats=DATA_FP / "aligned-sequences" / "{gene}.stats",
     output:
-        "aligned-sequences/{gene}.reduced",
+        DATA_FP / "aligned-sequences" / "{gene}.reduced",
     log:
-        "logs/reduce_alignments/{gene}.log",
+        DATA_FP / "logs" / "reduce_alignments " / "{gene}.log",
     script:
         "scripts/reduce_alignments.py"
 
 
 rule create_trees:
     input:
-        "aligned-sequences/{gene}.fasta",
+        DATA_FP / "aligned-sequences" / "{gene}.fasta",
     output:
-        "trees/RAxML_bestTree.{gene}",
+        DATA_FP / "trees" / "RAxML_bestTree.{gene}",
     log:
-        "logs/prot_create_trees/RAxML_bestTree.{gene}.log",
+        DATA_FP / "logs" / "prot_create_trees" / "RAxML_bestTree.{gene}.log",
     conda:
         "envs/raxml_env.yaml"
     params:
         alg="PROTCATLG" if config["TYPE"] == "prot" else "GTRCAT",
+        out=config["DATA"]
     shell:
-        "cd trees/ && "
-        "raxmlHPC -s ../{input} -m {params.alg} -n {wildcards.gene} -p 392781 && "
-        "cd .."
+        "raxmlHPC -s ../{input} -m {params.alg} -n {wildcards.gene} -p 392781 -w {params.out} 2>&1 | tee {log}"
 
 
 rule merge_trees:
     input:
-        expand("trees/RAxML_bestTree.{gene}", gene=config["GENES"]),
+        expand(DATA_FP / "trees" / "RAxML_bestTree.{gene}", gene=config["GENES"]),
     output:
-        "trees/final.unrooted",
+        merged=DATA_FP / "trees" / "merged.in",
+        tree=DATA_FP / "trees" / "final.unrooted",
     log:
-        "logs/merge_trees/final.rooted.log",
+        DATA_FP / "logs" / "merge_trees" / "final.rooted.log",
     conda:
         "envs/openjdk_env.yaml"
     shell:
-        "cat {input} > trees/merged.in && "
-        "java -jar Astral/astral.5.7.8.jar -i trees/merged.in -o trees/final.unrooted 2>logs/merge_trees/final.unrooted.out.log"
+        """
+        cat {input} > {output.merged}
+        java -jar Astral/astral.5.7.8.jar -i {output.merged} -o {output.tree} 2>&1 | tee {log}
+        """
 
 
 rule infer_weights:
     input:
-        "trees/final.unrooted",
+        DATA_FP / "trees" / "final.unrooted",
     output:
-        "trees/iqtree.treefile",
+        DATA_FP / "trees" / "iqtree.treefile",
     log:
-        "logs/infer_weights/iqtree.treefile.log",
+        DATA_FP / "logs" / "infer_weights" / "iqtree.treefile.log",
     conda:
         "envs/iqtree_env.yaml"
     params:
         ref=config["GENES"][0],
         alg="-m MFP" if config["TYPE"] == "prot" else "-m HKY+F",
+        out=config["DATA"]
     shell:
-        "iqtree -s aligned-sequences/{params.ref}.fasta -pre trees/iqtree {params.alg} -g trees/final.unrooted"
+        "iqtree -s {params.out}/aligned-sequences/{params.ref}.fasta -pre {params.out}/trees/iqtree {params.alg} -g {input} 2>&1 | tee {log}"
 
 
 rule create_supermatrix:
     input:
-        expand("aligned-sequences/{gene}.reduced", gene=config["GENES"]),
+        expand(DATA_FP / "aligned-sequences" / "{gene}.reduced", gene=config["GENES"]),
     output:
-        "supermatrices/supermatrix.fasta",
+        DATA_FP / "supermatrices" / "supermatrix.fasta",
     log:
-        "logs/create_supermatrix/supermatrix.log",
+        DATA_FP / "logs" / "create_supermatrix" / "supermatrix.log",
     script:
         "scripts/create_supermatrix.py"
 
 
 rule supermat_root_tree:
     input:
-        alignment="supermatrices/supermatrix.fasta",
+        alignment=DATA_FP / "supermatrices" / "supermatrix.fasta",
     output:
-        "RAxML_supermatrixRootedTree.final",
+        DATA_FP / "RAxML_bestTree.supermatrix",
     log:
-        "logs/create_trees/RAxML_supermatrixRootedTree.final.log",
+        DATA_FP / "logs" / "create_trees" / "RAxML_supermatrixRootedTree.final.log",
     conda:
         "envs/raxml_env.yaml"
     params:
         alg="PROTCATLG" if config["TYPE"] == "prot" else "GTRCAT",
         outgroup=config["OUTGROUP"],
+        out=config["DATA"]
     shell:
-        "raxmlHPC -s {input} -o {params.outgroup} -m {params.alg} -n supermatrix -p 392781 && "
-        "mv RAxML_result.supermatrix {output}"
+        "raxmlHPC -s {input} -o {params.outgroup} -m {params.alg} -n supermatrix -p 392781 -w {params.out} 2>&1 | tee {log}"
 
 
 rule outgroup_root_tree:
     input:
-        "trees/iqtree.treefile",
+        DATA_FP / "trees" / "iqtree.treefile",
     output:
-        "RAxML_outgroupRootedTree.final",
+        DATA_FP / "RAxML_bestTree.outgroup",
     log:
-        "logs/root_tree/RAxML_rootedTree.final.log",
+        DATA_FP / "logs" / "root_tree" / "RAxML_rootedTree.final.log",
     params:
         ref=config["GENES"][0],
         alg="PROTCATLG" if config["TYPE"] == "prot" else "GTRCAT",
         outgroup=config["OUTGROUP"],
+        out=config["DATA"]
     conda:
         "envs/raxml_env.yaml"
     shell:
-        "cd trees/ && "
-        "raxmlHPC -s ../aligned-sequences/{params.ref}.fasta -o {params.outgroup} -m {params.alg} -t iqtree.treefile -n final && "
-        "mv RAxML_result.final ../{output}"
+        "raxmlHPC -s {params.out}/aligned-sequences/{params.ref}.fasta -o {params.outgroup} -m {params.alg} -t {input} -n outgroup -w {params.out} 2>&1 | tee {log}"
 
 
 rule midpoint_root_tree:
     input:
-        "trees/iqtree.treefile",
+        DATA_FP / "trees" / "iqtree.treefile",
     output:
-        config["DATA"],
-        "RAxML_midpointRootedTree.final",
+        DATA_FP / "RAxML_bestTree.midpoint",
     log:
-        "logs/root_tree/RAxML_rootedTree.final.log",
+        DATA_FP / "logs" / "root_tree" / "RAxML_rootedTree.final.log",
     params:
         ref=config["GENES"][0],
         alg="PROTCATLG" if config["TYPE"] == "prot" else "GTRCAT",
+        out=config["DATA"]
     conda:
         "envs/raxml_env.yaml"
     shell:
-        "cd trees/ && "
-        "raxmlHPC -f I -m {params.alg} -t iqtree.treefile -n final && "
-        "mv RAxML_result.final ../{output}"
+        "raxmlHPC -f I -m {params.alg} -t {input} -n midpoint -w {params.out} 2>&1 | tee {log}"

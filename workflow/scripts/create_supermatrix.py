@@ -1,10 +1,3 @@
-import os
-
-if not os.path.exists("supermatrices/"):
-    os.makedirs("supermatrices/")
-if os.path.isfile(snakemake.output[0]):
-    os.remove(snakemake.output[0])
-
 quasigenomes = {}
 for fp in snakemake.input:
     with open(fp) as f:
