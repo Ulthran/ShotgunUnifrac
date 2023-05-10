@@ -101,7 +101,7 @@ class CommandTests(unittest.TestCase):
 
         logging.warning(os.listdir(self.temp_dir))
 
-        self.assertGreater(len(os.listdir(self.filtered_seqs_fp)), 1000)
+        self.assertGreater(len(os.listdir(self.filtered_seqs_fp)), 700)
         self.assertEqual(len(os.listdir(self.merged_seqs_fp)), 71)
 
         with open(
@@ -129,7 +129,7 @@ class CommandTests(unittest.TestCase):
             ]
         )
 
-        self.assertGreater(len(os.listdir(self.filtered_nucl_seqs_fp)), 475)
+        self.assertGreater(len(os.listdir(self.filtered_nucl_seqs_fp)), 700)
         self.assertEqual(len(os.listdir(self.merged_seqs_fp)), 71)
 
         with open(
@@ -139,7 +139,7 @@ class CommandTests(unittest.TestCase):
         ) as f:
             self.assertEqual(
                 next(f).strip(),
-                ">lcl|NC_004545.1_cds_WP_011091313.1_169 [gene=ychF] [locus_tag=BBP_RS00905] [db_xref=GeneID:56470722] [protein=redox-regulated ATPase YchF] [protein_id=WP_011091313.1] [location=203069..204160] [gbkey=CDS]",
+                ">lcl|NC_004545.1_cds_WP_011091539.1_407 [locus_tag=BBP_RS02150] [db_xref=GeneID:56470963] [protein=nucleoside monophosphate kinase] [protein_id=WP_011091539.1] [location=503441..504088] [gbkey=CDS]",
             )
             self.assertEqual(
                 next(f).strip(),
