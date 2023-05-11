@@ -68,6 +68,8 @@ rule reduce_alignments:
         DATA_FP / "aligned-sequences" / "{gene}.reduced",
     log:
         DATA_FP / "logs" / "reduce_alignments " / "{gene}.log",
+    params:
+        bps=config["BPS"]
     script:
         "scripts/reduce_alignments.py"
 

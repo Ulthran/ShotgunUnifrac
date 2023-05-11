@@ -26,8 +26,8 @@ with open(str(snakemake.input.stats)) as f_stats, open(
         if float(l[2]) < 0.50 and float(l[3]) > 0.0:
             keepers.append((int(l[0]), float(l[3])))
 
-    keepers.sort(key=lambda t: t[1])  # Get 100 lowest entropy columns
-    keepers = keepers[:99]
+    keepers.sort(key=lambda t: t[1])  # Get n lowest entropy columns
+    keepers = keepers[:int(snakemake.params.bps)]
     keepers.sort(
         key=lambda t: t[0]
     )  # Order by column number to iterate through input fasta

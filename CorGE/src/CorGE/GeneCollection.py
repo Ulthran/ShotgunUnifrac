@@ -180,6 +180,8 @@ class GeneCollection:
 
         cfg += f"# Directory to look for output data in\nDATA: {self.output}"
 
+        cfg += f"# Number of basepairs to use from each gene when creating a supermatrix\nBPS: 100"
+
         with open(self.config_fp, "w") as f:
             f.write(cfg)
 
