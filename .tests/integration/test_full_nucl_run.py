@@ -48,8 +48,6 @@ def test_full_run():
                 ".snakemake/",
                 "--configfile",
                 os.path.join(tmpdir, "config.yml"),
-                #"--directory",
-                #tmpdir,
             ]
         )
 
