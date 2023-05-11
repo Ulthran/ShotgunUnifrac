@@ -7,12 +7,8 @@ logs/
 .vscode/
 
 /output/
-/aligned-sequences/
-/supermatrices/
-/trees/
 
-/RAxML_outgroupRootedTree.final
-/RAxML_midpointRootedTree.final
+Astral/
 
 # Python lib
 build/
