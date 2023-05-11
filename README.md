@@ -4,7 +4,6 @@
 [![Tests](https://github.com/Ulthran/ShotgunUnifrac/actions/workflows/test.yml/badge.svg)](https://github.com/Ulthran/ShotgunUnifrac/actions/workflows/test.yml)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/8a4d6355e9904ff0b120b2c276e438aa)](https://app.codacy.com/gh/Ulthran/ShotgunUnifrac/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
 [![codecov](https://codecov.io/gh/Ulthran/ShotgunUnifrac/branch/master/graph/badge.svg?token=N9KSWRS4XG)](https://codecov.io/gh/Ulthran/ShotgunUnifrac)
-[![Codacy Badge](https://app.codacy.com/project/badge/Grade/8a4d6355e9904ff0b120b2c276e438aa)](https://www.codacy.com/gh/Ulthran/ShotgunUnifrac/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=Ulthran/ShotgunUnifrac&amp;utm_campaign=Badge_Grade)
 [![Super-Linter](https://github.com/Ulthran/ShotgunUnifrac/actions/workflows/linter.yml/badge.svg)](https://github.com/Ulthran/ShotgunUnifrac/actions/workflows/linter.yml)
 [![Documentation Status](https://readthedocs.org/projects/shotgununifrac/badge/?version=stable)](https://shotgununifrac.readthedocs.io/en/stable/?badge=stable)
 <!--End status badges-->
