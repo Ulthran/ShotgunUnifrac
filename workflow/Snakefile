@@ -96,23 +96,23 @@ rule install_astral:
     conda:
         "envs/openjdk_env.yaml"
     shell:
-    """
-    if [ -d Astral/ ] then
-        echo "Astral already installed"
-    else
-        wget https://github.com/smirarab/ASTRAL/raw/master/Astral.5.7.8.zip
-        unzip Astral.5.7.8.zip
-        rm Astral.5.7.8.zip
-    fi
+        """
+        if [ -d Astral/ ] then
+            echo "Astral already installed"
+        else
+            wget https://github.com/smirarab/ASTRAL/raw/master/Astral.5.7.8.zip
+            unzip Astral.5.7.8.zip
+            rm Astral.5.7.8.zip
+        fi
 
-    touch {output}
-    """
+        touch {output}
+        """
 
 
 rule merge_trees:
     input:
         trees=expand(DATA_FP / "trees" / "RAxML_bestTree.{gene}", gene=config["GENES"]),
-        installed=DATA_FP / ".Astral.installed"
+        installed=DATA_FP / ".Astral.installed",
     output:
         merged=DATA_FP / "trees" / "merged.in",
         tree=DATA_FP / "trees" / "final.unrooted",
