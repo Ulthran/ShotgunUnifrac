@@ -7,4 +7,6 @@ OUTGROUP: 2173
 TYPE: nucl
 # Method to build tree (supermat or genetree)
 ALG: supermat
+# Number of basepairs to use from each gene when creating a supermatrix
+BPS: 100
 # Directory to look for output data in

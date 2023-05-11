@@ -48,13 +48,13 @@ def test_full_run():
                 ".snakemake/",
                 "--configfile",
                 os.path.join(tmpdir, "config.yml"),
-                "--directory",
-                tmpdir,
+                #"--directory",
+                #tmpdir,
             ]
         )
 
         # Check output
         if not os.path.exists(
-            os.path.join(str(tmpdir), "RAxML_outgroupRootedTree.final")
+            os.path.join(str(tmpdir), "RAxML_bestTree.outgroup")
         ):
-            raise ValueError("Full run did not produce RAxML_outgroupRootedTree.final")
+            raise ValueError("Full run did not produce RAxML_bestTree.outgroup")
