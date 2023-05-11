@@ -87,7 +87,7 @@ rule create_trees:
         alg="PROTCATLG" if config["TYPE"] == "prot" else "GTRCAT",
         out=config["DATA"],
     shell:
-        "raxmlHPC -s {input} -m {params.alg} -n {wildcards.gene} -p 392781 -w {params.out} 2>&1 | tee {log}"
+        "raxmlHPC -s {input} -m {params.alg} -n {wildcards.gene} -p 392781 -w {params.out}/trees 2>&1 | tee {log}"
 
 
 rule merge_trees:
