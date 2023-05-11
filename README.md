@@ -2,6 +2,7 @@
 
 <!--Begin status badges-->
 [![Tests](https://github.com/Ulthran/ShotgunUnifrac/actions/workflows/test.yml/badge.svg)](https://github.com/Ulthran/ShotgunUnifrac/actions/workflows/test.yml)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/8a4d6355e9904ff0b120b2c276e438aa)](https://app.codacy.com/gh/Ulthran/ShotgunUnifrac/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
 [![codecov](https://codecov.io/gh/Ulthran/ShotgunUnifrac/branch/master/graph/badge.svg?token=N9KSWRS4XG)](https://codecov.io/gh/Ulthran/ShotgunUnifrac)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/8a4d6355e9904ff0b120b2c276e438aa)](https://www.codacy.com/gh/Ulthran/ShotgunUnifrac/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=Ulthran/ShotgunUnifrac&amp;utm_campaign=Badge_Grade)
 [![Super-Linter](https://github.com/Ulthran/ShotgunUnifrac/actions/workflows/linter.yml/badge.svg)](https://github.com/Ulthran/ShotgunUnifrac/actions/workflows/linter.yml)
@@ -21,10 +22,10 @@ To install the `CorGE` library for downloading, extracting, and merging genes,
 
 ## Prereqs
 
-  1. Anaconda/miniconda (https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html#regular-installation)
-  2. Snakemake (https://snakemake.readthedocs.io/en/stable/getting_started/installation.html)
-  3. (For testing only) PyTest
-  4. (For containerization only) Singularity
+1.  Anaconda/miniconda (https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html#regular-installation)
+2.  Snakemake (https://snakemake.readthedocs.io/en/stable/getting_started/installation.html)
+3.  (For testing only) PyTest
+4.  (For containerization only) Singularity
 
 ## Running tests
 
@@ -48,7 +49,7 @@ And then to filter out genes of interest and curate everything for tree building
 
 The default `--file_type` behavior is 'prot' so that can be left off or switched to 'nucl' if you want to build trees based on nucleotide sequences. Finally to generate the tree, make sure you're in the directory with all the output from the previous step and run,
 
-    snakemake -c --use-conda --conda-prefix .snakemake/
+    snakemake -c --use-conda --conda-prefix .snakemake/ --configfile /path/to/project/config.yml
 
 This should output a file called `RAxML_supermatrixRootedTree.final` which contains the final tree
 

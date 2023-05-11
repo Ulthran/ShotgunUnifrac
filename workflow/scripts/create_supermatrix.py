@@ -1,22 +1,15 @@
-import os
-
-if not os.path.exists("supermatrices/"):
-    os.makedirs("supermatrices/")
-if os.path.isfile(snakemake.output[0]):
-    os.remove(snakemake.output[0])
-
 quasigenomes = {}
 for fp in snakemake.input:
     with open(fp) as f:
-        id = ""
+        gid = ""
         for l in f.readlines():
             if l[0] == ">":
-                id = l[2:].strip(" \n\r")
+                gid = l[2:].strip(" \n\r")
             else:
                 try:
-                    quasigenomes[id] += l.strip(" \n\r")
+                    quasigenomes[gid] += l.strip(" \n\r")
                 except KeyError:
-                    quasigenomes[id] = l.strip(" \n\r")
+                    quasigenomes[gid] = l.strip(" \n\r")
 
     max_row_len = max(map(len, quasigenomes.values()))
     for k, v in quasigenomes.items():  # Fill missed genes with blanks

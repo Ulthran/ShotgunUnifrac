@@ -6,14 +6,14 @@ def collect_genomes(args: dict):
         args["ncbi_species"] = [
             line.rstrip() for line in args["ncbi_species"].readlines()
         ]
-    except AttributeError as e:
-        None
+    except AttributeError:
+        pass
     try:
         args["ncbi_accessions"] = [
             line.rstrip() for line in args["ncbi_accessions"].readlines()
         ]
-    except AttributeError as e:
-        None
+    except AttributeError:
+        pass
 
     gc_args = {
         k: v

@@ -1,11 +1,12 @@
 import collections
 import csv
+import gzip
 import logging
 import os
 import pyhmmer.plan7
 import pyhmmer.easel
 import tqdm
-import urllib.request
+import wget
 from io import TextIOWrapper
 
 
@@ -47,6 +48,8 @@ class GeneCollection:
         self.assembly_summary_fp = os.path.join(
             "/".join(self.genomes.split("/")[:-2]), "assembly_summary.txt"
         )
+
+        self.hmm_fp = os.path.join(self.output, "genes.hmm.gz")
 
     def filter_prot(self):
         """Filters SCCGs from protein files"""
@@ -107,7 +110,7 @@ class GeneCollection:
                     ) as f:
                         with open(matching_nucl_fp) as g:
                             self.__write_sequence(f, g, query)
-                except IndexError as e:
+                except IndexError:
                     logging.debug(
                         f"File {fp} doesn't meet naming standards, skipping..."
                     )
@@ -177,29 +180,46 @@ class GeneCollection:
 
         cfg += f"# Directory to look for output data in\nDATA: {self.output}"
 
+        cfg += "# Number of basepairs to use from each gene when creating a supermatrix\nBPS: 100"
+
         with open(self.config_fp, "w") as f:
             f.write(cfg)
 
     # From pyhmmer docs https://pyhmmer.readthedocs.io/en/stable/examples/fetchmgs.html
-    @staticmethod
-    def __run_hmmscan(proteins: list) -> list:
-        url = "https://github.com/motu-tool/fetchMGs/raw/master/lib/MG_BitScoreCutoffs.allhits.txt"
+    def __run_hmmscan(self, proteins: list) -> list:
+        ### Example from pyhmmer docs
+        ### Only uses ~40 SCCGs
+        # url = "https://github.com/motu-tool/fetchMGs/raw/master/lib/MG_BitScoreCutoffs.allhits.txt"
 
-        cutoffs = {}
-        with urllib.request.urlopen(url) as f:
-            for line in csv.reader(TextIOWrapper(f), dialect="excel-tab"):
-                if not line[0].startswith("#"):
-                    cutoffs[line[0]] = float(line[1])
+        # cutoffs = {}
+        # with urllib.request.urlopen(url) as f:
+        #    for line in csv.reader(TextIOWrapper(f), dialect="excel-tab"):
+        #        if not line[0].startswith("#"):
+        #            cutoffs[line[0]] = float(line[1])
 
-        baseurl = "https://github.com/motu-tool/fetchMGs/raw/master/lib/{}.hmm"
+        # baseurl = "https://github.com/motu-tool/fetchMGs/raw/master/lib/{}.hmm"
+
+        # hmms = []
+        # for cog in cutoffs:
+        #    with urllib.request.urlopen(baseurl.format(cog)) as f:
+        #        hmm = next(pyhmmer.plan7.HMMFile(f))
+        #        cutoff = cutoffs[hmm.name.decode()]
+        #        hmm.cutoffs.trusted = (cutoff, cutoff)
+        #        hmms.append(hmm)
+        ### End example
+
+        baseurl = "https://github.com/merenlab/anvio/raw/master/anvio/data/hmm/Bacteria_71/genes.hmm.gz"
+        # https://www.ebi.ac.uk/interpro/download/pfam/
 
         hmms = []
-        for cog in cutoffs:
-            with urllib.request.urlopen(baseurl.format(cog)) as f:
-                hmm = next(pyhmmer.plan7.HMMFile(f))
-                cutoff = cutoffs[hmm.name.decode()]
-                hmm.cutoffs.trusted = (cutoff, cutoff)
-                hmms.append(hmm)
+        if not os.path.exists(self.hmm_fp):
+            self.hmm_fp = wget.download(baseurl, out=self.output)
+        with gzip.open(self.hmm_fp) as f:
+            hmm_set = pyhmmer.plan7.HMMFile(f)
+            i = 0
+            while i < 71:
+                hmms.append(next(hmm_set))
+                i += 1
 
         Result = collections.namedtuple("Result", ["query", "cog", "bitscore"])
 
@@ -312,7 +332,7 @@ class GeneCollection:
                     if line[accIndex] in accs_list:
                         ids[line[accIndex]] = line[idIndex]
                 except IndexError:
-                    None  # Incomplete assembly_summary entry
+                    pass  # Incomplete assembly_summary entry
 
         # Fill in names that didn't find a match
         for name in [name for name in accs.keys() if name not in ids.keys()]:

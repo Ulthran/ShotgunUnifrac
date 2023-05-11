@@ -28,7 +28,7 @@ def test_genome(genome):
     g = genome
     assert g.get_name() == "GCF_000016525.1"
 
-    with pytest.raises(NotImplementedError) as e_info:
+    with pytest.raises(NotImplementedError):
         g.download("/")
 
 
