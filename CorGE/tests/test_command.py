@@ -109,7 +109,7 @@ class CommandTests(unittest.TestCase):
         ) as f:
             self.assertEqual(
                 next(f).strip(),
-                ">WP_011091313.1 redox-regulated ATPase YchF [Buchnera aphidicola]",
+                ">WP_011091539.1 nucleoside monophosphate kinase [Buchnera aphidicola]",
             )
             self.assertEqual(
                 next(f).strip(),
