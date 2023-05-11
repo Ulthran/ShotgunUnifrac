@@ -1,8 +1,7 @@
 import os
 import pytest
-import shutil
 from src.CorGE.GeneCollection import GeneCollection
-from . import *
+from . import TEST_DATA_FP, OUTPUT_FP, FILTERED_FP, FILTERED_NUCL_FP, MERGED_FP
 
 
 @pytest.fixture

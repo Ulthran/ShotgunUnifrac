@@ -1,6 +1,5 @@
 import argparse
 import logging
-import os
 import sys
 from enum import Enum
 from pathlib import Path
@@ -42,11 +41,11 @@ def _extract_genes(args: argparse.Namespace):
     extract_genes(vars(args))
 
 
-def dir_path(dir: str):
-    if Path.is_dir(Path(dir)):
-        return dir
+def dir_path(d: str):
+    if Path.is_dir(Path(d)):
+        return d
     else:
-        raise argparse.ArgumentTypeError(f"readable_dir:{dir} is not a valid path")
+        raise argparse.ArgumentTypeError(f"readable_dir:{d} is not a valid path")
 
 
 def main(argv=None):
@@ -154,5 +153,3 @@ def main(argv=None):
 
     logging.basicConfig()
     args.func(args)
-
-    # return main_parser

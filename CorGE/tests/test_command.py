@@ -3,8 +3,6 @@ import shutil
 import tempfile
 import unittest
 
-from enum import Enum
-
 from CorGE.command import main
 
 

@@ -2,7 +2,7 @@ import os
 import pytest
 import shutil
 from src.CorGE.GenomeCollection import GenomeCollection
-from . import *
+from . import TEST_DATA_FP, OUTPUT_FP, GENOMES_FP
 
 
 @pytest.fixture

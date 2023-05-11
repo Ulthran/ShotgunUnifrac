@@ -9,8 +9,8 @@ class GenomeCollection:
     def __init__(
         self,
         output_fp: str = os.path.join(os.getcwd(), "output/"),
-        ncbi_species: list = list(),
-        ncbi_accessions: list = list(),
+        ncbi_species: list = [],
+        ncbi_accessions: list = [],
         local_fp: str = "",
     ) -> None:
         self.output_fp = output_fp
@@ -90,7 +90,7 @@ class GenomeCollection:
                             )
                         )
                 except IndexError:
-                    None  # Incomplete assembly_summary entry
+                    pass  # Incomplete assembly_summary entry
 
     def collect(self):
         """Downloads or copies all Genome objects in genomes to output_fp"""

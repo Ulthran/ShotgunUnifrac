@@ -10,7 +10,6 @@ sys.path.insert(0, os.path.dirname(__file__))
 
 
 def test_full_run():
-
     with TemporaryDirectory() as tmpdir_path:
         tmpdir = Path(tmpdir_path) / "workdir"
         os.makedirs(tmpdir)
@@ -52,9 +51,5 @@ def test_full_run():
         )
 
         # Check output
-        if not os.path.exists(
-            os.path.join(str(tmpdir), "RAxML_bestTree.supermatrix")
-        ):
-            raise ValueError(
-                "Full run did not produce RAxML_bestTree.supermatrix"
-            )
+        if not os.path.exists(os.path.join(str(tmpdir), "RAxML_bestTree.supermatrix")):
+            raise ValueError("Full run did not produce RAxML_bestTree.supermatrix")

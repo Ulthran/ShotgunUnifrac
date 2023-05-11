@@ -110,7 +110,7 @@ class GeneCollection:
                     ) as f:
                         with open(matching_nucl_fp) as g:
                             self.__write_sequence(f, g, query)
-                except IndexError as e:
+                except IndexError:
                     logging.debug(
                         f"File {fp} doesn't meet naming standards, skipping..."
                     )
@@ -330,7 +330,7 @@ class GeneCollection:
                     if line[accIndex] in accs_list:
                         ids[line[accIndex]] = line[idIndex]
                 except IndexError:
-                    None  # Incomplete assembly_summary entry
+                    pass  # Incomplete assembly_summary entry
 
         # Fill in names that didn't find a match
         for name in [name for name in accs.keys() if name not in ids.keys()]:

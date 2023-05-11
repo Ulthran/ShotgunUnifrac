@@ -20,10 +20,10 @@ To install the `CorGE` library for downloading, extracting, and merging genes,
 
 ## Prereqs
 
-  1. Anaconda/miniconda (https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html#regular-installation)
-  2. Snakemake (https://snakemake.readthedocs.io/en/stable/getting_started/installation.html)
-  3. (For testing only) PyTest
-  4. (For containerization only) Singularity
+1.  Anaconda/miniconda (https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html#regular-installation)
+2.  Snakemake (https://snakemake.readthedocs.io/en/stable/getting_started/installation.html)
+3.  (For testing only) PyTest
+4.  (For containerization only) Singularity
 
 ## Running tests
 
