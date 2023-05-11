@@ -176,7 +176,7 @@ class GeneCollection:
 
         cfg += f"# File type contained in merged-sequences (prot or nucl)\nTYPE: {self.file_type}\n"
 
-        cfg += f"# Method to build tree (supermat or genetree)\nALG: supermat\n"
+        cfg += "# Method to build tree (supermat or genetree)\nALG: supermat\n"
 
         cfg += f"# Directory to look for output data in\nDATA: {self.output}"
 
@@ -261,7 +261,7 @@ class GeneCollection:
                     f"Skipping protein filter step for {fp[:-4]} because all files already exist..."
                 )
             elif l > 0 and not os.path.exists(
-                os.path.join(filtered_fp, f".done_fp[:-4]")
+                os.path.join(filtered_fp, ".done_fp[:-4]")
             ):
                 logging.warning(
                     f"Found partial protein filter files for {fp[:-4]}, overwriting..."

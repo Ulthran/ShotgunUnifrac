@@ -47,8 +47,8 @@ class GenomeCollection:
 
     def dryrun(self):
         """Prints all the accessions and filepaths to be collected"""
-        accs = [g.get_name() for g in self.genomes if type(g) == AccessionGenome]
-        fps = [g.get_name() for g in self.genomes if type(g) == LocalGenome]
+        accs = [g.get_name() for g in self.genomes if isinstance(g, AccessionGenome)]
+        fps = [g.get_name() for g in self.genomes if isinstance(g, LocalGenome)]
         accs_len = len(accs)
         fps_len = len(fps)
         if accs_len > 50:
@@ -136,7 +136,7 @@ class GenomeCollection:
                         ret.append((line[accIndex], line[idIndex], line[urlIndex]))
                         tmp_species.remove(line[idIndex])
                 except IndexError:
-                    None  # Incomplete assembly_summary entry
+                    pass  # Incomplete assembly_summary entry
 
         return ret
 
