@@ -20,9 +20,6 @@ def test_full_run():
             os.path.join(tmpdir, "config.yml"),
         )
         shutil.copytree(
-            "Astral/", os.path.join(tmpdir, "Astral/")
-        )  # Would be better to have this defined in config
-        shutil.copytree(
             ".tests/integration/full_supermatrix_run/data/merged-sequences/",
             os.path.join(tmpdir, "merged-sequences/"),
         )

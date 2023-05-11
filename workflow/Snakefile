@@ -90,9 +90,29 @@ rule create_trees:
         "raxmlHPC -s {input} -m {params.alg} -n {wildcards.gene} -p 392781 -w {params.out}/trees 2>&1 | tee {log}"
 
 
+rule install_astral:
+    output:
+        DATA_FP / ".Astral.installed",
+    conda:
+        "envs/openjdk_env.yaml"
+    shell:
+        """
+        if [ -d Astral/ ] then
+            echo "Astral already installed"
+        else
+            wget https://github.com/smirarab/ASTRAL/raw/master/Astral.5.7.8.zip
+            unzip Astral.5.7.8.zip
+            rm Astral.5.7.8.zip
+        fi
+
+        touch {output}
+        """
+
+
 rule merge_trees:
     input:
-        expand(DATA_FP / "trees" / "RAxML_bestTree.{gene}", gene=config["GENES"]),
+        trees=expand(DATA_FP / "trees" / "RAxML_bestTree.{gene}", gene=config["GENES"]),
+        installed=DATA_FP / ".Astral.installed",
     output:
         merged=DATA_FP / "trees" / "merged.in",
         tree=DATA_FP / "trees" / "final.unrooted",
@@ -102,7 +122,7 @@ rule merge_trees:
         "envs/openjdk.yaml"
     shell:
         """
-        cat {input} > {output.merged}
+        cat {input.trees} > {output.merged}
         java -jar Astral/astral.5.7.8.jar -i {output.merged} -o {output.tree} 2>&1 | tee {log}
         """
 
