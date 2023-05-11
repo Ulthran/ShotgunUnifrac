@@ -94,7 +94,7 @@ rule install_astral:
     output:
         DATA_FP / ".Astral.installed",
     conda:
-        "envs/openjdk_env.yaml"
+        "envs/openjdk.yaml"
     shell:
         """
         if [ -d Astral/ ] then
