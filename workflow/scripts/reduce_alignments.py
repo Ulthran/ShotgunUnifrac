@@ -31,7 +31,6 @@ with open(str(snakemake.input.stats)) as f_stats, open(
     keepers.sort(
         key=lambda t: t[0]
     )  # Order by column number to iterate through input fasta
-    print(keepers)
 
     seqs = read_seqs(f_seq)
 

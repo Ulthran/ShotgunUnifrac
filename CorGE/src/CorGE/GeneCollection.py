@@ -180,7 +180,7 @@ class GeneCollection:
 
         cfg += f"# Directory to look for output data in\nDATA: {self.output}"
 
-        cfg += f"# Number of basepairs to use from each gene when creating a supermatrix\nBPS: 100"
+        cfg += "# Number of basepairs to use from each gene when creating a supermatrix\nBPS: 100"
 
         with open(self.config_fp, "w") as f:
             f.write(cfg)
@@ -216,8 +216,10 @@ class GeneCollection:
             self.hmm_fp = wget.download(baseurl, out=self.output)
         with gzip.open(self.hmm_fp) as f:
             hmm_set = pyhmmer.plan7.HMMFile(f)
-            for i in range(71):
+            i = 0
+            while i < 71:
                 hmms.append(next(hmm_set))
+                i += 1
 
         Result = collections.namedtuple("Result", ["query", "cog", "bitscore"])
 
