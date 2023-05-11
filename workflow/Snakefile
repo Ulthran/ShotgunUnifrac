@@ -97,7 +97,7 @@ rule install_astral:
         "envs/openjdk.yaml"
     shell:
         """
-        if [ -d Astral/ ] then
+        if [ -d Astral/ ]; then
             echo "Astral already installed"
         else
             wget https://github.com/smirarab/ASTRAL/raw/master/Astral.5.7.8.zip
