@@ -178,9 +178,9 @@ class GeneCollection:
 
         cfg += "# Method to build tree (supermat or genetree)\nALG: supermat\n"
 
-        cfg += f"# Directory to look for output data in\nDATA: {self.output}"
+        cfg += f"# Directory to look for output data in\nDATA: {self.output}\n"
 
-        cfg += "# Number of basepairs to use from each gene when creating a supermatrix\nBPS: 100"
+        cfg += "# Number of basepairs to use from each gene when creating a supermatrix\nBPS: 100\n"
 
         with open(self.config_fp, "w") as f:
             f.write(cfg)

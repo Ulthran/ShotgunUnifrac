@@ -161,7 +161,7 @@ class GenomeCollection:
                     if line[accIndex] in accs:
                         ret.append((line[accIndex], line[idIndex], line[urlIndex]))
                 except IndexError:
-                    None  # Incomplete assembly_summary entry
+                    pass  # Incomplete assembly_summary entry
 
         return ret
 
