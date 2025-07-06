@@ -1,5 +1,7 @@
 # ShotgunUnifrac
 
+DEPRECATED: See [sbx_shotgun_unifrac](https://github.com/sunbeam-labs/sbx_shotgun_unifrac).
+
 <!--Begin status badges-->
 [![Tests](https://github.com/Ulthran/ShotgunUnifrac/actions/workflows/test.yml/badge.svg)](https://github.com/Ulthran/ShotgunUnifrac/actions/workflows/test.yml)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/8a4d6355e9904ff0b120b2c276e438aa)](https://app.codacy.com/gh/Ulthran/ShotgunUnifrac/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
